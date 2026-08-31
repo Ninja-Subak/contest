@@ -1,50 +1,189 @@
-var SHEET_NAME = "contest";
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Suno 카페 노래 콘테스트</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 700px; margin: 30px auto; padding: 20px; background: #f8fafc; color: #1e293b; }
+        .card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        h2, h3 { margin-top: 0; color: #0f172a; font-weight: 800; }
+        .input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
+        input { padding: 12px 16px; font-size: 15px; border: 1px solid #cbd5e1; border-radius: 8px; }
+        button { padding: 12px 20px; font-size: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
+        
+        .submit-btn { background: #4f46e5; color: white; width: 100%; }
+        .submit-btn:hover { background: #4338ca; }
+        
+        .song-card { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 20px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .song-info { flex: 1; margin-right: 20px; overflow: hidden; }
+        .song-title { font-weight: 800; font-size: 18px; color: #1e293b; margin-bottom: 6px; }
+        .song-author { font-size: 14px; color: #64748b; }
+        
+        .action-group { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .listen-btn { background: #f1f5f9; color: #475569; }
+        .listen-btn:hover { background: #e2e8f0; }
+        
+        .vote-btn { background: #10b981; color: white; }
+        .vote-btn:hover { background: #059669; }
+        .vote-btn.voted { background: #94a3b8; cursor: not-allowed; }
 
-function doGet(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
-  var rows = sheet.getDataRange().getValues();
-  var headers = rows[0];
-  var data = [];
-  
-  for (var i = 1; i < rows.length; i++) {
-    var obj = {};
-    for (var j = 0; j < headers.length; j++) {
-      obj[headers[j]] = rows[i][j];
-    }
-    data.push(obj);
-  }
-  
-  return ContentService.createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
-}
+        .vote-count { font-weight: 800; color: #059669; margin-left: 10px; font-size: 16px; min-width: 50px; text-align: right; }
+        .header-box { text-align: center; margin-bottom: 30px; }
+        .header-box p { color: #64748b; font-size: 15px; line-height: 1.5; }
+        .loading { text-align: center; color: #64748b; padding: 20px; }
+    </style>
+</head>
+<body>
 
-function doPost(e) {
-  var lock = LockService.getScriptLock();
-  lock.tryLock(10000);
-  
-  try {
-    var params = JSON.parse(e.postData.contents);
-    var action = params.action;
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
-    
-    if (action === "add") {
-      var newId = new Date().getTime();
-      sheet.appendRow([newId, params.title, params.author, params.url, 0]);
-      
-    } else if (action === "vote") {
-      var rows = sheet.getDataRange().getValues();
-      for (var i = 1; i < rows.length; i++) {
-        if (rows[i][0] == params.id) {
-          var currentVotes = Number(rows[i][4]) || 0;
-          sheet.getRange(i + 1, 5).setValue(currentVotes + 1);
-          break;
+    <div class="header-box">
+        <h2>🎤 Suno 카페 노래 콘테스트</h2>
+        <p>참가자 분들은 직접 곡을 등록하고, 회원님들은 곡을 감상한 뒤 실시간으로 투표해 주세요!</p>
+    </div>
+
+    <!-- 곡 등록 카드 -->
+    <div class="card">
+        <h3>🎵 나만의 출품곡 등록하기</h3>
+        <div class="input-group">
+            <input type="text" id="authorName" placeholder="참가자 별명 (예: 닌자수박)" maxlength="20">
+            <input type="text" id="songTitle" placeholder="노래 제목 (예: 우주를 건너서)" maxlength="30">
+            <input type="text" id="sunoUrl" placeholder="수노 링크 (예: https://suno.com/s/...)">
+        </div>
+        <button type="button" onclick="registerSong()" class="submit-btn">콘테스트 곡 제출하기</button>
+    </div>
+
+    <!-- 실시간 목록 및 투표 카드 -->
+    <div class="card">
+        <h3>🏆 실시간 출품곡 목록 및 투표</h3>
+        <div id="contestList">
+            <div class="loading">데이터를 불러오는 중입니다...</div>
+        </div>
+    </div>
+
+    <script>
+        // 백엔드 웹 앱 URL 설정
+        const API_URL = "https://script.google.com/macros/s/AKfycbw0IXGY7yN5ox8T9WJvuqVH6K8Cu-0VmQHgl1rM9L9IoIYVfn4GifjjPyNP4KE5lsq/exec";
+
+        let songs = [];
+        let hasVoted = localStorage.getItem('sunoUserVoted') === 'true';
+        let myVotedId = localStorage.getItem('sunoMyVotedId') || null;
+
+        // 목록 불러오기 (GET)
+        async function fetchSongs() {
+            try {
+                const response = await fetch(API_URL);
+                songs = await response.json();
+                renderList();
+            } catch (error) {
+                document.getElementById('contestList').innerHTML = `<p style="color: #ef4444; text-align: center;">데이터를 불러오는 데 실패했습니다.</p>`;
+            }
         }
-      }
-    }
-    
-    return ContentService.createTextOutput(JSON.stringify({result: "success"}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } finally {
-    lock.releaseLock();
-  }
-}
+
+        // 곡 등록 (POST - add)
+        window.registerSong = async function() {
+            const author = document.getElementById('authorName').value.trim();
+            const title = document.getElementById('songTitle').value.trim();
+            let url = document.getElementById('sunoUrl').value.trim();
+
+            if (!author || !title || !url) {
+                alert('모든 칸을 채워주세요!');
+                return;
+            }
+
+            if (!url.includes('suno.com')) {
+                alert('올바른 수노 링크가 아닙니다. (예: https://suno.com/s/...)');
+                return;
+            }
+
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
+            alert('곡을 등록하고 있습니다. 잠시만 기다려주세요!');
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "add", title, author, url })
+                });
+
+                document.getElementById('authorName').value = '';
+                document.getElementById('songTitle').value = '';
+                document.getElementById('sunoUrl').value = '';
+
+                fetchSongs();
+            } catch (error) {
+                alert('등록 중 오류가 발생했습니다.');
+            }
+        };
+
+        // 투표하기 (POST - vote)
+        window.voteSong = async function(id) {
+            if (hasVoted) {
+                alert('이미 투표하셨습니다! 중복 투표는 불가능합니다.');
+                return;
+            }
+
+            if (!confirm('이 곡에 투표하시겠습니까?')) return;
+
+            hasVoted = true;
+            myVotedId = String(id);
+            localStorage.setItem('sunoUserVoted', 'true');
+            localStorage.setItem('sunoMyVotedId', myVotedId);
+
+            const target = songs.find(s => s.id == id);
+            if (target) target.votes = Number(target.votes) + 1;
+            renderList();
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "vote", id: id })
+                });
+                fetchSongs();
+            } catch (error) {
+                alert('투표 전송 중 오류가 발생했습니다.');
+            }
+        };
+
+        // 화면 렌더링
+        function renderList() {
+            const listEl = document.getElementById('contestList');
+            if (!listEl) return;
+
+            if (!Array.isArray(songs) || songs.length === 0) {
+                listEl.innerHTML = `<p style="text-align: center; color: #94a3b8; padding: 20px;">아직 등록된 곡이 없습니다. 첫 곡을 등록해 보세요!</p>`;
+                return;
+            }
+
+            // 투표수 내림차순 정렬
+            songs.sort((a, b) => Number(b.votes) - Number(a.votes));
+
+            listEl.innerHTML = '';
+            songs.forEach((song, index) => {
+                const isThisMyVote = (myVotedId === String(song.id));
+
+                const item = document.createElement('div');
+                item.className = 'song-card';
+                item.innerHTML = `
+                    <div class="song-info">
+                        <div class="song-title">${index + 1}. ${song.title} ${isThisMyVote ? '<span style="font-size:12px; color:#4f46e5; background:#e0e7ff; padding:2px 6px; border-radius:4px;">내 투표작</span>' : ''}</div>
+                        <div class="song-author">제작자: <b>${song.author}</b></div>
+                    </div>
+                    <div class="action-group">
+                        <button type="button" onclick="window.open('${song.url}', '_blank')" class="listen-btn">노래 듣기</button>
+                        <button type="button" onclick="voteSong('${song.id}')" class="vote-btn ${hasVoted ? 'voted' : ''}" ${hasVoted ? 'disabled' : ''}>
+                            ${isThisMyVote ? '투표 완료' : '투표하기'}
+                        </button>
+                        <span class="vote-count">❤️ ${song.votes}표</span>
+                    </div>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        // 페이지 접속 시 데이터 로드
+        fetchSongs();
+    </script>
+
+</body>
+</html>
