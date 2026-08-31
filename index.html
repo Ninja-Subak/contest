@@ -66,30 +66,27 @@
         let hasVoted = localStorage.getItem('sunoUserVoted') === 'true';
         let myVotedId = localStorage.getItem('sunoMyVotedId') || null;
 
-        // 안전한 데이터 불러오기 (CORS 우회를 위해 callback 방식 활용 또는 간이 처리)
-        function fetchSongs() {
+        // 안정적인 데이터 로드 (캐시 방지 파라미터 추가)
+        async function fetchSongs() {
             const listEl = document.getElementById('contestList');
             if (!listEl) return;
 
-            // 구글 앱스 스크립트 CORS 우회를 위한 JSONP 동적 스크립트 주입 방식
-            const script = document.createElement('script');
-            script.src = `${API_URL}?callback=handleData`;
-            script.onerror = function() {
+            try {
+                // 브라우저 캐시 및 CORS 이슈 완화를 위해 타임스탬프 추가
+                const response = await fetch(`${API_URL}?_t=${Date.now()}`);
+                const text = await response.text();
+                
+                try {
+                    songs = JSON.parse(text);
+                    renderList();
+                } catch (e) {
+                    // 만약 HTML 형태의 에러 페이지가 반환된 경우 처리
+                    listEl.innerHTML = `<p style="color: #ef4444; text-align: center;">데이터 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요.</p>`;
+                }
+            } catch (error) {
                 listEl.innerHTML = `<p style="color: #ef4444; text-align: center;">데이터를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.</p>`;
-            };
-            document.body.appendChild(script);
-        }
-
-        // 글로벌 콜백 함수
-        window.handleData = function(data) {
-            if (Array.isArray(data)) {
-                songs = data;
-                renderList();
-            } else {
-                songs = [];
-                renderList();
             }
-        };
+        }
 
         // 곡 등록 (POST)
         window.registerSong = async function() {
@@ -125,10 +122,11 @@
                 document.getElementById('songTitle').value = '';
                 document.getElementById('sunoUrl').value = '';
 
+                // 구글 시트에 데이터가 기록되는 시간을 고려해 2초 뒤 새로고침
                 setTimeout(() => {
                     alert('등록이 완료되었습니다!');
                     location.reload();
-                }, 1500);
+                }, 2000);
             } catch (error) {
                 alert('등록 중 오류가 발생했습니다.');
             }
@@ -162,7 +160,7 @@
 
                 setTimeout(() => {
                     location.reload();
-                }, 1500);
+                }, 2000);
             } catch (error) {
                 alert('투표 전송 중 오류가 발생했습니다.');
             }
