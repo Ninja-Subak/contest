@@ -40,15 +40,21 @@
         <p>참가자 분들은 직접 곡을 등록하고, 회원님들은 곡을 감상한 뒤 실시간으로 투표해 주세요!</p>
     </div>
 
-    <!-- 곡 등록 카드 -->
+    <!-- 숨은 아이프레임 (CORS 에러 원천 차단용) -->
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(isSubmitted){ setTimeout(loadAfterSubmit, 1500); }"></iframe>
+
+    <!-- 곡 등록 폼 (아이프레임 타겟 활용) -->
     <div class="card">
         <h3>🎵 나만의 출품곡 등록하기</h3>
-        <div class="input-group">
-            <input type="text" id="authorName" placeholder="참가자 별명 (예: 닌자수박)" maxlength="20">
-            <input type="text" id="songTitle" placeholder="노래 제목 (예: 우주를 건너서)" maxlength="30">
-            <input type="text" id="sunoUrl" placeholder="수노 링크 (예: https://suno.com/s/...)">
-        </div>
-        <button type="button" onclick="registerSong()" class="submit-btn">콘테스트 곡 제출하기</button>
+        <form id="songForm" action="https://script.google.com/macros/s/AKfycbw0IXGY7yN5ox8T9WJvuqVH6K8Cu-0VmQHgl1rM9L9IoIYVfn4GifjjPyNP4KE5lsq/exec" method="POST" target="hidden_iframe" onsubmit="handleFormSubmit(event)">
+            <input type="hidden" name="action" value="add">
+            <div class="input-group">
+                <input type="text" id="authorName" name="author" placeholder="참가자 별명 (예: 닌자수박)" maxlength="20" required>
+                <input type="text" id="songTitle" name="title" placeholder="노래 제목 (예: 우주를 건너서)" maxlength="30" required>
+                <input type="text" id="sunoUrl" name="url" placeholder="수노 링크 (예: https://suno.com/s/...)" required>
+            </div>
+            <button type="submit" class="submit-btn">콘테스트 곡 제출하기</button>
+        </form>
     </div>
 
     <!-- 실시간 목록 및 투표 카드 -->
@@ -65,74 +71,57 @@
         let songs = [];
         let hasVoted = localStorage.getItem('sunoUserVoted') === 'true';
         let myVotedId = localStorage.getItem('sunoMyVotedId') || null;
+        let isSubmitted = false;
 
-        // 안정적인 데이터 로드 (캐시 방지 파라미터 추가)
+        // 목록 불러오기 (GET)
         async function fetchSongs() {
             const listEl = document.getElementById('contestList');
             if (!listEl) return;
 
             try {
-                // 브라우저 캐시 및 CORS 이슈 완화를 위해 타임스탬프 추가
                 const response = await fetch(`${API_URL}?_t=${Date.now()}`);
                 const text = await response.text();
-                
-                try {
-                    songs = JSON.parse(text);
-                    renderList();
-                } catch (e) {
-                    // 만약 HTML 형태의 에러 페이지가 반환된 경우 처리
-                    listEl.innerHTML = `<p style="color: #ef4444; text-align: center;">데이터 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요.</p>`;
-                }
+                songs = JSON.parse(text);
+                renderList();
             } catch (error) {
-                listEl.innerHTML = `<p style="color: #ef4444; text-align: center;">데이터를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.</p>`;
+                listEl.innerHTML = `<p style="color: #ef4444; text-align: center;">데이터를 불러오는 중입니다... 잠시만 기다려주세요.</p>`;
+                // 실패 시 3초 뒤 자동 재시도
+                setTimeout(fetchSongs, 3000);
             }
         }
 
-        // 곡 등록 (POST)
-        window.registerSong = async function() {
-            const author = document.getElementById('authorName').value.trim();
-            const title = document.getElementById('songTitle').value.trim();
+        // 폼 제출 가로채기 및 검증
+        window.handleFormSubmit = function(event) {
             let url = document.getElementById('sunoUrl').value.trim();
 
-            if (!author || !title || !url) {
-                alert('모든 칸을 채워주세요!');
-                return;
-            }
-
             if (!url.includes('suno.com')) {
+                event.preventDefault();
                 alert('올바른 수노 링크가 아닙니다. (예: https://suno.com/s/...)');
                 return;
             }
 
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                url = 'https://' + url;
+                document.getElementById('sunoUrl').value = 'https://' + url;
             }
 
+            isSubmitted = true;
             alert('곡을 등록하고 있습니다. 잠시만 기다려주세요!');
-
-            try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "add", title, author, url })
-                });
-
-                document.getElementById('authorName').value = '';
-                document.getElementById('songTitle').value = '';
-                document.getElementById('sunoUrl').value = '';
-
-                // 구글 시트에 데이터가 기록되는 시간을 고려해 2초 뒤 새로고침
-                setTimeout(() => {
-                    alert('등록이 완료되었습니다!');
-                    location.reload();
-                }, 2000);
-            } catch (error) {
-                alert('등록 중 오류가 발생했습니다.');
-            }
         };
 
-        // 투표하기 (POST)
+        // 등록 완료 후 실행될 함수
+        window.loadAfterSubmit = function() {
+            if (!isSubmitted) return;
+            isSubmitted = false;
+            
+            document.getElementById('authorName').value = '';
+            document.getElementById('songTitle').value = '';
+            document.getElementById('sunoUrl').value = '';
+
+            alert('곡이 성공적으로 등록되었습니다!');
+            fetchSongs();
+        };
+
+        // 투표하기 (POST - iframe 우회 방식 적용)
         window.voteSong = async function(id) {
             if (hasVoted) {
                 alert('이미 투표하셨습니다! 중복 투표는 불가능합니다.');
@@ -150,20 +139,29 @@
             if (target) target.votes = Number(target.votes) + 1;
             renderList();
 
-            try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "vote", id: id })
-                });
+            // 투표 데이터 전송을 위한 임시 폼 생성 및 전송
+            const form = document.createElement('form');
+            form.action = API_URL;
+            form.method = 'POST';
+            form.target = 'hidden_iframe';
 
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
-            } catch (error) {
-                alert('투표 전송 중 오류가 발생했습니다.');
-            }
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'vote';
+            form.appendChild(actionInput);
+
+            const idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'id';
+            idInput.value = id;
+            form.appendChild(idInput);
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+
+            setTimeout(fetchSongs, 2000);
         };
 
         // 화면 렌더링
@@ -201,6 +199,7 @@
             });
         }
 
+        // 초기 데이터 로드
         fetchSongs();
     </script>
 
