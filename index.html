@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Suno 카페 노래 콘테스트</title>
     <style>
         :root {
@@ -1035,26 +1038,32 @@
             return token;
         }
 
-        function fetchAppData() {
+        async function fetchAppData() {
             const token = getClientToken();
-            fetch(`${API_URL}?action=getAppData&token=${token}`)
-                .then(res => res.json())
-                .then(res => {
-                    songs = res.songs;
-                    hasVoted = res.hasVoted;
-                    myVotedId = res.myVotedId ? String(res.myVotedId) : null;
-                    
-                    document.getElementById('noticeDisplay').innerText = res.notice;
-                    document.getElementById('noticeInput').value = res.notice;
-                    
-                    renderList();
-                    applyDisplayPreferences();
-                    updateAdminUI();
-                })
-                .catch(err => {
-                    console.error(err);
-                    document.getElementById('contestList').innerHTML = `<p style="text-align:center; color:#ef4444;">데이터를 불러오지 못했습니다. API 주소를 확인해주세요.</p>`;
-                });
+            try {
+                const res = await fetch(`${API_URL}?action=getAppData&token=${token}`);
+                if (!res.ok) throw new Error("서버 응답 오류 (HTTP " + res.status + ")");
+                const data = await res.json();
+
+                songs = data.songs || [];
+                hasVoted = data.hasVoted;
+                myVotedId = data.myVotedId ? String(data.myVotedId) : null;
+                
+                const noticeDisplay = document.getElementById('noticeDisplay');
+                const noticeInput = document.getElementById('noticeInput');
+                if (noticeDisplay) noticeDisplay.innerText = data.notice || '';
+                if (noticeInput) noticeInput.value = data.notice || '';
+                
+                applyDisplayPreferences();
+                updateAdminUI();
+                renderList();
+            } catch (err) {
+                console.error("fetchAppData 오류:", err);
+                const listEl = document.getElementById('contestList');
+                if (listEl) {
+                    listEl.innerHTML = `<p style="text-align:center; color:#ef4444; padding:20px;">데이터를 불러오지 못했습니다 (${err.message}).<br><button type="button" onclick="fetchAppData()" style="margin-top:10px; background:#4f46e5; color:white; padding:6px 14px; border-radius:8px; border:none; cursor:pointer;">다시 시도</button></p>`;
+                }
+            }
         }
 
         window.toggleAdminMode = function() {
