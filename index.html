@@ -246,7 +246,7 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 수노 링크를 실시간 오디오 스트리밍 소스로 변환하여 내장 재생
+        // 🎵 수노 링크에서 ID를 정밀 추출하여 최적화된 CDN 스트리밍 플레이어 생성
         window.toggleAudioPlayer = function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
@@ -269,6 +269,7 @@
                 });
 
                 let songId = "";
+                // 일반 /song/ 링크 및 /s/ 단축 링크에서 UUID 추출 패턴 정비
                 let match = sunoUrl.match(/(?:\/s\/|\/song\/)([a-zA-Z0-9-]+)/);
                 if (match && match[1]) {
                     songId = match[1];
@@ -284,7 +285,7 @@
 
                 playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
-                    <audio class="audio-player" controls autoplay preload="auto">
+                    <audio class="audio-player" controls autoplay preload="metadata">
                         <source src="${audioStreamUrl}" type="audio/mpeg">
                         브라우저가 오디오 스트리밍을 지원하지 않습니다.
                     </audio>
@@ -292,7 +293,7 @@
                 
                 const audioEl = playerContainer.querySelector('audio');
                 audioEl.onerror = function() {
-                    alert("음원 스트리밍 연결에 실패했습니다. 링크를 다시 확인해주세요.");
+                    alert("음원 스트리밍을 불러오지 못했습니다. 링크가 올바른지 확인해주세요.");
                     btn.innerText = '노래 듣기';
                     playerContainer.style.display = 'none';
                 };
