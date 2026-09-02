@@ -119,7 +119,7 @@
     </div>
 
     <div class="footer">
-        <p>Suno 연구소: <a href="https://www.youtube.com/@NinjaSubak" target="_blank">https://www.youtube.com/@NinjaSubak</a></p>
+        <p>Suno 연구소: <a href="https://www.youtube.com/@NinjaSubak" target="_self">https://www.youtube.com/@NinjaSubak</a></p>
     </div>
 
     <script>
@@ -329,6 +329,7 @@
             listEl.innerHTML = '';
             songs.forEach((song, index) => {
                 const isThisMyVote = (myVotedId !== null && String(myVotedId) === String(song.id));
+                // target="_blank"를 완전히 제거하고 target="_self" (현재 창)로 설정하여 새 창/새 탭 생성 원천 차단
                 const safeUrl = (song.url || '').replace(/"/g, '&quot;');
 
                 const item = document.createElement('div');
@@ -340,7 +341,7 @@
                             <div class="song-author" style="display: ${showAuthor ? 'block' : 'none'};">제작자: <b>${song.author}</b></div>
                         </div>
                         <div class="action-group">
-                            <a href="${safeUrl}" target="_blank" class="listen-btn">🎧 노래 듣기</a>
+                            <a href="${safeUrl}" target="_self" class="listen-btn">🎧 노래 듣기</a>
                             <button type="button" onclick="voteSong('${song.id}')" class="vote-btn ${hasVoted ? 'voted' : ''}" ${hasVoted ? 'disabled' : ''}>
                                 ${isThisMyVote ? '투표 완료' : '투표하기'}
                             </button>
