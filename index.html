@@ -246,7 +246,7 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 프록시 우회 및 다중 CDN 엔드포인트 바인딩을 통한 실시간 오디오 스트리밍
+        // 🎵 수노 고유 ID 기반 고속 오디오 스트리밍 바인딩
         window.toggleAudioPlayer = function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
@@ -269,7 +269,6 @@
                 });
 
                 let songId = "";
-                // UUID 추출 정규식
                 let match = sunoUrl.match(/(?:\/s\/|\/song\/)([a-zA-Z0-9-]+)/);
                 if (match && match[1]) {
                     songId = match[1];
@@ -281,14 +280,14 @@
                     return;
                 }
 
-                // CORS 및 핫링크 방지 우회를 위한 멀티 CDN 폴백 스트림 URL 구성
-                let primaryStreamUrl = `https://cdn1.suno.ai/${songId}.mp3`;
-                let fallbackStreamUrl = `https://cdn2.suno.ai/${songId}.mp3`;
+                // 수노 오디오 스트리밍 전용 정식 엔드포인트 매칭
+                let audioStreamUrl = `https://audiocdn.suno.ai/${songId}.mp3`;
+                let fallbackStreamUrl = `https://cdn1.suno.ai/${songId}.mp3`;
 
                 playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
-                    <audio class="audio-player" controls autoplay preload="auto" crossorigin="anonymous">
-                        <source src="${primaryStreamUrl}" type="audio/mpeg">
+                    <audio class="audio-player" controls autoplay preload="auto">
+                        <source src="${audioStreamUrl}" type="audio/mpeg">
                         <source src="${fallbackStreamUrl}" type="audio/mpeg">
                         브라우저가 오디오 스트리밍을 지원하지 않습니다.
                     </audio>
@@ -296,13 +295,12 @@
                 
                 const audioEl = playerContainer.querySelector('audio');
                 audioEl.onerror = function() {
-                    // 1차 CDN 실패 시 우회 프록시 경로 재시도
-                    if (audioEl.src.includes('cdn1.suno.ai')) {
+                    if (audioEl.src.includes('audiocdn.suno.ai')) {
                         audioEl.src = fallbackStreamUrl;
                         audioEl.load();
                         audioEl.play().catch(e => console.log(e));
                     } else {
-                        alert("음원 스트리밍 연결이 차단되었거나 유효하지 않은 링크입니다.");
+                        alert("음원 스트리밍을 불러오지 못했습니다. 링크를 다시 확인해주세요.");
                         btn.innerText = '노래 듣기';
                         playerContainer.style.display = 'none';
                     }
