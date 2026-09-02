@@ -57,9 +57,8 @@
 
         .vote-count { font-weight: 800; color: #059669; margin-left: 5px; font-size: 16px; min-width: 45px; text-align: right; }
         
-        /* 🎵 임베디드 오디오 스트리밍 뷰어 박스 */
         .player-container { margin-top: 15px; display: none; border-top: 1px solid var(--border); padding-top: 15px; text-align: center; }
-        .embed-player { width: 100%; height: 110px; border: none; border-radius: 8px; background: #0f172a; }
+        .audio-player { width: 100%; outline: none; }
 
         .header-box { text-align: center; margin-bottom: 30px; position: relative; }
         .header-box p { color: var(--text-sub); font-size: 15px; line-height: 1.5; }
@@ -247,7 +246,7 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 수노 링크에서 ID를 추출하여 웹페이지 내장형 스트리밍 플레이어(iframe) 구동
+        // 🎵 수노 링크를 실시간 오디오 스트리밍 소스로 변환하여 내장 재생
         window.toggleAudioPlayer = function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
@@ -269,7 +268,6 @@
                     b.innerText = '노래 듣기';
                 });
 
-                // 수노 고유 ID 파싱 후 공식 임베디드 스트리밍 URL 구성
                 let songId = "";
                 let match = sunoUrl.match(/(?:\/s\/|\/song\/)([a-zA-Z0-9-]+)/);
                 if (match && match[1]) {
@@ -282,13 +280,23 @@
                     return;
                 }
 
-                // 수노 공식 임베디드 플레이어 주소 (사운드 스트리밍 100% 보장)
-                let embedUrl = `https://suno.com/embed/${songId}`;
+                let audioStreamUrl = `https://cdn1.suno.ai/${songId}.mp3`;
 
                 playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
-                    <iframe class="embed-player" src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                    <audio class="audio-player" controls autoplay preload="auto">
+                        <source src="${audioStreamUrl}" type="audio/mpeg">
+                        브라우저가 오디오 스트리밍을 지원하지 않습니다.
+                    </audio>
                 `;
+                
+                const audioEl = playerContainer.querySelector('audio');
+                audioEl.onerror = function() {
+                    alert("음원 스트리밍 연결에 실패했습니다. 링크를 다시 확인해주세요.");
+                    btn.innerText = '노래 듣기';
+                    playerContainer.style.display = 'none';
+                };
+
                 btn.classList.add('active');
                 btn.innerText = '플레이어 닫기';
             }
