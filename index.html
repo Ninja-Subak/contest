@@ -829,63 +829,52 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 18px;
+            gap: 22px;
+            margin-top: 10px;
         }
         @media (max-width: 480px) {
             .master-controls-bar {
-                gap: 8px;
+                gap: 12px;
             }
         }
         .master-ctrl-btn {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: transparent !important;
+            border: none !important;
+            border-radius: 8px;
             color: #94a3b8;
+            padding: 6px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             position: relative;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            outline: none;
+            box-shadow: none !important;
+            user-select: none;
         }
         .master-ctrl-btn:hover {
-            background: rgba(0, 242, 254, 0.15);
-            color: #00f2fe;
-            border-color: rgba(0, 242, 254, 0.5);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.35);
-            transform: translateY(-2px);
+            color: #ffffff;
+            transform: scale(1.15);
+            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.75));
+            background: rgba(255, 255, 255, 0.06) !important;
         }
         .master-ctrl-btn:active {
             transform: scale(0.92);
         }
         .master-ctrl-btn.active {
             color: #00f2fe;
-            border-color: #00f2fe;
-            background: rgba(0, 242, 254, 0.22);
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.45);
+            filter: drop-shadow(0 0 12px rgba(0, 242, 254, 0.9));
         }
-        .master-ctrl-btn .skip-badge {
-            position: absolute;
-            bottom: 3px;
-            font-size: 8px;
-            font-weight: 900;
-            color: currentColor;
-            letter-spacing: -0.05em;
-        }
-        .master-ctrl-btn .repeat-mode-badge {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            font-size: 8px;
-            font-weight: 800;
+        .master-ctrl-dot {
+            width: 4px;
+            height: 4px;
             background: #00f2fe;
-            color: #0b1329;
-            padding: 1px 4px;
-            border-radius: 4px;
-            box-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+            border-radius: 50%;
+            margin-top: 3px;
+            box-shadow: 0 0 6px #00f2fe;
+            display: inline-block;
         }
 
         /* 🔘 중앙 대형 메인 재생/일시정지 버튼 */
@@ -1761,28 +1750,29 @@
             </button>
         </div>
 
-        <!-- 🎮 7종 컨트롤러 버튼 바 (첨부 이미지 형태 완벽 구현) -->
+        <!-- 🎮 7종 컨트롤러 버튼 바 (표준 뮤직 플레이어 아이콘) -->
         <div class="master-controls-bar">
             <!-- 1. 셔플 (무작위 재생) -->
             <button type="button" class="master-ctrl-btn" id="masterShuffleBtn" onclick="toggleMasterShuffle()" title="셔플(무작위) 재생 토글">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                    <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/>
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 3h5v5M4 20l17-17M21 16v5h-5M15 15l6 6M4 4l5 5"/>
                 </svg>
+                <span class="master-ctrl-dot" id="masterShuffleDot" style="display:none;"></span>
             </button>
 
             <!-- 2. 이전 곡 -->
             <button type="button" class="master-ctrl-btn" id="masterPrevBtn" onclick="playMasterPrevTrack()" title="이전 곡 (Previous)">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                    <path d="M6 6h2.5v12H6zm3.5 6l9 6.5V5.5z"/>
                 </svg>
             </button>
 
             <!-- 3. 되감기 (-10초) -->
             <button type="button" class="master-ctrl-btn" id="masterRewindBtn" onclick="masterRewind10()" title="10초 뒤로 건너뛰기">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                    <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/>
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                    <path d="M12.5 3a9 9 0 1 0 8.7 6.8l-1.9.6A7 7 0 1 1 12.5 5v3l5-4-5-4v3z"/>
+                    <text x="12.5" y="15" font-size="7.5" font-weight="900" text-anchor="middle" fill="currentColor" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">10</text>
                 </svg>
-                <span class="skip-badge">10</span>
             </button>
 
             <!-- 4. 재생 / 일시정지 (중앙 대형 메인 네온 버튼) -->
@@ -1794,25 +1784,27 @@
 
             <!-- 5. 빨리감기 (+10초) -->
             <button type="button" class="master-ctrl-btn" id="masterForwardBtn" onclick="masterForward10()" title="10초 앞으로 건너뛰기">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                    <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/>
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                    <path d="M11.5 3a9 9 0 1 1-8.7 6.8l1.9.6A7 7 0 1 0 11.5 5v3l-5-4 5-4v3z"/>
+                    <text x="11.5" y="15" font-size="7.5" font-weight="900" text-anchor="middle" fill="currentColor" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">10</text>
                 </svg>
-                <span class="skip-badge">10</span>
             </button>
 
             <!-- 6. 다음 곡 -->
             <button type="button" class="master-ctrl-btn" id="masterNextBtn" onclick="playMasterNextTrack()" title="다음 곡 (Next)">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                    <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                    <path d="M5.5 18.5l9-6.5-9-6.5v13zM15.5 6H18v12h-2.5z"/>
                 </svg>
             </button>
 
             <!-- 7. 반복 재생 -->
             <button type="button" class="master-ctrl-btn active" id="masterRepeatBtn" onclick="toggleMasterRepeat()" title="반복 모드 변경 (전체/한곡/해제)">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                    <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
-                </svg>
-                <span class="repeat-mode-badge" id="masterRepeatBadge">ALL</span>
+                <span id="masterRepeatIconWrap">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                        <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
+                    </svg>
+                </span>
+                <span class="master-ctrl-dot" id="masterRepeatDot"></span>
             </button>
         </div>
 
@@ -1952,7 +1944,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbxIvwn5-saIAF5gQLjGP1L9Sz_ZY-VsP8SNM1WLROLibRcZZ_vJRtqudaxMhLhwMEsZ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbw6wqzcMo0Jg0eLIImRwjeGeI2UJ937t0jsvkNX5to-yTZwAW0_sGc0D5Lxo361unjT/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -2983,19 +2975,41 @@
                     if (data.coverUrl) {
                         document.getElementById('masterCover').src = data.coverUrl;
                     }
-                    const audioSrc = data.audioUrl || `https://contest-omega-pink.vercel.app/api/resolve?url=${encodeURIComponent(song.url)}&stream=1`;
+                    let audioSrc = data.audioUrl;
+                    if (!audioSrc || audioSrc.includes('cdn1.suno.ai')) {
+                        audioSrc = `https://contest-omega-pink.vercel.app/api/resolve?url=${encodeURIComponent(song.url)}&stream=1`;
+                    }
+
                     if (masterAudio.src !== audioSrc) {
                         masterAudio.src = audioSrc;
+                        masterAudio.load();
                     }
 
                     if (autoPlay) {
-                        masterAudio.play().then(() => {
-                            isMasterPlaying = true;
-                            updateMasterPlayButtonUI(true);
-                        }).catch(() => {
-                            isMasterPlaying = false;
-                            updateMasterPlayButtonUI(false);
-                        });
+                        const playPromise = masterAudio.play();
+                        if (playPromise !== undefined) {
+                            playPromise.then(() => {
+                                isMasterPlaying = true;
+                                updateMasterPlayButtonUI(true);
+                            }).catch(err => {
+                                console.warn("Master audio play error, falling back to proxy stream:", err);
+                                const proxyUrl = `https://contest-omega-pink.vercel.app/api/resolve?url=${encodeURIComponent(song.url)}&stream=1`;
+                                if (masterAudio.src !== proxyUrl) {
+                                    masterAudio.src = proxyUrl;
+                                    masterAudio.load();
+                                    masterAudio.play().then(() => {
+                                        isMasterPlaying = true;
+                                        updateMasterPlayButtonUI(true);
+                                    }).catch(() => {
+                                        isMasterPlaying = false;
+                                        updateMasterPlayButtonUI(false);
+                                    });
+                                } else {
+                                    isMasterPlaying = false;
+                                    updateMasterPlayButtonUI(false);
+                                }
+                            });
+                        }
                     }
                 }
 
@@ -3017,16 +3031,26 @@
 
             if (!masterAudio) masterAudio = document.getElementById('masterAudioPlayer');
 
-            if (currentMasterSongIndex === -1) {
-                loadMasterSong(0, true);
+            const hasValidSrc = masterAudio.src && masterAudio.src !== window.location.href && !masterAudio.src.endsWith('/');
+
+            // 음원이 아직 로드되지 않았거나 트랙 초기화 전인 경우 즉시 로드 및 재생
+            if (currentMasterSongIndex === -1 || !hasValidSrc) {
+                const targetIdx = currentMasterSongIndex >= 0 ? currentMasterSongIndex : 0;
+                loadMasterSong(targetIdx, true);
                 return;
             }
 
             if (masterAudio.paused) {
-                masterAudio.play().then(() => {
-                    isMasterPlaying = true;
-                    updateMasterPlayButtonUI(true);
-                }).catch(e => console.error(e));
+                const playPromise = masterAudio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        isMasterPlaying = true;
+                        updateMasterPlayButtonUI(true);
+                    }).catch(err => {
+                        console.warn("Direct play failed, reloading track...", err);
+                        loadMasterSong(currentMasterSongIndex, true);
+                    });
+                }
             } else {
                 masterAudio.pause();
                 isMasterPlaying = false;
@@ -3074,30 +3098,68 @@
         window.toggleMasterShuffle = function() {
             isMasterShuffle = !isMasterShuffle;
             const btn = document.getElementById('masterShuffleBtn');
+            const dot = document.getElementById('masterShuffleDot');
             if (btn) {
                 if (isMasterShuffle) {
                     btn.classList.add('active');
+                    btn.title = "셔플(무작위) 재생: 켜짐";
+                    if (dot) dot.style.display = 'inline-block';
                 } else {
                     btn.classList.remove('active');
+                    btn.title = "셔플(무작위) 재생: 꺼짐";
+                    if (dot) dot.style.display = 'none';
                 }
             }
         };
 
         window.toggleMasterRepeat = function() {
-            const badge = document.getElementById('masterRepeatBadge');
             const btn = document.getElementById('masterRepeatBtn');
+            const iconWrap = document.getElementById('masterRepeatIconWrap');
+            const dot = document.getElementById('masterRepeatDot');
+
             if (masterRepeatMode === 'all') {
                 masterRepeatMode = 'one';
-                if (badge) badge.innerText = '1';
-                if (btn) btn.classList.add('active');
+                if (btn) {
+                    btn.classList.add('active');
+                    btn.title = "반복 모드: 한곡 반복";
+                }
+                if (iconWrap) {
+                    iconWrap.innerHTML = `
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
+                            <text x="12" y="14" font-size="7" font-weight="900" text-anchor="middle" fill="currentColor">1</text>
+                        </svg>
+                    `;
+                }
+                if (dot) dot.style.display = 'inline-block';
             } else if (masterRepeatMode === 'one') {
                 masterRepeatMode = 'none';
-                if (badge) badge.innerText = 'OFF';
-                if (btn) btn.classList.remove('active');
+                if (btn) {
+                    btn.classList.remove('active');
+                    btn.title = "반복 모드: 반복 꺼짐";
+                }
+                if (iconWrap) {
+                    iconWrap.innerHTML = `
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
+                        </svg>
+                    `;
+                }
+                if (dot) dot.style.display = 'none';
             } else {
                 masterRepeatMode = 'all';
-                if (badge) badge.innerText = 'ALL';
-                if (btn) btn.classList.add('active');
+                if (btn) {
+                    btn.classList.add('active');
+                    btn.title = "반복 모드: 전체 반복";
+                }
+                if (iconWrap) {
+                    iconWrap.innerHTML = `
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
+                        </svg>
+                    `;
+                }
+                if (dot) dot.style.display = 'inline-block';
             }
         };
 
@@ -3250,19 +3312,10 @@
                 return;
             }
 
-            // 마스터 플레이어 재생 목록 카운터 및 1번 곡 프리뷰
+            // 마스터 플레이어 재생 목록 카운터 및 1번 곡 프리뷰 (첫 곡 오디오 미리 로드)
             const counter = document.getElementById('masterPlaylistCounter');
             if (counter && currentMasterSongIndex === -1 && songs.length > 0) {
-                currentMasterSongIndex = 0;
-                document.getElementById('masterTitle').innerText = songs[0].title || '출품곡';
-                document.getElementById('masterAuthor').innerText = `제작자: ${songs[0].author || '참가자'}`;
-                counter.innerText = `1 / ${songs.length}`;
-                document.getElementById('masterTrackIndicator').innerText = `총 ${songs.length}곡 대기 중`;
-                resolveSunoTrack(songs[0].url).then(d => {
-                    if (d && d.coverUrl) {
-                        document.getElementById('masterCover').src = d.coverUrl;
-                    }
-                }).catch(() => {});
+                loadMasterSong(0, false);
             } else if (counter && currentMasterSongIndex >= 0) {
                 counter.innerText = `${currentMasterSongIndex + 1} / ${songs.length}`;
             }
