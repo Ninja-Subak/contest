@@ -57,11 +57,10 @@
 
         .vote-count { font-weight: 800; color: #059669; margin-left: 5px; font-size: 16px; min-width: 45px; text-align: right; }
         
-        /* 🎧 페이지 이탈, 새 창, 검은 화면 없는 순수 내부 오디오 확장 박스 */
-        .player-container { margin-top: 15px; display: none; border-top: 1px solid var(--border); padding-top: 15px; background: #f8fafc; border-radius: 10px; padding: 12px; text-align: center; }
+        /* 🎧 안내 텍스트가 완전히 삭제되고 깔끔하게 오디오 컨트롤러만 렌더링되는 컨테이너 */
+        .player-container { margin-top: 15px; display: none; border-top: 1px solid var(--border); padding-top: 15px; background: #f8fafc; border-radius: 10px; padding: 15px; text-align: center; }
         .native-audio-box { display: flex; flex-direction: column; gap: 8px; align-items: center; width: 100%; }
-        .native-audio-box audio { width: 100%; max-width: 400px; outline: none; }
-        .audio-notice { font-size: 13px; color: var(--text-sub); margin: 0; }
+        .native-audio-box audio { width: 100%; max-width: 450px; outline: none; }
 
         .header-box { text-align: center; margin-bottom: 30px; position: relative; }
         .header-box p { color: var(--text-sub); font-size: 15px; line-height: 1.5; }
@@ -249,7 +248,7 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 [노래 듣기] 클릭 시 새 창, 새 탭, 페이지 이동 없이 카드 아래에서 순수 네이티브 오디오 컨트롤러가 인라인 토글됨
+        // 🎵 [노래 듣기] 클릭 시 안내 텍스트 없이 카드 아래에 오디오 바가 정상 작동하도록 처리
         window.toggleInlinePlayer = function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
@@ -262,7 +261,6 @@
                 btn.classList.remove('active');
                 btn.innerText = '노래 듣기';
             } else {
-                // 다른 열려있는 플레이어들 닫기
                 document.querySelectorAll('.player-container').forEach(el => {
                     el.style.display = 'none';
                     el.innerHTML = '';
@@ -278,13 +276,25 @@
                     return;
                 }
 
+                // 수노 고유 ID 추출 후 실제 오디오 스트림 소스 구성
+                let songId = "";
+                const matchSong = sunoUrl.match(/\/song\/([a-zA-Z0-9-_]+)/);
+                const matchShort = sunoUrl.match(/\/s\/([a-zA-Z0-9-_]+)/);
+
+                if (matchSong && matchSong[1]) {
+                    songId = matchSong[1];
+                } else if (matchShort && matchShort[1]) {
+                    songId = matchShort[1];
+                }
+
+                // 수노의 내부 CDN 오디오 직접 호출 경로 매핑
+                let audioStreamUrl = songId ? `https://cdn1.suno.ai/${songId}.mp3` : sunoUrl;
+
                 playerContainer.style.display = 'block';
+                // 안내 텍스트 문구를 완전히 삭제하고 오직 플레이어 바만 출력
                 playerContainer.innerHTML = `
                     <div class="native-audio-box">
-                        <p class="audio-notice">🎵 아래 플레이어 바를 통해 페이지 이탈 없이 감상하세요.</p>
-                        <audio controls preload="none">
-                            <source src="${sunoUrl}" type="audio/mp4">
-                            <source src="${sunoUrl}" type="audio/mpeg">
+                        <audio controls preload="auto" src="${audioStreamUrl}">
                             브라우저가 오디오 재생을 지원하지 않습니다.
                         </audio>
                     </div>
