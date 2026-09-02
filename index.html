@@ -1189,7 +1189,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbxf_nwFaeDx-qpZV-Xg8CKDho5yU0zq0T2Y98PmX9h0EXR6NdaKF4Ryg2PGdMsLynNc/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzYjG6waxD3pn27pmUE0zXCH0JsD2MYCNDtmlzXakJf2LF8vxZvVw1Jz-P53qVDfKta/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -1682,7 +1682,7 @@
                 const audioUrl = data.audioUrl;
                 const embedUrl = data.embedUrl || `https://suno.com/embed/${songId}`;
 
-                // 🌟 Suno 공식 플레이어 바로 재생 + 오른쪽 상단 가사 보기 버튼
+                // 🌟 Suno 공식 플레이어 바로 재생 + 오른쪽 상단 가사 보기 버튼 + 오른쪽 하단 공식 플레이어로 전환 버튼
                 playerContainer.innerHTML = `
                     <div class="player-card" id="card_${id}">
                         <div class="player-top-header">
@@ -1694,6 +1694,13 @@
 
                         <div class="embed-frame-box" id="embed_box_${id}">
                             <iframe src="${embedUrl}" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
+                        </div>
+
+                        <div class="player-footer-tools" id="footer_tools_${id}">
+                            <span>✨ Suno 공식 임베드</span>
+                            <button type="button" class="switch-player-btn" onclick="window.open('https://suno.com/song/${songId}', '_blank')" title="Suno 공식 웹사이트 플레이어로 이동합니다">
+                                📻 Suno 공식 플레이어로 전환
+                            </button>
                         </div>
                     </div>
                 `;
@@ -1783,7 +1790,33 @@
                 el.innerHTML = `<div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 14px;">ℹ️ 등록된 가사가 없거나 연주곡(Instrumental)입니다.</div>`;
                 return;
             }
-            const safeText = text
+
+            // 🧹 가사 후처리: JSON 태그, 메타데이터 아티팩트 및 백슬래시(\) 완전 제거
+            let cleanText = String(text);
+            const artifactMatch = cleanText.match(/",\s*"?\w+"?\s*:/);
+            if (artifactMatch) {
+                cleanText = cleanText.slice(0, artifactMatch.index);
+            }
+            const bracketMatch = cleanText.match(/"]\s*[,\]\}]/);
+            if (bracketMatch) {
+                cleanText = cleanText.slice(0, bracketMatch.index);
+            }
+            const htmlMetaMatch = cleanText.match(/\["\$","meta"/);
+            if (htmlMetaMatch) {
+                cleanText = cleanText.slice(0, htmlMetaMatch.index);
+            }
+
+            cleanText = cleanText
+                .replace(/\\r\\n/g, '\n')
+                .replace(/\\n/g, '\n')
+                .replace(/\\+(\r?\n)/g, '$1')
+                .replace(/\\+$/g, '')
+                .replace(/\\"/g, '"')
+                .replace(/\\\\/g, '\\')
+                .replace(/^"+|"+$/g, '')
+                .trim();
+
+            const safeText = cleanText
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');

@@ -57,7 +57,7 @@ export default async function handler(req, res) {
                      html.match(/https:\\?\/\\?\/cdn2\.suno\.ai\\?\/image_[0-9a-f-]+\.jpeg/i);
     const coverUrl = imgMatch ? imgMatch[0].replace(/\\/g, '') : `https://cdn2.suno.ai/image_large_${songId}.jpeg`;
 
-    // 6. 가사 (Prompt) 추출
+    // 6. 가사 (Prompt) 정밀 추출 및 메타데이터 아티팩트 정제
     let lyrics = '';
     const promptRefMatch = html.match(/\\?"prompt\\?"\s*:\s*\\?"\$([a-zA-Z0-9]+)\\?"/);
     if (promptRefMatch) {
@@ -69,11 +69,7 @@ export default async function handler(req, res) {
         if (commaIdx !== -1) {
           const slice = html.slice(commaIdx + 1, commaIdx + 6000);
           const nextChunk = slice.search(/[0-9a-zA-Z]+:(\[|"|T)/);
-          lyrics = (nextChunk !== -1 ? slice.slice(0, nextChunk) : slice)
-            .replace(/\\n/g, '\n')
-            .replace(/\\"/g, '"')
-            .replace(/\\\\/g, '\\')
-            .trim();
+          lyrics = nextChunk !== -1 ? slice.slice(0, nextChunk) : slice;
         }
       }
     }
@@ -81,12 +77,36 @@ export default async function handler(req, res) {
     if (!lyrics) {
       const directMatch = html.match(/\\?"prompt\\?"\s*:\s*\\?"([^"\\]*(?:\\.[^"\\]*)*)\\?"/);
       if (directMatch && !directMatch[1].startsWith('$') && directMatch[1].length > 10) {
-        lyrics = directMatch[1]
-          .replace(/\\n/g, '\n')
-          .replace(/\\"/g, '"')
-          .replace(/\\\\/g, '\\')
-          .trim();
+        lyrics = directMatch[1];
       }
+    }
+
+    // 🧹 가사 후처리: JSON 태그, 메타데이터 아티팩트 및 백슬래시(\) 완전 제거
+    if (lyrics) {
+      // 1. JSON 메타데이터 꼬리표 (예: ","edited_clip_id":... 등) 제거
+      const artifactMatch = lyrics.match(/",\s*"?\w+"?\s*:/);
+      if (artifactMatch) {
+        lyrics = lyrics.slice(0, artifactMatch.index);
+      }
+      const bracketMatch = lyrics.match(/"]\s*[,\]\}]/);
+      if (bracketMatch) {
+        lyrics = lyrics.slice(0, bracketMatch.index);
+      }
+      const htmlMetaMatch = lyrics.match(/\["\$","meta"/);
+      if (htmlMetaMatch) {
+        lyrics = lyrics.slice(0, htmlMetaMatch.index);
+      }
+
+      // 2. 줄바꿈 정돈 및 끝부분 불필요한 백슬래시(\) 제거
+      lyrics = lyrics
+        .replace(/\\r\\n/g, '\n')
+        .replace(/\\n/g, '\n')
+        .replace(/\\+(\r?\n)/g, '$1')
+        .replace(/\\+$/g, '')
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, '\\')
+        .replace(/^"+|"+$/g, '')
+        .trim();
     }
 
     // 7. stream 파라미터가 있는 경우 오디오 프록시 스트리밍
