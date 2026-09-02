@@ -82,9 +82,9 @@
 </head>
 <body>
 
-    <!-- ⚙️ 설정 영역: 아래 API_URL에 본인의 구글 앱스 스크립트 웹앱 주소를 넣으세요 -->
+    <!-- ⚙️ 아래 따옴표 사이에 구글 앱스 스크립트 웹 앱 URL을 입력하세요 -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzCT9awXo3fHzSHTdv7YsmkKVV_TegPRTcgbXRWBHM2lAOJkyxsCAfinBRaDkjkTYmL/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzY-R8fO52OER-hZWv0JfKamnIIM5QC_UIiiFQKyAOKNPiQyr4HsLnXMA9aN939dk_f/exec";
     </script>
 
     <div class="header-box">
@@ -192,27 +192,22 @@
 
         window.saveNoticeText = function() {
             const newText = document.getElementById('noticeInput').value;
-            fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'saveNotice', notice: newText })
-            })
-            .then(res => res.json())
-            .then(() => {
-                document.getElementById('noticeDisplay').innerText = newText;
-                alert("공지사항이 저장되었습니다!");
-            });
+            fetch(`${API_URL}?action=saveNotice&notice=${encodeURIComponent(newText)}`)
+                .then(res => res.json())
+                .then(() => {
+                    document.getElementById('noticeDisplay').innerText = newText;
+                    alert("공지사항이 저장되었습니다!");
+                });
         };
 
         window.clearData = function() {
             if (!confirm("⚠️ 경고: 모든 데이터가 초기화됩니다! 진행하시겠습니까?")) return;
-            fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'clearData' })
-            })
-            .then(() => {
-                alert("초기화되었습니다.");
-                fetchAppData();
-            });
+            fetch(`${API_URL}?action=clearData`)
+                .then(res => res.json())
+                .then(() => {
+                    alert("초기화되었습니다.");
+                    fetchAppData();
+                });
         };
 
         window.downloadExcel = function() {
@@ -308,18 +303,15 @@
 
             alert('곡을 등록하고 있습니다...');
 
-            fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'addSong', title, author, url })
-            })
-            .then(res => res.json())
-            .then(() => {
-                document.getElementById('authorName').value = '';
-                document.getElementById('songTitle').value = '';
-                document.getElementById('sunoUrl').value = '';
-                alert('등록 완료!');
-                fetchAppData();
-            });
+            fetch(`${API_URL}?action=addSong&title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&url=${encodeURIComponent(url)}`)
+                .then(res => res.json())
+                .then(() => {
+                    document.getElementById('authorName').value = '';
+                    document.getElementById('songTitle').value = '';
+                    document.getElementById('sunoUrl').value = '';
+                    alert('등록 완료!');
+                    fetchAppData();
+                });
         };
 
         window.voteSong = function(id) {
@@ -330,19 +322,16 @@
             if (!confirm('이 곡에 투표하시겠습니까?')) return;
 
             const token = getClientToken();
-            fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'voteSong', id, token })
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.status === "already_voted") {
-                    alert('이미 투표 이력이 존재합니다.');
-                } else {
-                    alert('투표 완료!');
-                }
-                fetchAppData();
-            });
+            fetch(`${API_URL}?action=voteSong&id=${id}&token=${token}`)
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "already_voted") {
+                        alert('이미 투표 이력이 존재합니다.');
+                    } else {
+                        alert('투표 완료!');
+                    }
+                    fetchAppData();
+                });
         };
 
         window.editSong = function(id) {
@@ -358,18 +347,16 @@
             const newVotes = prompt("투표수 수정:", song.votes);
             if (newVotes === null || isNaN(newVotes)) return;
 
-            fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'updateSong', id, title: newTitle, author: newAuthor, url: newUrl, votes: Number(newVotes) })
-            }).then(() => { alert("수정되었습니다."); fetchAppData(); });
+            fetch(`${API_URL}?action=updateSong&id=${id}&title=${encodeURIComponent(newTitle)}&author=${encodeURIComponent(newAuthor)}&url=${encodeURIComponent(newUrl)}&votes=${newVotes}`)
+                .then(res => res.json())
+                .then(() => { alert("수정되었습니다."); fetchAppData(); });
         };
 
         window.deleteSong = function(id) {
             if (!confirm("정말 삭제하시겠습니까?")) return;
-            fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'deleteSong', id })
-            }).then(() => { alert("삭제되었습니다."); fetchAppData(); });
+            fetch(`${API_URL}?action=deleteSong&id=${id}`)
+                .then(res => res.json())
+                .then(() => { alert("삭제되었습니다."); fetchAppData(); });
         };
 
         function renderList() {
