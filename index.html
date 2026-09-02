@@ -1189,7 +1189,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbzYjG6waxD3pn27pmUE0zXCH0JsD2MYCNDtmlzXakJf2LF8vxZvVw1Jz-P53qVDfKta/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwFp1ia7Qe9l8UdIvR8o2WLq6zgB87pBWCxSuNiFt9VDhlMyhr1NHiZF0VmFspJCcbI/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -1263,7 +1263,7 @@
         window.toggleAdminMode = function() {
             if (!isAdmin) {
                 const pwd = prompt("관리자 비밀번호를 입력하세요:");
-                if (pwd === "as1234") {
+                if (pwd === "as0000") {
                     isAdmin = true;
                     localStorage.setItem('sunoAdminMode', 'true');
                     alert("관리자 모드가 활성화되었습니다.");
@@ -1785,36 +1785,81 @@
             }
         };
 
+        function cleanLyricsRobust(raw) {
+            if (!raw) return '';
+            let text = String(raw);
+
+            // 1. 역슬래시 및 이스케이프 문자 일차 정돈
+            text = text
+                .replace(/\\r\\n/g, '\n')
+                .replace(/\\n/g, '\n')
+                .replace(/\\"/g, '"')
+                .replace(/\\\\/g, '\\');
+
+            // 2. 가사 뒤에 붙은 Suno 내부 JSON 프로퍼티 코드 완전 절삭
+            const codeKeywords = [
+                'edited_clip_id',
+                'refund_credits',
+                'has_vocal',
+                'make_instrumental',
+                'persona_id',
+                'model_badges',
+                'is_mumble',
+                'display_tags',
+                'is_persona_root',
+                'user_handle',
+                'clipHistoryIds',
+                'user_display_name',
+                'action_config',
+                'caption',
+                'metadata'
+            ];
+
+            for (let i = 0; i < codeKeywords.length; i++) {
+                const key = codeKeywords[i];
+                const keyIdx = text.indexOf(key);
+                if (keyIdx !== -1) {
+                    const prefix = text.slice(0, keyIdx);
+                    const lastQuote = prefix.lastIndexOf('"');
+                    if (lastQuote !== -1) {
+                        text = text.slice(0, lastQuote);
+                    } else {
+                        text = prefix;
+                    }
+                }
+            }
+
+            // 3. 일반적인 JSON 프로퍼티(", "key": 등)나 태그 찌꺼기 절삭
+            const genericMatch = text.match(/",\s*"?\w+"?\s*:/);
+            if (genericMatch) {
+                text = text.slice(0, genericMatch.index);
+            }
+            const bracketMatch = text.match(/"]\s*[,\]\}]/);
+            if (bracketMatch) {
+                text = text.slice(0, bracketMatch.index);
+            }
+            const htmlMetaMatch = text.match(/\["\$","meta"/);
+            if (htmlMetaMatch) {
+                text = text.slice(0, htmlMetaMatch.index);
+            }
+
+            // 4. 줄 끝의 불필요한 역슬래시(\) 및 끝부분 따옴표, 쉼표, 괄호 등 완벽 청소
+            text = text
+                .replace(/\\+(\r?\n)/g, '$1')
+                .replace(/\\+$/g, '')
+                .replace(/["\s,\]\}]+$/g, '')
+                .replace(/^["\s]+/, '')
+                .trim();
+
+            return text;
+        }
+
         function displayLyricsContent(el, text) {
-            if (!text || !text.trim()) {
+            const cleanText = cleanLyricsRobust(text);
+            if (!cleanText || !cleanText.trim()) {
                 el.innerHTML = `<div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 14px;">ℹ️ 등록된 가사가 없거나 연주곡(Instrumental)입니다.</div>`;
                 return;
             }
-
-            // 🧹 가사 후처리: JSON 태그, 메타데이터 아티팩트 및 백슬래시(\) 완전 제거
-            let cleanText = String(text);
-            const artifactMatch = cleanText.match(/",\s*"?\w+"?\s*:/);
-            if (artifactMatch) {
-                cleanText = cleanText.slice(0, artifactMatch.index);
-            }
-            const bracketMatch = cleanText.match(/"]\s*[,\]\}]/);
-            if (bracketMatch) {
-                cleanText = cleanText.slice(0, bracketMatch.index);
-            }
-            const htmlMetaMatch = cleanText.match(/\["\$","meta"/);
-            if (htmlMetaMatch) {
-                cleanText = cleanText.slice(0, htmlMetaMatch.index);
-            }
-
-            cleanText = cleanText
-                .replace(/\\r\\n/g, '\n')
-                .replace(/\\n/g, '\n')
-                .replace(/\\+(\r?\n)/g, '$1')
-                .replace(/\\+$/g, '')
-                .replace(/\\"/g, '"')
-                .replace(/\\\\/g, '\\')
-                .replace(/^"+|"+$/g, '')
-                .trim();
 
             const safeText = cleanText
                 .replace(/&/g, '&amp;')
