@@ -82,7 +82,7 @@
 </head>
 <body>
 
-    <!-- ⚙️ 아래 따옴표 사이에 구글 앱스 스크립트 웹 앱 URL을 입력하세요 -->
+    <!-- ⚙️ 구글 앱스 스크립트 웹 앱 URL 입력 -->
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzY-R8fO52OER-hZWv0JfKamnIIM5QC_UIiiFQKyAOKNPiQyr4HsLnXMA9aN939dk_f/exec";
     </script>
@@ -246,7 +246,7 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 수노 링크에서 ID를 추출하여 네이티브 스트리밍 플레이어 구동
+        // 🎵 수노 링크에서 ID를 추출하여 네이티브 CDN 스트리밍 주소로 변환 후 플레이어 구동
         window.toggleAudioPlayer = function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
@@ -268,6 +268,7 @@
                     b.innerText = '노래 듣기';
                 });
 
+                // 수노 고유 ID 파싱 및 CDN 직행 스트리밍 URL 구성
                 let audioStreamUrl = sunoUrl;
                 let match = sunoUrl.match(/(?:\/s\/|\/song\/)([a-zA-Z0-9-]+)/);
                 if (match && match[1]) {
