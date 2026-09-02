@@ -1189,7 +1189,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbwFp1ia7Qe9l8UdIvR8o2WLq6zgB87pBWCxSuNiFt9VDhlMyhr1NHiZF0VmFspJCcbI/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxVz-ma7Jywh4c8dq_6nGEBmQQ1e1SFQNHF7p8ucIHUk_oOrHOS6F21NnYd89M4XRe8/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -1680,30 +1680,82 @@
                 const coverImg = data.coverUrl || 'https://suno.com/favicon.ico';
                 const songId = data.songId;
                 const audioUrl = data.audioUrl;
+                const proxyAudioUrl = `https://contest-omega-pink.vercel.app/api/resolve?url=${encodeURIComponent(sunoUrl)}&stream=1`;
                 const embedUrl = data.embedUrl || `https://suno.com/embed/${songId}`;
+                const authorText = author || (song ? song.author : '참가자');
 
-                // 🌟 Suno 공식 플레이어 바로 재생 + 오른쪽 상단 가사 보기 버튼 + 오른쪽 하단 공식 플레이어로 전환 버튼
-                playerContainer.innerHTML = `
-                    <div class="player-card" id="card_${id}">
-                        <div class="player-top-header">
-                            <span class="player-badge">SUNO OFFICIAL</span>
-                            <button type="button" class="lyrics-btn" id="lyrics_btn_${id}" onclick="toggleLyricsPopup('${id}')">
-                                📜 가사 보기
-                            </button>
-                        </div>
+                // 📱 모바일 환경 감지 (iOS, Android, 스마트폰)
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768);
 
-                        <div class="embed-frame-box" id="embed_box_${id}">
-                            <iframe src="${embedUrl}" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
-                        </div>
+                if (isMobile) {
+                    // 📱 모바일: 외부 앱(Suno 앱)으로 튕기거나 전체화면으로 넘어가지 않는 인앱 HTML5 플레이어
+                    playerContainer.innerHTML = `
+                        <div class="player-card" id="card_${id}">
+                            <div class="player-top-header">
+                                <div class="player-header">
+                                    <img src="${coverImg}" alt="커버" class="player-cover">
+                                    <div class="player-meta">
+                                        <span class="player-badge">IN-APP PLAYER</span>
+                                        <div class="player-track-name">${displayTitle}</div>
+                                        <div class="player-author" style="font-size:12px; color:var(--text-sub); display: ${showAuthor ? 'block' : 'none'};">제작자: ${authorText}</div>
+                                    </div>
+                                </div>
+                                <button type="button" class="lyrics-btn" id="lyrics_btn_${id}" onclick="toggleLyricsPopup('${id}')">
+                                    📜 가사 보기
+                                </button>
+                            </div>
 
-                        <div class="player-footer-tools" id="footer_tools_${id}">
-                            <span>✨ Suno 공식 임베드</span>
-                            <button type="button" class="switch-player-btn" onclick="window.open('https://suno.com/song/${songId}', '_blank')" title="Suno 공식 웹사이트 플레이어로 이동합니다">
-                                📻 Suno 공식 플레이어로 전환
-                            </button>
+                            <div class="audio-wrapper">
+                                <audio id="audio_el_${id}" controls autoplay playsinline webkit-playsinline preload="auto" style="width:100%; border-radius:10px;">
+                                    <source src="${audioUrl}" type="audio/mp4">
+                                    <source src="${proxyAudioUrl}" type="audio/mp4">
+                                    브라우저가 오디오 재생을 지원하지 않습니다.
+                                </audio>
+                            </div>
+
+                            <div class="player-footer-tools" id="footer_tools_${id}">
+                                <span>📱 모바일 인앱 플레이어 (앱 튕김 방지)</span>
+                                <button type="button" class="switch-player-btn" onclick="switchToEmbed('${id}', '${embedUrl}', '${audioUrl}', '${proxyAudioUrl}', '${coverImg}', '${encodeURIComponent(displayTitle)}', '${encodeURIComponent(authorText)}')">
+                                    📻 Suno 공식 플레이어로 전환
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+
+                    // 오디오 오류 시 프록시 자동 전환
+                    const aEl = document.getElementById(`audio_el_${id}`);
+                    if (aEl) {
+                        aEl.addEventListener('error', function() {
+                            if (aEl.src !== proxyAudioUrl) {
+                                aEl.src = proxyAudioUrl;
+                                aEl.play().catch(e => {});
+                            }
+                        });
+                    }
+                } else {
+                    // 💻 데스크톱: Suno 공식 임베드 플레이어 (외부 탈출 방지 샌드박스 적용)
+                    playerContainer.innerHTML = `
+                        <div class="player-card" id="card_${id}">
+                            <div class="player-top-header">
+                                <span class="player-badge">SUNO OFFICIAL</span>
+                                <button type="button" class="lyrics-btn" id="lyrics_btn_${id}" onclick="toggleLyricsPopup('${id}')">
+                                    📜 가사 보기
+                                </button>
+                            </div>
+
+                            <div class="embed-frame-box" id="embed_box_${id}">
+                                <iframe src="${embedUrl}" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allow="autoplay; encrypted-media" loading="lazy"></iframe>
+                            </div>
+
+                            <div class="player-footer-tools" id="footer_tools_${id}">
+                                <span>✨ Suno 공식 임베드</span>
+                                <button type="button" class="switch-player-btn" onclick="switchToInAppAudio('${id}', '${audioUrl}', '${proxyAudioUrl}', '${coverImg}', '${encodeURIComponent(displayTitle)}', '${encodeURIComponent(authorText)}', '${embedUrl}')">
+                                    🎧 인앱 플레이어로 전환
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
 
                 btn.classList.add('active');
                 btn.innerText = '플레이어 닫기';
@@ -1715,6 +1767,83 @@
                     </div>
                 `;
                 btn.innerText = '노래 듣기';
+            }
+        };
+
+        // 📻 Suno 공식 임베드 플레이어로 전환 함수
+        window.switchToEmbed = function(id, embedUrl, audioUrl, proxyAudioUrl, coverImg, encTitle, encAuthor) {
+            const card = document.getElementById(`card_${id}`);
+            if (!card) return;
+            const displayTitle = decodeURIComponent(encTitle || '');
+            const authorText = decodeURIComponent(encAuthor || '');
+
+            card.innerHTML = `
+                <div class="player-top-header">
+                    <span class="player-badge">SUNO OFFICIAL</span>
+                    <button type="button" class="lyrics-btn" id="lyrics_btn_${id}" onclick="toggleLyricsPopup('${id}')">
+                        📜 가사 보기
+                    </button>
+                </div>
+
+                <div class="embed-frame-box" id="embed_box_${id}">
+                    <iframe src="${embedUrl}" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allow="autoplay; encrypted-media" loading="lazy"></iframe>
+                </div>
+
+                <div class="player-footer-tools" id="footer_tools_${id}">
+                    <span>✨ Suno 공식 임베드</span>
+                    <button type="button" class="switch-player-btn" onclick="switchToInAppAudio('${id}', '${audioUrl}', '${proxyAudioUrl}', '${coverImg}', '${encTitle}', '${encAuthor}', '${embedUrl}')">
+                        🎧 인앱 플레이어로 전환
+                    </button>
+                </div>
+            `;
+        };
+
+        // 🎧 모바일 인앱 오디오 플레이어로 전환 함수
+        window.switchToInAppAudio = function(id, audioUrl, proxyAudioUrl, coverImg, encTitle, encAuthor, embedUrl) {
+            const card = document.getElementById(`card_${id}`);
+            if (!card) return;
+            const displayTitle = decodeURIComponent(encTitle || '');
+            const authorText = decodeURIComponent(encAuthor || '');
+
+            card.innerHTML = `
+                <div class="player-top-header">
+                    <div class="player-header">
+                        <img src="${coverImg}" alt="커버" class="player-cover">
+                        <div class="player-meta">
+                            <span class="player-badge">IN-APP PLAYER</span>
+                            <div class="player-track-name">${displayTitle}</div>
+                            <div class="player-author" style="font-size:12px; color:var(--text-sub); display: ${showAuthor ? 'block' : 'none'};">제작자: ${authorText}</div>
+                        </div>
+                    </div>
+                    <button type="button" class="lyrics-btn" id="lyrics_btn_${id}" onclick="toggleLyricsPopup('${id}')">
+                        📜 가사 보기
+                    </button>
+                </div>
+
+                <div class="audio-wrapper">
+                    <audio id="audio_el_${id}" controls autoplay playsinline webkit-playsinline preload="auto" style="width:100%; border-radius:10px;">
+                        <source src="${audioUrl}" type="audio/mp4">
+                        <source src="${proxyAudioUrl}" type="audio/mp4">
+                        브라우저가 오디오 재생을 지원하지 않습니다.
+                    </audio>
+                </div>
+
+                <div class="player-footer-tools" id="footer_tools_${id}">
+                    <span>📱 모바일 인앱 플레이어 (앱 튕김 방지)</span>
+                    <button type="button" class="switch-player-btn" onclick="switchToEmbed('${id}', '${embedUrl}', '${audioUrl}', '${proxyAudioUrl}', '${coverImg}', '${encTitle}', '${encAuthor}')">
+                        📻 Suno 공식 플레이어로 전환
+                    </button>
+                </div>
+            `;
+
+            const aEl = document.getElementById(`audio_el_${id}`);
+            if (aEl) {
+                aEl.addEventListener('error', function() {
+                    if (aEl.src !== proxyAudioUrl) {
+                        aEl.src = proxyAudioUrl;
+                        aEl.play().catch(e => {});
+                    }
+                });
             }
         };
 
