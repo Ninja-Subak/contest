@@ -973,6 +973,26 @@
             padding-top: 14px;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
+        .modal-btn-restore {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .modal-btn-restore:hover {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            box-shadow: 0 0 22px rgba(16, 185, 129, 0.7);
+            transform: translateY(-1px);
+        }
         .modal-btn-backup {
             background: #0284c7;
             color: white;
@@ -986,6 +1006,26 @@
             font-size: 13px;
         }
 
+        .restore-btn {
+            background: rgba(16, 185, 129, 0.18);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+            transition: all 0.2s;
+        }
+        .restore-btn:hover {
+            background: rgba(16, 185, 129, 0.35);
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+            transform: translateY(-1px);
+        }
+
         .footer { text-align: center; margin-top: 40px; padding: 25px 0; border-top: 1px solid rgba(255, 255, 255, 0.08); }
         .footer-credit { font-size: 11px; color: #64748b; margin: 0; letter-spacing: 0.05em; font-family: monospace; }
     </style>
@@ -995,6 +1035,7 @@
     <div class="header-box">
         <div class="admin-bar">
             <button type="button" onclick="clearData()" class="reset-btn" id="resetBtn">🗑️ 데이터 초기화</button>
+            <button type="button" onclick="restoreLastBackup()" class="restore-btn" id="restoreBtn" title="초기화/삭제 이전 상태로 복구합니다 (Ctrl+Z)">↩️ 복구하기</button>
             <button type="button" onclick="downloadExcel()" class="download-btn" id="downloadBtn">📥 엑셀 백업</button>
             <button type="button" onclick="openVoteResultsModal()" class="results-btn" id="resultsBtn">📊 투표 결과</button>
             <button type="button" onclick="toggleAuthorDisplay()" class="author-toggle" id="authorToggleBtn">제작자: ON</button>
@@ -1051,10 +1092,10 @@
                     </div>
                 </div>
                 <div class="guide-item">
-                    <div class="guide-item-title">🎧 2. 고음질 노래 듣기 & 공식 플레이어</div>
+                    <div class="guide-item-title">🎧 2. 공식 플레이어 & 실시간 가사</div>
                     <div class="guide-item-desc">
-                        • <b>[노래 듣기]</b>: 공식 CDN 고음질 오디오가 끊김 없이 즉시 스트리밍 재생됩니다.<br>
-                        • <b>[Suno 공식 플레이어]</b>: Suno 공식 파형, 가사, 상세 컨트롤이 지원되는 임베드 플레이어로 원클릭 전환할 수 있습니다.
+                        • <b>[노래 듣기]</b>: Suno 공식 플레이어가 열려 파형 비주얼라이저와 함께 안정적으로 스트리밍 재생됩니다.<br>
+                        • <b>[가사 보기]</b>: 플레이어 오른쪽 상단의 [가사 보기]를 누르면 노래 카드 밑에 가사 창이 펼쳐집니다.
                     </div>
                 </div>
                 <div class="guide-item">
@@ -1139,6 +1180,7 @@
             </div>
 
             <div class="modal-footer">
+                <button type="button" onclick="restoreLastBackup()" class="modal-btn-restore" id="modalRestoreBtn" title="초기화/삭제 이전 상태로 되돌립니다 (단축키: Ctrl+Z)">↩️ 복구하기</button>
                 <button type="button" onclick="downloadExcel()" class="modal-btn-backup">📥 엑셀로 백업</button>
                 <button type="button" onclick="closeVoteResultsModal()" class="modal-btn-close">닫기</button>
             </div>
@@ -1147,7 +1189,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbwmIuijal1QNLlCZY6RGT2TGcTcRVLZsPX6FA5G1hADOF0o1fHCoHXoBigkznLJbGok/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxf_nwFaeDx-qpZV-Xg8CKDho5yU0zq0T2Y98PmX9h0EXR6NdaKF4Ryg2PGdMsLynNc/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -1195,6 +1237,9 @@
                 const data = await res.json();
 
                 songs = data.songs || [];
+                if (songs.length > 0) {
+                    localStorage.setItem('sunoAutoBackupSongs', JSON.stringify(songs));
+                }
                 hasVoted = data.hasVoted;
                 myVotedId = data.myVotedId ? String(data.myVotedId) : null;
                 
@@ -1262,13 +1307,91 @@
 
         window.clearData = function() {
             if (!confirm("⚠️ 경고: 모든 데이터가 초기화됩니다! 진행하시겠습니까?")) return;
+            if (songs && songs.length > 0) {
+                localStorage.setItem('sunoUndoBackup', JSON.stringify(songs));
+            }
             fetch(`${API_URL}?action=clearData`)
                 .then(res => res.json())
                 .then(() => {
-                    alert("초기화되었습니다.");
+                    alert("초기화되었습니다.\n(실수로 초기화하셨다면 언제든 [복구하기] 버튼이나 'Ctrl+Z' 로 복구할 수 있습니다.)");
                     fetchAppData();
                 });
         };
+
+        // ↩️ 데이터 복구하기 (Ctrl+Z / Undo 기능)
+        window.restoreLastBackup = async function() {
+            let backupSongs = null;
+            try {
+                const undoStr = localStorage.getItem('sunoUndoBackup') || localStorage.getItem('sunoAutoBackupSongs');
+                if (undoStr) {
+                    backupSongs = JSON.parse(undoStr);
+                }
+            } catch (e) {
+                console.error('로컬 백업 파싱 오류:', e);
+            }
+
+            if (!confirm("이전 데이터(출품곡 및 투표수)를 복구하시겠습니까? (Ctrl+Z 기능)")) {
+                return;
+            }
+
+            const restoreBtns = document.querySelectorAll('.modal-btn-restore, .restore-btn');
+            restoreBtns.forEach(b => {
+                b.disabled = true;
+                b.innerText = '복구 중...';
+            });
+
+            try {
+                // 1. 서버 백업 시트에서 복원 시도
+                let res = await fetch(`${API_URL}?action=restoreData`);
+                let result = await res.json();
+
+                // 2. 만약 서버 백업 시트에 데이터가 없더라도 클라이언트 백업이 있다면 전송하여 복구
+                if (result.status !== 'success' && backupSongs && backupSongs.length > 0) {
+                    res = await fetch(`${API_URL}?action=restoreData&data=${encodeURIComponent(JSON.stringify(backupSongs))}`);
+                    result = await res.json();
+                }
+
+                if (result.status === 'success') {
+                    alert(`🎉 데이터 복구 완료! (${result.count || backupSongs?.length || 0}곡 복원됨)`);
+                } else if (backupSongs && backupSongs.length > 0) {
+                    songs = backupSongs;
+                    renderList();
+                    alert(`🎉 로컬 백업을 통해 데이터가 복구되었습니다! (${backupSongs.length}곡)`);
+                } else {
+                    alert("⚠️ 복구할 수 있는 이전 백업 데이터가 없습니다.");
+                }
+            } catch (err) {
+                console.error("복구 중 오류 발생:", err);
+                if (backupSongs && backupSongs.length > 0) {
+                    songs = backupSongs;
+                    renderList();
+                    alert(`🎉 로컬 백업을 통해 화면 데이터가 복구되었습니다! (${backupSongs.length}곡)`);
+                } else {
+                    alert("⚠️ 복구 중 오류가 발생했습니다: " + err.message);
+                }
+            } finally {
+                restoreBtns.forEach(b => {
+                    b.disabled = false;
+                    b.innerText = '↩️ 복구하기';
+                });
+                await fetchAppData();
+                const modal = document.getElementById('voteResultsModal');
+                if (modal && modal.style.display === 'flex') {
+                    openVoteResultsModal();
+                }
+            }
+        };
+
+        // ⌨️ 단축키 Ctrl+Z (Cmd+Z) 지원
+        window.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
+                const targetTag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : '';
+                if (targetTag === 'input' || targetTag === 'textarea') return;
+
+                e.preventDefault();
+                restoreLastBackup();
+            }
+        });
 
         window.downloadExcel = function() {
             fetch(`${API_URL}?action=getDataForDownload`)
@@ -1316,6 +1439,11 @@
                 resultsBtn.style.display = isAdmin ? "inline-block" : "none";
             }
 
+            const restoreBtn = document.getElementById('restoreBtn');
+            if (restoreBtn) {
+                restoreBtn.style.display = isAdmin ? "inline-block" : "none";
+            }
+
             document.getElementById('downloadBtn').style.display = isAdmin ? "inline-block" : "none";
             document.getElementById('resetBtn').style.display = isAdmin ? "inline-block" : "none";
 
@@ -1325,9 +1453,16 @@
         }
 
         // 🏆 관리자 모드 전용 투표 결과 모달 열기
-        window.openVoteResultsModal = function() {
+        window.openVoteResultsModal = async function() {
             const modal = document.getElementById('voteResultsModal');
             if (!modal) return;
+
+            // 만약 songs가 비어있다면 즉시 서버에서 다시 동기화 시도
+            if (!songs || songs.length === 0) {
+                try {
+                    await fetchAppData();
+                } catch(e) {}
+            }
 
             const sortedSongs = [...songs].sort((a, b) => Number(b.votes) - Number(a.votes));
             const totalVotes = sortedSongs.reduce((sum, s) => sum + Number(s.votes || 0), 0);
@@ -1547,7 +1682,7 @@
                 const audioUrl = data.audioUrl;
                 const embedUrl = data.embedUrl || `https://suno.com/embed/${songId}`;
 
-                // 🌟 Suno 공식 플레이어를 기본 플레이어로 바로 노출 + 오른쪽 상단 가사 보기 버튼
+                // 🌟 Suno 공식 플레이어 바로 재생 + 오른쪽 상단 가사 보기 버튼
                 playerContainer.innerHTML = `
                     <div class="player-card" id="card_${id}">
                         <div class="player-top-header">
@@ -1559,13 +1694,6 @@
 
                         <div class="embed-frame-box" id="embed_box_${id}">
                             <iframe src="${embedUrl}" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
-                        </div>
-
-                        <div class="player-footer-tools" id="footer_tools_${id}">
-                            <span>✨ Suno 공식 임베드 플레이어</span>
-                            <button type="button" class="switch-player-btn" onclick="switchToNativeAudio('${id}', '${audioUrl}', '${embedUrl}')">
-                                🎧 심플 플레이어로 전환
-                            </button>
                         </div>
                     </div>
                 `;
@@ -1581,71 +1709,6 @@
                 `;
                 btn.innerText = '노래 듣기';
             }
-        };
-
-        // 🎧 심플 오디오 플레이어로 전환하는 함수
-        window.switchToNativeAudio = function(id, audioUrl, embedUrl) {
-            const song = songs.find(s => String(s.id) === String(id));
-            const card = document.getElementById(`card_${id}`);
-            if (!card) return;
-
-            const displayTitle = song ? song.title : '노래 재생';
-            const author = song ? song.author : '참가자';
-
-            card.innerHTML = `
-                <div class="player-top-header">
-                    <div class="player-header" style="display: ${showPlayerInfo ? 'flex' : 'none'};">
-                        <img src="https://suno.com/favicon.ico" alt="커버" class="player-cover">
-                        <div class="player-meta">
-                            <span class="player-badge">SUNO OFFICIAL</span>
-                            <div class="player-track-name">${displayTitle}</div>
-                            <div class="player-author" style="font-size:12px; color:var(--text-sub); display: ${showAuthor ? 'block' : 'none'};">제작자: ${author || '참가자'}</div>
-                        </div>
-                    </div>
-                    <button type="button" class="lyrics-btn" id="lyrics_btn_${id}" onclick="toggleLyricsPopup('${id}')">
-                        📜 가사 보기
-                    </button>
-                </div>
-
-                <div class="audio-wrapper">
-                    <audio controls autoplay preload="auto" src="${audioUrl}">
-                        브라우저가 오디오 재생을 지원하지 않습니다.
-                    </audio>
-                </div>
-
-                <div class="player-footer-tools">
-                    <span>⚡ 공식 CDN 고음질 스트리밍</span>
-                    <button type="button" class="switch-player-btn" onclick="switchToEmbed('${id}', '${embedUrl}', '${audioUrl}')">
-                        📻 Suno 공식 플레이어
-                    </button>
-                </div>
-            `;
-        };
-
-        // 📻 Suno 공식 임베드 플레이어로 전환하는 함수
-        window.switchToEmbed = function(id, embedUrl, audioUrl) {
-            const card = document.getElementById(`card_${id}`);
-            if (!card) return;
-
-            card.innerHTML = `
-                <div class="player-top-header">
-                    <span class="player-badge">SUNO OFFICIAL</span>
-                    <button type="button" class="lyrics-btn" id="lyrics_btn_${id}" onclick="toggleLyricsPopup('${id}')">
-                        📜 가사 보기
-                    </button>
-                </div>
-
-                <div class="embed-frame-box">
-                    <iframe src="${embedUrl}" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
-                </div>
-
-                <div class="player-footer-tools">
-                    <span>✨ Suno 공식 임베드 플레이어</span>
-                    <button type="button" class="switch-player-btn" onclick="switchToNativeAudio('${id}', '${audioUrl}', '${embedUrl}')">
-                        🎧 심플 플레이어로 전환
-                    </button>
-                </div>
-            `;
         };
 
         // 📜 가사 보기 팝업 창 펼치기/접기 함수
@@ -1802,9 +1865,12 @@
 
         window.deleteSong = function(id) {
             if (!confirm("정말 삭제하시겠습니까?")) return;
+            if (songs && songs.length > 0) {
+                localStorage.setItem('sunoUndoBackup', JSON.stringify(songs));
+            }
             fetch(`${API_URL}?action=deleteSong&id=${id}`)
                 .then(res => res.json())
-                .then(() => { alert("삭제되었습니다."); fetchAppData(); });
+                .then(() => { alert("삭제되었습니다. (실수로 삭제한 경우 [복구하기] 또는 Ctrl+Z 로 복구 가능)"); fetchAppData(); });
         };
 
         function renderList() {
