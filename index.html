@@ -715,8 +715,6 @@
             border: 1px solid rgba(0, 242, 254, 0.25);
         }
 
-        /* 🎚️ 프로그레스 재생바 */
-        .master-progress-container {
         /* 🎛️ 사이버 마스터 플레이어 임베드 프레임 */
         .master-embed-wrapper {
             position: relative;
@@ -724,8 +722,12 @@
             overflow: hidden;
             border: 1px solid rgba(0, 242, 254, 0.4);
             box-shadow: 0 0 25px rgba(0, 242, 254, 0.15), inset 0 0 15px rgba(0, 0, 0, 0.5);
-            margin: 12px 0 16px 0;
+            margin: 14px 0 18px 0;
             background: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 160px;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .master-embed-wrapper:hover {
@@ -742,11 +744,11 @@
 
         /* 📜 마스터 가사 보기 버튼 (상단 헤더 배치) */
         .master-lyrics-bar-btn {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(99, 102, 241, 0.35));
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(99, 102, 241, 0.4));
             color: #e0e7ff;
-            border: 1px solid rgba(168, 85, 247, 0.5);
+            border: 1px solid rgba(168, 85, 247, 0.6);
             border-radius: 999px;
-            padding: 5px 13px;
+            padding: 5px 14px;
             font-size: 12px;
             font-weight: 800;
             cursor: pointer;
@@ -754,15 +756,15 @@
             align-items: center;
             gap: 5px;
             white-space: nowrap;
-            box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             flex-shrink: 0;
         }
         .master-lyrics-bar-btn:hover {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.45), rgba(99, 102, 241, 0.55));
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.55), rgba(99, 102, 241, 0.65));
             color: #ffffff;
             border-color: #c084fc;
-            box-shadow: 0 0 25px rgba(168, 85, 247, 0.55);
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.6);
             transform: translateY(-1px);
         }
         .master-lyrics-bar-btn.active {
@@ -777,46 +779,51 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 24px;
-            margin-top: 4px;
+            gap: 16px;
+            margin-top: 6px;
+            flex-wrap: wrap;
         }
         @media (max-width: 480px) {
             .master-controls-bar {
-                gap: 14px;
+                gap: 10px;
             }
         }
         .master-ctrl-btn {
-            background: transparent !important;
-            border: none !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
             border-radius: 10px;
-            color: #94a3b8;
-            padding: 6px 14px;
+            color: #cbd5e1;
+            padding: 8px 16px;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             justify-content: center;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             cursor: pointer;
             position: relative;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             outline: none;
             user-select: none;
+            backdrop-filter: blur(4px);
         }
         .master-ctrl-btn:hover {
             color: #00f2fe;
+            border-color: rgba(0, 242, 254, 0.5) !important;
             transform: translateY(-2px);
-            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.75));
-            background: rgba(0, 242, 254, 0.08) !important;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.6));
+            background: rgba(0, 242, 254, 0.12) !important;
         }
         .master-ctrl-btn:active {
-            transform: scale(0.94);
+            transform: scale(0.95);
         }
         .master-ctrl-btn.active {
             color: #00f2fe;
-            filter: drop-shadow(0 0 12px rgba(0, 242, 254, 0.9));
+            border-color: rgba(0, 242, 254, 0.8) !important;
+            background: rgba(0, 242, 254, 0.18) !important;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.35);
         }
         .master-ctrl-lbl {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
             letter-spacing: -0.2px;
         }
@@ -1818,7 +1825,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbyjXUMF7-MjRHjVcK4Q85UPf1kqA5u60dCcKEsB711yLDKUlTuiA3SmjDC2DN_eQZi1/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwieQq-L-Wx1nwNPmLYLVEELLJ-UfXQ6qpKJ_8l7fuvXwtMacgvOMgPnkNvd6wzPOHn/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
