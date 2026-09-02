@@ -57,10 +57,102 @@
 
         .vote-count { font-weight: 800; color: #059669; margin-left: 5px; font-size: 16px; min-width: 45px; text-align: right; }
         
-        /* 🎧 순수 내부 오디오 플레이어 스타일 */
-        .player-container { margin-top: 15px; display: none; border-top: 1px solid var(--border); padding-top: 15px; background: #f8fafc; border-radius: 10px; padding: 15px; text-align: center; }
-        .native-audio-box { display: flex; flex-direction: column; gap: 8px; align-items: center; width: 100%; }
-        .native-audio-box audio { width: 100%; max-width: 450px; outline: none; }
+        /* 🎧 고성능 통합 오디오 플레이어 스타일 */
+        .player-container { 
+            margin-top: 15px; 
+            display: none; 
+            border-top: 1px solid var(--border); 
+            padding-top: 16px; 
+            background: #f8fafc; 
+            border-radius: 12px; 
+            padding: 16px; 
+        }
+        .player-card {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+        .player-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+        }
+        .player-cover {
+            width: 52px;
+            height: 52px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #e2e8f0;
+            flex-shrink: 0;
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+        .player-meta {
+            flex: 1;
+            min-width: 0;
+        }
+        .player-badge {
+            font-size: 11px;
+            font-weight: 700;
+            color: #4f46e5;
+            background: #e0e7ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 3px;
+        }
+        .player-track-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .audio-wrapper {
+            width: 100%;
+        }
+        .audio-wrapper audio { 
+            width: 100%; 
+            outline: none; 
+            border-radius: 8px;
+        }
+        .player-footer-tools {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-sub);
+            padding-top: 4px;
+            border-top: 1px dashed #e2e8f0;
+        }
+        .switch-player-btn {
+            background: transparent;
+            color: #4f46e5;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid #c7d2fe;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .switch-player-btn:hover {
+            background: #e0e7ff;
+        }
+        .embed-frame-box {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 6px;
+            background: #000;
+        }
+        .embed-frame-box iframe {
+            width: 100%;
+            height: 140px;
+            border: none;
+            display: block;
+        }
 
         .header-box { text-align: center; margin-bottom: 30px; position: relative; }
         .header-box p { color: var(--text-sub); font-size: 15px; line-height: 1.5; }
@@ -87,10 +179,12 @@
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
         const API_URL = "https://script.google.com/macros/s/AKfycbzY-R8fO52OER-hZWv0JfKamnIIM5QC_UIiiFQKyAOKNPiQyr4HsLnXMA9aN939dk_f/exec";
-        // ⚙️ 수노 짧은 링크(og:audio) 해석용 Supabase Edge Function 주소
-        // supabase/index.ts 를 Supabase Edge Function 으로 배포한 뒤, 아래 값을
-        // "https://<프로젝트ref>.supabase.co/functions/v1/<함수이름>" 형태로 바꿔주세요.
+        
+        // ⚙️ Supabase Edge Function 주소 (옵션)
         const SUPABASE_RESOLVE_URL = "https://tdygshqxyckzpodffqsg.supabase.co/functions/v1/resolve-suno-audio";
+        
+        // ⚙️ 해석된 수노 정보 캐시 (중복 호출 방지)
+        const sunoCache = new Map();
     </script>
 
     <div class="header-box">
@@ -252,9 +346,83 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 [노래 듣기] 클릭 시 수노 링크(짧은 링크 /s/... 포함)의 실제 음원 주소를
-        // Supabase Edge Function(og:audio 메타태그 파싱)으로 알아낸 뒤 내부 플레이어 구동
-        window.toggleInlinePlayer = async function(id, sunoUrl) {
+        // 🔍 수노 짧은 링크(단축 URL)를 실제 재생 주소로 변환하는 다계층 리졸버 함수
+        async function resolveSunoTrack(sunoUrl) {
+            if (sunoCache.has(sunoUrl)) {
+                return sunoCache.get(sunoUrl);
+            }
+
+            let result = null;
+
+            // 1계층: Vercel Serverless Function (/api/resolve)
+            try {
+                const vRes = await fetch(`/api/resolve?url=${encodeURIComponent(sunoUrl)}`);
+                if (vRes.ok) {
+                    const vData = await vRes.json();
+                    if (vData && (vData.audioUrl || vData.embedUrl || vData.songId)) {
+                        result = vData;
+                    }
+                }
+            } catch (e) {
+                // Vercel 함수가 없는 환경이면 다음 계층으로 진행
+            }
+
+            // 2계층: 구글 Apps Script (API_URL?action=resolveSuno)
+            if (!result) {
+                try {
+                    const gRes = await fetch(`${API_URL}?action=resolveSuno&url=${encodeURIComponent(sunoUrl)}`);
+                    if (gRes.ok) {
+                        const gData = await gRes.json();
+                        if (gData && (gData.audioUrl || gData.embedUrl || gData.songId)) {
+                            result = gData;
+                        }
+                    }
+                } catch (e) {
+                    // 다음 계층으로 진행
+                }
+            }
+
+            // 3계층: Supabase Edge Function (설정되어 있을 경우)
+            if (!result && SUPABASE_RESOLVE_URL) {
+                try {
+                    const sRes = await fetch(`${SUPABASE_RESOLVE_URL}?url=${encodeURIComponent(sunoUrl)}`);
+                    if (sRes.ok) {
+                        const sData = await sRes.json();
+                        if (sData && (sData.audioUrl || sData.embedUrl || sData.songId)) {
+                            result = sData;
+                        }
+                    }
+                } catch (e) {
+                    // 다음 계층으로 진행
+                }
+            }
+
+            // 4계층: 로컬 UUID 정규식 기반 대체 (주소에 이미 UUID가 포함되어 있는 경우)
+            if (!result) {
+                const uuidMatch = sunoUrl.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+                if (uuidMatch && uuidMatch[1]) {
+                    const id = uuidMatch[1];
+                    result = {
+                        success: true,
+                        songId: id,
+                        audioUrl: `https://d2lwuy8qc234o3.cloudfront.net/1/clip/${id}.m4a`,
+                        cdnUrl: `https://cdn1.suno.ai/${id}.mp3`,
+                        embedUrl: `https://suno.com/embed/${id}`,
+                        coverUrl: `https://cdn2.suno.ai/image_large_${id}.jpeg`
+                    };
+                }
+            }
+
+            if (result) {
+                sunoCache.set(sunoUrl, result);
+                return result;
+            }
+
+            throw new Error("수노 음원 주소를 찾을 수 없습니다. 링크를 확인해 주세요.");
+        }
+
+        // 🎵 [노래 듣기] 플레이어 열기/닫기 토글
+        window.toggleInlinePlayer = async function(id, sunoUrl, title, author) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
 
@@ -268,7 +436,7 @@
                 return;
             }
 
-            // 다른 곡이 재생 중이면 모두 닫기
+            // 다른 곡 재생 중이면 모두 닫기
             document.querySelectorAll('.player-container').forEach(el => {
                 el.style.display = 'none';
                 el.innerHTML = '';
@@ -278,43 +446,87 @@
                 b.innerText = '노래 듣기';
             });
 
-            if (!sunoUrl.includes('suno.com')) {
+            if (!sunoUrl || !sunoUrl.includes('suno.com')) {
                 alert("올바른 수노 링크가 아닙니다.");
                 return;
             }
 
-            // 먼저 로딩 상태 표시
+            // 로딩 상태 표시
             playerContainer.style.display = 'block';
-            playerContainer.innerHTML = `<div class="native-audio-box"><span>🎧 재생 주소를 가져오는 중...</span></div>`;
+            playerContainer.innerHTML = `
+                <div style="padding: 12px; text-align: center; color: var(--text-sub); font-size: 14px;">
+                    🎧 수노 스트리밍 음원 주소 변환 중... 잠시만 기다려주세요.
+                </div>
+            `;
             btn.innerText = '불러오는 중...';
 
             try {
-                // ⚠️ 수노의 "/s/짧은코드" 링크는 실제 곡 CDN ID와 다르기 때문에
-                // 직접 cdn1.suno.ai/짧은코드.mp3 로 조합하면 재생이 안 됩니다.
-                // 반드시 서버(Supabase Edge Function)에서 실제 페이지를 열어
-                // og:audio 메타태그의 진짜 스트리밍 주소를 받아와야 합니다.
-                const res = await fetch(`${SUPABASE_RESOLVE_URL}?url=${encodeURIComponent(sunoUrl)}`);
-                const data = await res.json();
-
-                if (!res.ok || !data.audioUrl) {
-                    throw new Error(data.error || '음원 주소를 찾을 수 없습니다.');
-                }
+                const data = await resolveSunoTrack(sunoUrl);
+                const displayTitle = data.title || title || '노래 재생';
+                const coverImg = data.coverUrl || 'https://suno.com/favicon.ico';
+                const songId = data.songId;
+                const audioUrl = data.audioUrl;
+                const embedUrl = data.embedUrl || `https://suno.com/embed/${songId}`;
 
                 playerContainer.innerHTML = `
-                    <div class="native-audio-box">
-                        <audio controls autoplay preload="auto" src="${data.audioUrl}"
-                            onerror="this.insertAdjacentHTML('afterend', '<p style=\\'color:#ef4444;font-size:13px;\\'>⚠️ 오디오 파일을 재생할 수 없습니다. 링크를 확인해주세요.</p>')">
-                            브라우저가 오디오 재생을 지원하지 않습니다.
-                        </audio>
+                    <div class="player-card" id="card_${id}">
+                        <div class="player-header">
+                            <img src="${coverImg}" alt="커버" class="player-cover" onerror="this.src='https://suno.com/favicon.ico'">
+                            <div class="player-meta">
+                                <span class="player-badge">SUNO OFFICIAL</span>
+                                <div class="player-track-name">${displayTitle}</div>
+                                <div style="font-size:12px; color:var(--text-sub);">제작자: ${author || '참가자'}</div>
+                            </div>
+                        </div>
+
+                        <div class="audio-wrapper" id="audio_box_${id}">
+                            <audio controls autoplay preload="auto" src="${audioUrl}" id="audio_tag_${id}">
+                                브라우저가 오디오 재생을 지원하지 않습니다.
+                            </audio>
+                        </div>
+
+                        <div class="player-footer-tools">
+                            <span>⚡ 공식 CDN 고음질 스트리밍</span>
+                            <button type="button" class="switch-player-btn" onclick="switchToEmbed('${id}', '${embedUrl}')">
+                                📻 Suno 공식 플레이어로 전환
+                            </button>
+                        </div>
                     </div>
                 `;
+
+                // 오디오 태그 재생 실패 시 공식 임베드 플레이어로 자동 폴백
+                const audioTag = document.getElementById(`audio_tag_${id}`);
+                if (audioTag) {
+                    audioTag.onerror = function() {
+                        console.warn("직접 오디오 재생 차단 감지 -> 공식 임베드 플레이어로 전환합니다.");
+                        switchToEmbed(id, embedUrl, true);
+                    };
+                }
+
                 btn.classList.add('active');
                 btn.innerText = '플레이어 닫기';
             } catch (err) {
                 console.error(err);
-                playerContainer.innerHTML = `<div class="native-audio-box"><span style="color:#ef4444;">⚠️ 재생 주소를 가져오지 못했습니다. (${err.message})</span></div>`;
+                playerContainer.innerHTML = `
+                    <div style="padding: 10px; color: #ef4444; font-size: 13px; text-align: center;">
+                        ⚠️ 음원을 불러오지 못했습니다: ${err.message}
+                    </div>
+                `;
                 btn.innerText = '노래 듣기';
             }
+        };
+
+        // 📻 Suno 공식 임베드 플레이어로 전환하는 함수
+        window.switchToEmbed = function(id, embedUrl, isFallback = false) {
+            const audioBox = document.getElementById(`audio_box_${id}`);
+            if (!audioBox) return;
+
+            audioBox.innerHTML = `
+                ${isFallback ? '<p style="color:#f59e0b; font-size:12px; margin:0 0 6px 0;">ℹ️ 브라우저 보안 정책으로 인해 공식 플레이어로 재생합니다.</p>' : ''}
+                <div class="embed-frame-box">
+                    <iframe src="${embedUrl}" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
+                </div>
+            `;
         };
 
         window.registerSong = function() {
@@ -328,11 +540,15 @@
             }
 
             if (!url.includes('suno.com')) {
-                alert('올바른 수노 링크가 아닙니다.');
+                alert('올바른 수노 링크가 아닙니다. (예: https://suno.com/s/...)');
                 return;
             }
 
-            alert('곡을 등록하고 있습니다...');
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
+            alert('곡을 등록하고 있습니다. 잠시만 기다려주세요...');
 
             fetch(`${API_URL}?action=addSong&title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&url=${encodeURIComponent(url)}`)
                 .then(res => res.json())
@@ -342,6 +558,9 @@
                     document.getElementById('sunoUrl').value = '';
                     alert('등록 완료!');
                     fetchAppData();
+                })
+                .catch(err => {
+                    alert('등록 중 오류가 발생했습니다: ' + err.message);
                 });
         };
 
@@ -405,6 +624,8 @@
             songs.forEach((song, index) => {
                 const isThisMyVote = (myVotedId !== null && String(myVotedId) === String(song.id));
                 const safeUrl = (song.url || '').replace(/'/g, "\\'");
+                const safeTitle = (song.title || '').replace(/'/g, "\\'");
+                const safeAuthor = (song.author || '').replace(/'/g, "\\'");
 
                 const item = document.createElement('div');
                 item.className = 'song-card';
@@ -415,7 +636,7 @@
                             <div class="song-author" style="display: ${showAuthor ? 'block' : 'none'};">제작자: <b>${song.author}</b></div>
                         </div>
                         <div class="action-group">
-                            <button type="button" id="btn_${song.id}" onclick="toggleInlinePlayer('${song.id}', '${safeUrl}')" class="listen-btn">노래 듣기</button>
+                            <button type="button" id="btn_${song.id}" onclick="toggleInlinePlayer('${song.id}', '${safeUrl}', '${safeTitle}', '${safeAuthor}')" class="listen-btn">노래 듣기</button>
                             <button type="button" onclick="voteSong('${song.id}')" class="vote-btn ${hasVoted ? 'voted' : ''}" ${hasVoted ? 'disabled' : ''}>
                                 ${isThisMyVote ? '투표 완료' : '투표하기'}
                             </button>
