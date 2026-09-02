@@ -1000,8 +1000,8 @@
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
         const API_URL = "https://script.google.com/macros/s/AKfycbxENPf8bQrd3p0-VyxxKZdugANtIf_l44gZG1gwHbG5kPdc4H3BwLs_JGUiW_sCf_uu/exec";
         
-        // ⚙️ Supabase Edge Function 주소 (옵션)
-        const SUPABASE_RESOLVE_URL = "https://tdygshqxyckzpodffqsg.supabase.co/functions/v1/resolve-suno-audio";
+        // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
+        const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
         
         // ⚙️ 해석된 수노 정보 캐시 (중복 호출 방지)
         const sunoCache = new Map();
@@ -1277,17 +1277,31 @@
 
             let result = null;
 
-            // 1계층: Vercel Serverless Function (/api/resolve)
-            try {
-                const vRes = await fetch(`/api/resolve?url=${encodeURIComponent(sunoUrl)}`);
-                if (vRes.ok) {
-                    const vData = await vRes.json();
-                    if (vData && (vData.audioUrl || vData.embedUrl || vData.songId)) {
-                        result = vData;
+            // 1계층: Vercel Serverless Function (로컬 file:// 실행 시에도 원격 Vercel 엔드포인트 자동 연동)
+            const endpointsToTry = [];
+            const isLocal = (window.location.protocol === 'file:' || !window.location.host || !window.location.host.includes('vercel.app'));
+            
+            if (isLocal) {
+                endpointsToTry.push(`${VERCEL_RESOLVE_API}?url=${encodeURIComponent(sunoUrl)}`);
+            } else {
+                endpointsToTry.push(`/api/resolve?url=${encodeURIComponent(sunoUrl)}`);
+                endpointsToTry.push(`${VERCEL_RESOLVE_API}?url=${encodeURIComponent(sunoUrl)}`);
+            }
+
+            for (const ep of endpointsToTry) {
+                if (result) break;
+                try {
+                    const vRes = await fetch(ep);
+                    if (vRes.ok) {
+                        const vData = await vRes.json();
+                        if (vData && (vData.audioUrl || vData.embedUrl || vData.songId)) {
+                            result = vData;
+                            break;
+                        }
                     }
+                } catch (e) {
+                    // 다음 엔드포인트 진행
                 }
-            } catch (e) {
-                // Vercel 함수가 없는 환경이면 다음 계층으로 진행
             }
 
             // 2계층: 구글 Apps Script (API_URL?action=resolveSuno)
@@ -1305,22 +1319,7 @@
                 }
             }
 
-            // 3계층: Supabase Edge Function (설정되어 있을 경우)
-            if (!result && SUPABASE_RESOLVE_URL) {
-                try {
-                    const sRes = await fetch(`${SUPABASE_RESOLVE_URL}?url=${encodeURIComponent(sunoUrl)}`);
-                    if (sRes.ok) {
-                        const sData = await sRes.json();
-                        if (sData && (sData.audioUrl || sData.embedUrl || sData.songId)) {
-                            result = sData;
-                        }
-                    }
-                } catch (e) {
-                    // 다음 계층으로 진행
-                }
-            }
-
-            // 4계층: 로컬 UUID 정규식 기반 대체 (주소에 이미 UUID가 포함되어 있는 경우)
+            // 3계층: 로컬 UUID 정규식 기반 대체 (주소에 이미 UUID가 포함되어 있는 경우)
             if (!result) {
                 const uuidMatch = sunoUrl.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
                 if (uuidMatch && uuidMatch[1]) {
