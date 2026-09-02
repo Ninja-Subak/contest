@@ -810,13 +810,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 16px;
+            gap: 10px;
             margin-top: 6px;
             flex-wrap: wrap;
         }
         @media (max-width: 480px) {
             .master-controls-bar {
-                gap: 10px;
+                gap: 8px;
             }
         }
         .master-ctrl-btn {
@@ -824,7 +824,7 @@
             border: 1px solid rgba(255, 255, 255, 0.12) !important;
             border-radius: 10px;
             color: #cbd5e1;
-            padding: 8px 16px;
+            padding: 8px 13px;
             display: flex;
             flex-direction: row;
             justify-content: center;
@@ -865,6 +865,73 @@
             border-radius: 50%;
             box-shadow: 0 0 6px #00f2fe;
             display: inline-block;
+        }
+
+        /* 🔊 가로 직사각형 사운드 조절 볼륨 바 박스 */
+        .master-volume-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: #cbd5e1;
+            padding: 8px 14px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+            backdrop-filter: blur(4px);
+            touch-action: none;
+        }
+        .master-volume-box:hover {
+            border-color: rgba(0, 242, 254, 0.5);
+            background: rgba(0, 242, 254, 0.08);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
+        }
+        .master-volume-icon-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+        .master-volume-box:hover .master-volume-icon-btn {
+            color: #00f2fe;
+        }
+        /* 세로 막대 계단형 볼륨 바 컨테이너 (왼쪽 작게, 오른쪽 크게) */
+        .master-volume-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 24px;
+            padding: 0 2px;
+            cursor: pointer;
+        }
+        .master-vol-bar {
+            width: 4.5px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.15);
+            transition: background 0.15s ease, box-shadow 0.15s ease;
+        }
+        .master-vol-bar.active {
+            background: #00f2fe;
+            box-shadow: 0 0 6px rgba(0, 242, 254, 0.7);
+        }
+        .master-vol-val {
+            font-size: 11px;
+            font-weight: 800;
+            color: #00f2fe;
+            min-width: 30px;
+            text-align: right;
+            letter-spacing: -0.2px;
+            font-variant-numeric: tabular-nums;
         }
 
         /* 🔍 검색 및 카테고리 필터 바 */
@@ -1724,6 +1791,28 @@
                 </span>
                 <span class="master-ctrl-lbl" id="masterRepeatText">전체 반복</span>
             </button>
+
+            <!-- 🔊 5. 사운드 볼륨 조절바 (가로 직사각형 박스 + 세로 계단형 막대 이퀄라이저) -->
+            <div class="master-volume-box" id="masterVolumeBox" title="사운드 크기 조절 (좌/우로 드래그하거나 클릭)">
+                <button type="button" class="master-volume-icon-btn" id="masterVolIconBtn" onclick="event.stopPropagation(); toggleMasterMute();" title="음소거 / 볼륨 복원">
+                    <svg id="masterVolIcon" viewBox="0 0 24 24" width="19" height="19" fill="currentColor">
+                        <path d="M3 9v6h4l5 5V4L9 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    </svg>
+                </button>
+                <div class="master-volume-bars" id="masterVolumeBars">
+                    <span class="master-vol-bar active" style="height: 5px;" data-idx="0"></span>
+                    <span class="master-vol-bar active" style="height: 7px;" data-idx="1"></span>
+                    <span class="master-vol-bar active" style="height: 9px;" data-idx="2"></span>
+                    <span class="master-vol-bar active" style="height: 11px;" data-idx="3"></span>
+                    <span class="master-vol-bar active" style="height: 13px;" data-idx="4"></span>
+                    <span class="master-vol-bar active" style="height: 15px;" data-idx="5"></span>
+                    <span class="master-vol-bar active" style="height: 17px;" data-idx="6"></span>
+                    <span class="master-vol-bar active" style="height: 19px;" data-idx="7"></span>
+                    <span class="master-vol-bar" style="height: 21px;" data-idx="8"></span>
+                    <span class="master-vol-bar" style="height: 23px;" data-idx="9"></span>
+                </div>
+                <span class="master-vol-val" id="masterVolVal">80%</span>
+            </div>
         </div>
 
         <!-- 마스터 가사 팝업 창 -->
@@ -1859,7 +1948,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbwo_2CiCnmtE9zRTQUwjP18L41Zbl_Al_TL9gI9iKmG0u0u7jU037KVH6ashPJsEM3P/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbyYmdVsspyTFR436xJy_DTx1ztGvUA5aDxJzPI017nZCPyjDCBpzkGiCGEOLpxF6pVI/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -3027,6 +3116,112 @@
             const song = songs[currentMasterSongIndex];
             updateMasterLyricsDisplay(song);
         };
+
+        // ==========================================
+        // 🔊 사운드 볼륨 컨트롤러 (드래그 & 세로 막대 이퀄라이저)
+        // ==========================================
+        let currentMasterVolume = parseFloat(localStorage.getItem('sunoMasterVolume') || '0.8');
+        let lastNonZeroVolume = 0.8;
+
+        window.setMasterVolume = function(vol) {
+            vol = Math.max(0, Math.min(1, Math.round(vol * 100) / 100));
+            currentMasterVolume = vol;
+            if (vol > 0) lastNonZeroVolume = vol;
+            try { localStorage.setItem('sunoMasterVolume', vol.toString()); } catch(e) {}
+
+            // 1. 세로 막대 10개 활성화 상태 갱신 (왼쪽 낮음 -> 오른쪽 높음)
+            const bars = document.querySelectorAll('.master-vol-bar');
+            const totalBars = bars.length || 10;
+            const activeCount = Math.round(vol * totalBars);
+
+            bars.forEach((bar, idx) => {
+                if (idx < activeCount) {
+                    bar.classList.add('active');
+                } else {
+                    bar.classList.remove('active');
+                }
+            });
+
+            // 2. 수치 텍스트 갱신 (예: 80%)
+            const valEl = document.getElementById('masterVolVal');
+            if (valEl) {
+                valEl.innerText = Math.round(vol * 100) + '%';
+            }
+
+            // 3. 스피커 아이콘 갱신 (음소거 / 낮은 볼륨 / 높은 볼륨)
+            const iconSvg = document.getElementById('masterVolIcon');
+            if (iconSvg) {
+                if (vol === 0) {
+                    iconSvg.innerHTML = `<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>`;
+                } else if (vol < 0.5) {
+                    iconSvg.innerHTML = `<path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/>`;
+                } else {
+                    iconSvg.innerHTML = `<path d="M3 9v6h4l5 5V4L9 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>`;
+                }
+            }
+
+            // 4. 페이지 내 모든 오디오 태그 볼륨 즉시 반영
+            document.querySelectorAll('audio').forEach(a => {
+                a.volume = vol;
+            });
+        };
+
+        // 🔇 음소거 토글
+        window.toggleMasterMute = function() {
+            if (currentMasterVolume > 0) {
+                setMasterVolume(0);
+            } else {
+                setMasterVolume(lastNonZeroVolume || 0.8);
+            }
+        };
+
+        // 🖱️ 볼륨 드래그 및 클릭 제어 이벤트 리스너 등록
+        function initMasterVolumeControls() {
+            const volBox = document.getElementById('masterVolumeBox');
+            const barsContainer = document.getElementById('masterVolumeBars');
+            if (!volBox || !barsContainer) return;
+
+            let isDragging = false;
+
+            function updateVolFromPointer(e) {
+                const rect = barsContainer.getBoundingClientRect();
+                const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+                const offsetX = clientX - rect.left;
+                const ratio = Math.max(0, Math.min(1, offsetX / rect.width));
+                setMasterVolume(ratio);
+            }
+
+            volBox.addEventListener('pointerdown', function(e) {
+                if (e.target.closest('#masterVolIconBtn')) return;
+                isDragging = true;
+                try { volBox.setPointerCapture(e.pointerId); } catch(err) {}
+                updateVolFromPointer(e);
+            });
+
+            volBox.addEventListener('pointermove', function(e) {
+                if (isDragging) {
+                    updateVolFromPointer(e);
+                }
+            });
+
+            const stopDrag = function(e) {
+                if (isDragging) {
+                    isDragging = false;
+                    try { volBox.releasePointerCapture(e.pointerId); } catch(err) {}
+                }
+            };
+            volBox.addEventListener('pointerup', stopDrag);
+            volBox.addEventListener('pointercancel', stopDrag);
+
+            // 초기 저장된 볼륨 적용
+            setMasterVolume(currentMasterVolume);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initMasterVolumeControls);
+        } else {
+            initMasterVolumeControls();
+        }
 
         // ==========================================
         // 🔍 실시간 검색 & 필터 (제작자, 제목, 음악 장르)
