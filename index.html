@@ -57,6 +57,15 @@
 
         .vote-count { font-weight: 800; color: #059669; margin-left: 5px; font-size: 16px; min-width: 45px; text-align: right; }
         
+        /* 🚫 제작자 숨김 및 곡 상세정보 숨김 강제 제어 */
+        body.hide-author .song-author,
+        body.hide-author .player-author {
+            display: none !important;
+        }
+        body.hide-player-info .player-header {
+            display: none !important;
+        }
+
         /* 🎧 고성능 통합 오디오 플레이어 스타일 */
         .player-container { 
             margin-top: 15px; 
@@ -160,7 +169,7 @@
         
         .admin-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
         .admin-toggle { background: #e2e8f0; color: #475569; font-size: 12px; padding: 6px 12px; }
-        .author-toggle, .download-btn, .reset-btn { background: #e2e8f0; color: #475569; font-size: 12px; padding: 6px 12px; display: none; }
+        .author-toggle, .info-toggle, .download-btn, .reset-btn { background: #e2e8f0; color: #475569; font-size: 12px; padding: 6px 12px; display: none; }
         .download-btn { background: #0ea5e9; color: white; }
         .reset-btn { background: #dc2626; color: white; }
 
@@ -178,7 +187,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbw-rnkmWN08G7pOx85ur79BUd3kzjbDOQ6-v-B8v7xVNMZnc62_-3cgnnLfuVR1D_LV/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzY-R8fO52OER-hZWv0JfKamnIIM5QC_UIiiFQKyAOKNPiQyr4HsLnXMA9aN939dk_f/exec";
         
         // ⚙️ Supabase Edge Function 주소 (옵션)
         const SUPABASE_RESOLVE_URL = "https://tdygshqxyckzpodffqsg.supabase.co/functions/v1/resolve-suno-audio";
@@ -192,6 +201,7 @@
             <button type="button" onclick="clearData()" class="reset-btn" id="resetBtn">🗑️ 데이터 초기화</button>
             <button type="button" onclick="downloadExcel()" class="download-btn" id="downloadBtn">📥 엑셀 백업</button>
             <button type="button" onclick="toggleAuthorDisplay()" class="author-toggle" id="authorToggleBtn">제작자: ON</button>
+            <button type="button" onclick="togglePlayerInfoDisplay()" class="info-toggle" id="playerInfoToggleBtn">곡 상세정보: ON</button>
             <button type="button" onclick="toggleAdminMode()" class="admin-toggle" id="adminToggleBtn">관리자 모드</button>
         </div>
         <h2>🎤 Suno 카페 노래 콘테스트</h2>
@@ -232,6 +242,22 @@
         let myVotedId = null;
         let isAdmin = localStorage.getItem('sunoAdminMode') === 'true';
         let showAuthor = localStorage.getItem('sunoShowAuthor') !== 'false';
+        let showPlayerInfo = localStorage.getItem('sunoShowPlayerInfo') !== 'false';
+
+        // 🎨 제작자 및 플레이어 정보 표시 여부를 CSS 클래스로 즉시 제어
+        function applyDisplayPreferences() {
+            if (showAuthor) {
+                document.body.classList.remove('hide-author');
+            } else {
+                document.body.classList.add('hide-author');
+            }
+            if (showPlayerInfo) {
+                document.body.classList.remove('hide-player-info');
+            } else {
+                document.body.classList.add('hide-player-info');
+            }
+        }
+        applyDisplayPreferences();
 
         function getClientToken() {
             let token = localStorage.getItem('sunoClientToken');
@@ -255,6 +281,7 @@
                     document.getElementById('noticeInput').value = res.notice;
                     
                     renderList();
+                    applyDisplayPreferences();
                     updateAdminUI();
                 })
                 .catch(err => {
@@ -280,13 +307,21 @@
                 alert("관리자 모드가 해제되었습니다.");
             }
             renderList();
+            applyDisplayPreferences();
             updateAdminUI();
         };
 
         window.toggleAuthorDisplay = function() {
             showAuthor = !showAuthor;
             localStorage.setItem('sunoShowAuthor', showAuthor);
-            renderList();
+            applyDisplayPreferences();
+            updateAdminUI();
+        };
+
+        window.togglePlayerInfoDisplay = function() {
+            showPlayerInfo = !showPlayerInfo;
+            localStorage.setItem('sunoShowPlayerInfo', showPlayerInfo);
+            applyDisplayPreferences();
             updateAdminUI();
         };
 
@@ -335,8 +370,21 @@
             document.getElementById('adminToggleBtn').style.background = isAdmin ? "#4f46e5" : "#e2e8f0";
             document.getElementById('adminToggleBtn').style.color = isAdmin ? "white" : "#475569";
 
-            document.getElementById('authorToggleBtn').style.display = isAdmin ? "inline-block" : "none";
-            document.getElementById('authorToggleBtn').innerText = showAuthor ? "제작자: ON" : "제작자: OFF";
+            const authorBtn = document.getElementById('authorToggleBtn');
+            if (authorBtn) {
+                authorBtn.style.display = isAdmin ? "inline-block" : "none";
+                authorBtn.innerText = showAuthor ? "제작자: ON" : "제작자: OFF";
+                authorBtn.style.background = showAuthor ? "#10b981" : "#ef4444";
+                authorBtn.style.color = "white";
+            }
+
+            const infoBtn = document.getElementById('playerInfoToggleBtn');
+            if (infoBtn) {
+                infoBtn.style.display = isAdmin ? "inline-block" : "none";
+                infoBtn.innerText = showPlayerInfo ? "곡 상세정보: ON" : "곡 상세정보: OFF";
+                infoBtn.style.background = showPlayerInfo ? "#10b981" : "#ef4444";
+                infoBtn.style.color = "white";
+            }
             
             document.getElementById('downloadBtn').style.display = isAdmin ? "inline-block" : "none";
             document.getElementById('resetBtn').style.display = isAdmin ? "inline-block" : "none";
@@ -470,12 +518,12 @@
 
                 playerContainer.innerHTML = `
                     <div class="player-card" id="card_${id}">
-                        <div class="player-header">
+                        <div class="player-header" style="display: ${showPlayerInfo ? 'flex' : 'none'};">
                             <img src="${coverImg}" alt="커버" class="player-cover" onerror="this.src='https://suno.com/favicon.ico'">
                             <div class="player-meta">
                                 <span class="player-badge">SUNO OFFICIAL</span>
                                 <div class="player-track-name">${displayTitle}</div>
-                                <div style="font-size:12px; color:var(--text-sub);">제작자: ${author || '참가자'}</div>
+                                <div class="player-author" style="font-size:12px; color:var(--text-sub); display: ${showAuthor ? 'block' : 'none'};">제작자: ${author || '참가자'}</div>
                             </div>
                         </div>
 
