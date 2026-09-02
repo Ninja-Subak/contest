@@ -57,9 +57,9 @@
 
         .vote-count { font-weight: 800; color: #059669; margin-left: 5px; font-size: 16px; min-width: 45px; text-align: right; }
         
-        /* 🎧 불필요한 문구와 회색 박스를 없애고 순수 플레이어만 깔끔하게 뜨도록 정돈된 컨테이너 */
+        /* 🎧 안내 문구와 회색 박스를 완전히 제거한 깔끔한 플레이어 컨테이너 */
         .player-container { margin-top: 15px; display: none; border-top: 1px solid var(--border); padding-top: 15px; text-align: center; }
-        .clean-player-frame { width: 100%; height: 120px; border: none; border-radius: 8px; background: transparent; }
+        .pure-player-frame { width: 100%; height: 110px; border: none; border-radius: 8px; background: transparent; }
 
         .header-box { text-align: center; margin-bottom: 30px; position: relative; }
         .header-box p { color: var(--text-sub); font-size: 15px; line-height: 1.5; }
@@ -247,7 +247,7 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 [노래 듣기] 클릭 시 군더더기 문구와 박스 없이 곧바로 순수 플레이어 프레임만 인라인 토글
+        // 🎵 [노래 듣기] 클릭 시 안내 문구 없이 순수 프레임만 카드 아래에 토글됨
         window.toggleInlinePlayer = function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
@@ -288,9 +288,9 @@
                 let embedSrc = songId ? `https://suno.com/embed/${songId}` : sunoUrl;
 
                 playerContainer.style.display = 'block';
-                // 회색 박스나 안내 문구 레이아웃을 완전히 제거하고 오직 iframe만 깔끔하게 출력
+                // 텍스트 문구와 회색 상자 코드를 완전히 제거하고 오직 iframe만 출력
                 playerContainer.innerHTML = `
-                    <iframe src="${embedSrc}" class="clean-player-frame" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                    <iframe src="${embedSrc}" class="pure-player-frame" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
                 `;
 
                 btn.classList.add('active');
