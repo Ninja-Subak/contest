@@ -57,9 +57,9 @@
 
         .vote-count { font-weight: 800; color: #059669; margin-left: 5px; font-size: 16px; min-width: 45px; text-align: right; }
         
+        /* 🎧 웹 내부 임베디드 플레이어 컨테이너 스타일 */
         .player-container { margin-top: 15px; display: none; border-top: 1px solid var(--border); padding-top: 15px; text-align: center; }
-        .audio-player { width: 100%; outline: none; }
-        .player-status { font-size: 13px; color: var(--text-sub); margin-bottom: 8px; }
+        .suno-embed-frame { width: 100%; height: 110px; border: none; border-radius: 8px; background: #111; }
 
         .header-box { text-align: center; margin-bottom: 30px; position: relative; }
         .header-box p { color: var(--text-sub); font-size: 15px; line-height: 1.5; }
@@ -248,7 +248,7 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 Supabase에서 음원을 Blob으로 가져와 안정적으로 재생하는 최신 로직
+        // 🎵 웹페이지 내부 임베디드 플레이어 토글 로직 (외부 창 전환 없음)
         window.toggleAudioPlayer = function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
@@ -270,49 +270,33 @@
                     b.innerText = '노래 듣기';
                 });
 
-                if (!SUPABASE_FUNCTION_URL || SUPABASE_FUNCTION_URL.includes("여기에")) {
-                    alert("⚠️ Supabase Function URL이 설정되지 않았습니다!");
+                if (!sunoUrl.includes('suno.com')) {
+                    alert("올바른 수노 링크가 아닙니다.");
                     btn.innerText = '노래 듣기';
                     return;
                 }
 
-                const proxiedStreamUrl = `${SUPABASE_FUNCTION_URL}?url=${encodeURIComponent(sunoUrl)}`;
+                // 수노 링크에서 고유 ID 추출 (정식 /song/ 및 단축 /s/ 링크 모두 대응)
+                let songId = "";
+                const matchSong = sunoUrl.match(/\/song\/([a-zA-Z0-9-_]+)/);
+                const matchShort = sunoUrl.match(/\/s\/([a-zA-Z0-9-_]+)/);
+
+                if (matchSong && matchSong[1]) {
+                    songId = matchSong[1];
+                } else if (matchShort && matchShort[1]) {
+                    songId = matchShort[1];
+                }
+
+                // 수노 공식 임베디드 위젯 주소 조합
+                let embedUrl = songId ? `https://suno.com/embed/${songId}` : sunoUrl;
 
                 playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
-                    <div id="status_${id}" class="player-status">음원을 불러오는 중입니다... ⏳</div>
-                    <audio id="audio_el_${id}" class="audio-player" controls style="display:none;"></audio>
+                    <iframe src="${embedUrl}" class="suno-embed-frame" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
                 `;
-                
+
                 btn.classList.add('active');
                 btn.innerText = '플레이어 닫기';
-
-                // Fetch로 우회 서버에 요청을 날려 Blob으로 변환 후 재생 (CORS 및 스트림 끊김 완벽 회피)
-                fetch(proxiedStreamUrl)
-                    .then(response => {
-                        if (!response.ok) throw new Error("서버 응답 오류 (" + response.status + ")");
-                        return response.blob();
-                    })
-                    .then(blob => {
-                        const blobUrl = URL.createObjectURL(blob);
-                        const audioEl = document.getElementById(`audio_el_${id}`);
-                        const statusEl = document.getElementById(`status_${id}`);
-                        
-                        if (audioEl && statusEl) {
-                            audioEl.src = blobUrl;
-                            audioEl.style.display = 'block';
-                            statusEl.style.display = 'none';
-                            audioEl.play().catch(e => console.log("자동 재생 제한:", e));
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        const statusEl = document.getElementById(`status_${id}`);
-                        if (statusEl) {
-                            statusEl.innerText = "❌ 음원을 불러오지 못했습니다. 링크를 확인해주세요.";
-                            statusEl.style.color = "#ef4444";
-                        }
-                    });
             }
         };
 
