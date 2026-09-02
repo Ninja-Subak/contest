@@ -57,7 +57,39 @@ export default async function handler(req, res) {
                      html.match(/https:\\?\/\\?\/cdn2\.suno\.ai\\?\/image_[0-9a-f-]+\.jpeg/i);
     const coverUrl = imgMatch ? imgMatch[0].replace(/\\/g, '') : `https://cdn2.suno.ai/image_large_${songId}.jpeg`;
 
-    // 6. stream 파라미터가 있는 경우 오디오 프록시 스트리밍
+    // 6. 가사 (Prompt) 추출
+    let lyrics = '';
+    const promptRefMatch = html.match(/\\?"prompt\\?"\s*:\s*\\?"\$([a-zA-Z0-9]+)\\?"/);
+    if (promptRefMatch) {
+      const chunkId = promptRefMatch[1];
+      const needle = `${chunkId}:T`;
+      const startIdx = html.indexOf(needle);
+      if (startIdx !== -1) {
+        const commaIdx = html.indexOf(',', startIdx);
+        if (commaIdx !== -1) {
+          const slice = html.slice(commaIdx + 1, commaIdx + 6000);
+          const nextChunk = slice.search(/[0-9a-zA-Z]+:(\[|"|T)/);
+          lyrics = (nextChunk !== -1 ? slice.slice(0, nextChunk) : slice)
+            .replace(/\\n/g, '\n')
+            .replace(/\\"/g, '"')
+            .replace(/\\\\/g, '\\')
+            .trim();
+        }
+      }
+    }
+
+    if (!lyrics) {
+      const directMatch = html.match(/\\?"prompt\\?"\s*:\s*\\?"([^"\\]*(?:\\.[^"\\]*)*)\\?"/);
+      if (directMatch && !directMatch[1].startsWith('$') && directMatch[1].length > 10) {
+        lyrics = directMatch[1]
+          .replace(/\\n/g, '\n')
+          .replace(/\\"/g, '"')
+          .replace(/\\\\/g, '\\')
+          .trim();
+      }
+    }
+
+    // 7. stream 파라미터가 있는 경우 오디오 프록시 스트리밍
     if (stream) {
       const audioRes = await fetch(audioUrl, {
         headers: {
@@ -77,7 +109,8 @@ export default async function handler(req, res) {
       cdnUrl,
       embedUrl,
       title,
-      coverUrl
+      coverUrl,
+      lyrics
     });
   } catch (err) {
     console.error('Error resolving Suno link:', err);
