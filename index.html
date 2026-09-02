@@ -87,6 +87,10 @@
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
         const API_URL = "https://script.google.com/macros/s/AKfycbzY-R8fO52OER-hZWv0JfKamnIIM5QC_UIiiFQKyAOKNPiQyr4HsLnXMA9aN939dk_f/exec";
+        // ⚙️ 수노 짧은 링크(og:audio) 해석용 Supabase Edge Function 주소
+        // supabase/index.ts 를 Supabase Edge Function 으로 배포한 뒤, 아래 값을
+        // "https://<프로젝트ref>.supabase.co/functions/v1/<함수이름>" 형태로 바꿔주세요.
+        const SUPABASE_RESOLVE_URL = "https://tdygshqxyckzpodffqsg.supabase.co/functions/v1/resolve-suno-audio";
     </script>
 
     <div class="header-box">
@@ -248,65 +252,68 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 [노래 듣기] 클릭 시 수노 링크에서 ID를 추출해 CDN MP3 주소로 변환 후 내부 플레이어 구동
-        window.toggleInlinePlayer = function(id, sunoUrl) {
+        // 🎵 [노래 듣기] 클릭 시 수노 링크(짧은 링크 /s/... 포함)의 실제 음원 주소를
+        // Supabase Edge Function(og:audio 메타태그 파싱)으로 알아낸 뒤 내부 플레이어 구동
+        window.toggleInlinePlayer = async function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
-            
+
             if (!playerContainer) return;
 
             if (playerContainer.style.display === 'block') {
                 playerContainer.style.display = 'none';
-                playerContainer.innerHTML = ''; 
+                playerContainer.innerHTML = '';
                 btn.classList.remove('active');
                 btn.innerText = '노래 듣기';
-            } else {
-                document.querySelectorAll('.player-container').forEach(el => {
-                    el.style.display = 'none';
-                    el.innerHTML = '';
-                });
-                document.querySelectorAll('.listen-btn').forEach(b => {
-                    b.classList.remove('active');
-                    b.innerText = '노래 듣기';
-                });
+                return;
+            }
 
-                if (!sunoUrl.includes('suno.com')) {
-                    alert("올바른 수노 링크가 아닙니다.");
-                    btn.innerText = '노래 듣기';
-                    return;
+            // 다른 곡이 재생 중이면 모두 닫기
+            document.querySelectorAll('.player-container').forEach(el => {
+                el.style.display = 'none';
+                el.innerHTML = '';
+            });
+            document.querySelectorAll('.listen-btn').forEach(b => {
+                b.classList.remove('active');
+                b.innerText = '노래 듣기';
+            });
+
+            if (!sunoUrl.includes('suno.com')) {
+                alert("올바른 수노 링크가 아닙니다.");
+                return;
+            }
+
+            // 먼저 로딩 상태 표시
+            playerContainer.style.display = 'block';
+            playerContainer.innerHTML = `<div class="native-audio-box"><span>🎧 재생 주소를 가져오는 중...</span></div>`;
+            btn.innerText = '불러오는 중...';
+
+            try {
+                // ⚠️ 수노의 "/s/짧은코드" 링크는 실제 곡 CDN ID와 다르기 때문에
+                // 직접 cdn1.suno.ai/짧은코드.mp3 로 조합하면 재생이 안 됩니다.
+                // 반드시 서버(Supabase Edge Function)에서 실제 페이지를 열어
+                // og:audio 메타태그의 진짜 스트리밍 주소를 받아와야 합니다.
+                const res = await fetch(`${SUPABASE_RESOLVE_URL}?url=${encodeURIComponent(sunoUrl)}`);
+                const data = await res.json();
+
+                if (!res.ok || !data.audioUrl) {
+                    throw new Error(data.error || '음원 주소를 찾을 수 없습니다.');
                 }
 
-                // URL에서 수노 곡 고유 ID 추출
-                let songId = "";
-                const matchSong = sunoUrl.match(/\/song\/([a-zA-Z0-9-_]+)/);
-                const matchShort = sunoUrl.match(/\/s\/([a-zA-Z0-9-_]+)/);
-
-                if (matchSong && matchSong[1]) {
-                    songId = matchSong[1];
-                } else if (matchShort && matchShort[1]) {
-                    songId = matchShort[1];
-                }
-
-                if (!songId) {
-                    alert("유효한 수노 곡 ID를 추출할 수 없습니다.");
-                    btn.innerText = '노래 듣기';
-                    return;
-                }
-
-                // 수노 CDN 스트리밍 주소 생성 (검은 화면 및 0:00 에러 원천 차단)
-                let directAudioSrc = `https://cdn1.suno.ai/${songId}.mp3`;
-
-                playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
                     <div class="native-audio-box">
-                        <audio controls preload="auto" src="${directAudioSrc}">
+                        <audio controls autoplay preload="auto" src="${data.audioUrl}"
+                            onerror="this.insertAdjacentHTML('afterend', '<p style=\\'color:#ef4444;font-size:13px;\\'>⚠️ 오디오 파일을 재생할 수 없습니다. 링크를 확인해주세요.</p>')">
                             브라우저가 오디오 재생을 지원하지 않습니다.
                         </audio>
                     </div>
                 `;
-
                 btn.classList.add('active');
                 btn.innerText = '플레이어 닫기';
+            } catch (err) {
+                console.error(err);
+                playerContainer.innerHTML = `<div class="native-audio-box"><span style="color:#ef4444;">⚠️ 재생 주소를 가져오지 못했습니다. (${err.message})</span></div>`;
+                btn.innerText = '노래 듣기';
             }
         };
 
