@@ -588,12 +588,40 @@
             gap: 10px;
         }
         .master-live-dot {
-            width: 8px;
-            height: 8px;
+            width: 9px;
+            height: 9px;
             border-radius: 50%;
             background: #00f2fe;
-            box-shadow: 0 0 10px #00f2fe;
-            animation: pulseDot 1.5s ease-in-out infinite;
+            box-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+            display: inline-block;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        /* 🎵 재생 중 점멸 & 블러 효과 (Active Pulse Glow with Blur) */
+        .master-live-dot.playing,
+        .master-live-dot {
+            animation: cyberLiveDotBlinkBlur 1.2s ease-in-out infinite;
+        }
+        @keyframes cyberLiveDotBlinkBlur {
+            0% {
+                opacity: 0.35;
+                transform: scale(0.85);
+                filter: blur(0.5px);
+                box-shadow: 0 0 4px rgba(0, 242, 254, 0.4);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.4);
+                filter: blur(2.5px);
+                box-shadow: 0 0 16px #00f2fe, 0 0 32px rgba(0, 242, 254, 0.9);
+            }
+            100% {
+                opacity: 0.35;
+                transform: scale(0.85);
+                filter: blur(0.5px);
+                box-shadow: 0 0 4px rgba(0, 242, 254, 0.4);
+            }
         }
         .master-card-badge {
             font-size: 11px;
@@ -948,6 +976,7 @@
         .quick-genre-tags {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
             margin-top: 10px;
             flex-wrap: wrap;
@@ -1633,7 +1662,7 @@
         <!-- 상단 헤더: 타이틀 + 트랙 카운터 + 가사 보기 + EQ 비주얼라이저 -->
         <div class="master-player-header">
             <div class="master-player-title-box">
-                <span class="master-live-dot"></span>
+                <span class="master-live-dot playing" id="masterLiveDot" title="재생 상태 표시"></span>
                 <span class="master-card-badge">CYBER MASTER CONSOLE</span>
                 <span class="master-track-indicator" id="masterTrackIndicator">출품곡 1번째 트랙 준비 완료</span>
             </div>
@@ -1827,7 +1856,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycby755S_kl1L56jZsbPWDB5TPlIHOgqFpIUXon4kaqL5SnFZ6rwKlBph2hTHgDQVVon0/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbyURYCFcFXH7tpyNLJFkR0UdJKRTGm9Tl-7b9kt1ZNdYjJiKzmJyfi4B0DHv8P7EH3A/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -2749,6 +2778,9 @@
             if (indicator) {
                 indicator.innerText = `출품곡 ${index + 1}번째 트랙 (${song.title || '제목 없음'}) 감상 중`;
             }
+
+            const dot = document.getElementById('masterLiveDot');
+            if (dot) dot.classList.add('playing');
 
             const counter = document.getElementById('masterPlaylistCounter');
             if (counter) {
