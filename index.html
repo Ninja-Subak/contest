@@ -57,9 +57,9 @@
 
         .vote-count { font-weight: 800; color: #059669; margin-left: 5px; font-size: 16px; min-width: 45px; text-align: right; }
         
-        /* 🎧 내부 오디오 플레이어 스타일 */
         .player-container { margin-top: 15px; display: none; border-top: 1px solid var(--border); padding-top: 15px; text-align: center; }
         .audio-player { width: 100%; outline: none; }
+        .player-status { font-size: 13px; color: var(--text-sub); margin-bottom: 8px; }
 
         .header-box { text-align: center; margin-bottom: 30px; position: relative; }
         .header-box p { color: var(--text-sub); font-size: 15px; line-height: 1.5; }
@@ -248,7 +248,7 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 Supabase Edge Function을 경유하여 웹 내부 플레이어로 오디오 스트리밍 실행
+        // 🎵 Supabase에서 음원을 Blob으로 가져와 안정적으로 재생하는 최신 로직
         window.toggleAudioPlayer = function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
@@ -276,32 +276,43 @@
                     return;
                 }
 
-                if (!sunoUrl.includes('suno.com')) {
-                    alert("올바른 수노 링크가 아닙니다.");
-                    btn.innerText = '노래 듣기';
-                    return;
-                }
-
-                // Supabase 프록시 서버 주소 조합
                 const proxiedStreamUrl = `${SUPABASE_FUNCTION_URL}?url=${encodeURIComponent(sunoUrl)}`;
 
                 playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
-                    <audio class="audio-player" controls autoplay preload="auto">
-                        <source src="${proxiedStreamUrl}" type="audio/mpeg">
-                        브라우저가 오디오 스트리밍을 지원하지 않습니다.
-                    </audio>
+                    <div id="status_${id}" class="player-status">음원을 불러오는 중입니다... ⏳</div>
+                    <audio id="audio_el_${id}" class="audio-player" controls style="display:none;"></audio>
                 `;
                 
-                const audioEl = playerContainer.querySelector('audio');
-                audioEl.onerror = function() {
-                    alert("음원 스트리밍을 불러오지 못했습니다. Supabase 함수 배포 상태나 링크를 확인해주세요.");
-                    btn.innerText = '노래 듣기';
-                    playerContainer.style.display = 'none';
-                };
-
                 btn.classList.add('active');
                 btn.innerText = '플레이어 닫기';
+
+                // Fetch로 우회 서버에 요청을 날려 Blob으로 변환 후 재생 (CORS 및 스트림 끊김 완벽 회피)
+                fetch(proxiedStreamUrl)
+                    .then(response => {
+                        if (!response.ok) throw new Error("서버 응답 오류 (" + response.status + ")");
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        const blobUrl = URL.createObjectURL(blob);
+                        const audioEl = document.getElementById(`audio_el_${id}`);
+                        const statusEl = document.getElementById(`status_${id}`);
+                        
+                        if (audioEl && statusEl) {
+                            audioEl.src = blobUrl;
+                            audioEl.style.display = 'block';
+                            statusEl.style.display = 'none';
+                            audioEl.play().catch(e => console.log("자동 재생 제한:", e));
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        const statusEl = document.getElementById(`status_${id}`);
+                        if (statusEl) {
+                            statusEl.innerText = "❌ 음원을 불러오지 못했습니다. 링크를 확인해주세요.";
+                            statusEl.style.color = "#ef4444";
+                        }
+                    });
             }
         };
 
