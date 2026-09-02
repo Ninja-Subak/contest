@@ -32,7 +32,7 @@
             color: #1e293b;
         }
 
-        button, .listen-btn { padding: 10px 16px; font-size: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.2s; display: inline-block; text-align: center; }
+        button { padding: 10px 16px; font-size: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.2s; display: inline-block; text-align: center; }
         
         .submit-btn { background: var(--primary); color: white; width: 100%; padding: 12px; font-size: 15px; }
         .submit-btn:hover { background: var(--primary-hover); }
@@ -44,8 +44,9 @@
         .song-author { font-size: 14px; color: var(--text-sub); }
         
         .action-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
-        .listen-btn { background: var(--primary); color: white; }
-        .listen-btn:hover { background: var(--primary-hover); }
+        .listen-btn { background: #f1f5f9; color: #475569; }
+        .listen-btn:hover { background: #e2e8f0; }
+        .listen-btn.active { background: var(--primary); color: white; }
         
         .vote-btn { background: var(--accent); color: white; }
         .vote-btn:hover { background: #059669; }
@@ -56,6 +57,12 @@
 
         .vote-count { font-weight: 800; color: #059669; margin-left: 5px; font-size: 16px; min-width: 45px; text-align: right; }
         
+        /* 🎧 페이지 이탈, 새 창, 검은 화면 없는 순수 내부 오디오 확장 박스 */
+        .player-container { margin-top: 15px; display: none; border-top: 1px solid var(--border); padding-top: 15px; background: #f8fafc; border-radius: 10px; padding: 12px; text-align: center; }
+        .native-audio-box { display: flex; flex-direction: column; gap: 8px; align-items: center; width: 100%; }
+        .native-audio-box audio { width: 100%; max-width: 400px; outline: none; }
+        .audio-notice { font-size: 13px; color: var(--text-sub); margin: 0; }
+
         .header-box { text-align: center; margin-bottom: 30px; position: relative; }
         .header-box p { color: var(--text-sub); font-size: 15px; line-height: 1.5; }
         .loading { text-align: center; color: var(--text-sub); padding: 20px; }
@@ -73,7 +80,7 @@
         .notice-save-btn { background: #2563eb; color: white; font-size: 12px; padding: 6px 12px; margin-top: 8px; display: none; }
 
         .footer { text-align: center; margin-top: 40px; padding: 20px 0; font-size: 14px; color: var(--text-sub); border-top: 1px solid var(--border); }
-        .footer a { text-decoration: none; color: #475569; font-weight: 700; cursor: pointer; }
+        .footer span { color: #475569; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -119,7 +126,7 @@
     </div>
 
     <div class="footer">
-        <p>Suno 연구소: <span onclick="location.href='https://www.youtube.com/@NinjaSubak'" style="color:#475569; font-weight:700; cursor:pointer;">https://www.youtube.com/@NinjaSubak</span></p>
+        <p>Suno 연구소: <span onclick="alert('Suno 연구소 유튜브 채널입니다.')">https://www.youtube.com/@NinjaSubak</span></p>
     </div>
 
     <script>
@@ -242,6 +249,52 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
+        // 🎵 [노래 듣기] 클릭 시 새 창, 새 탭, 페이지 이동 없이 카드 아래에서 순수 네이티브 오디오 컨트롤러가 인라인 토글됨
+        window.toggleInlinePlayer = function(id, sunoUrl) {
+            const playerContainer = document.getElementById('player_' + id);
+            const btn = document.getElementById('btn_' + id);
+            
+            if (!playerContainer) return;
+
+            if (playerContainer.style.display === 'block') {
+                playerContainer.style.display = 'none';
+                playerContainer.innerHTML = ''; 
+                btn.classList.remove('active');
+                btn.innerText = '노래 듣기';
+            } else {
+                // 다른 열려있는 플레이어들 닫기
+                document.querySelectorAll('.player-container').forEach(el => {
+                    el.style.display = 'none';
+                    el.innerHTML = '';
+                });
+                document.querySelectorAll('.listen-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.innerText = '노래 듣기';
+                });
+
+                if (!sunoUrl.includes('suno.com')) {
+                    alert("올바른 수노 링크가 아닙니다.");
+                    btn.innerText = '노래 듣기';
+                    return;
+                }
+
+                playerContainer.style.display = 'block';
+                playerContainer.innerHTML = `
+                    <div class="native-audio-box">
+                        <p class="audio-notice">🎵 아래 플레이어 바를 통해 페이지 이탈 없이 감상하세요.</p>
+                        <audio controls preload="none">
+                            <source src="${sunoUrl}" type="audio/mp4">
+                            <source src="${sunoUrl}" type="audio/mpeg">
+                            브라우저가 오디오 재생을 지원하지 않습니다.
+                        </audio>
+                    </div>
+                `;
+
+                btn.classList.add('active');
+                btn.innerText = '플레이어 닫기';
+            }
+        };
+
         window.registerSong = function() {
             const author = document.getElementById('authorName').value.trim();
             const title = document.getElementById('songTitle').value.trim();
@@ -340,7 +393,7 @@
                             <div class="song-author" style="display: ${showAuthor ? 'block' : 'none'};">제작자: <b>${song.author}</b></div>
                         </div>
                         <div class="action-group">
-                            <button type="button" onclick="location.href='${safeUrl}'" class="listen-btn">🎧 노래 듣기</button>
+                            <button type="button" id="btn_${song.id}" onclick="toggleInlinePlayer('${song.id}', '${safeUrl}')" class="listen-btn">노래 듣기</button>
                             <button type="button" onclick="voteSong('${song.id}')" class="vote-btn ${hasVoted ? 'voted' : ''}" ${hasVoted ? 'disabled' : ''}>
                                 ${isThisMyVote ? '투표 완료' : '투표하기'}
                             </button>
@@ -349,6 +402,7 @@
                             <span class="vote-count">❤️ ${song.votes}표</span>
                         </div>
                     </div>
+                    <div id="player_${song.id}" class="player-container"></div>
                 `;
                 listEl.appendChild(item);
             });
