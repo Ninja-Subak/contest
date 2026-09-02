@@ -82,9 +82,10 @@
 </head>
 <body>
 
-    <!-- ⚙️ 구글 앱스 스크립트 웹 앱 URL 입력 -->
     <script>
+        // ⚙️ 설정 영역
         const API_URL = "https://script.google.com/macros/s/AKfycbzY-R8fO52OER-hZWv0JfKamnIIM5QC_UIiiFQKyAOKNPiQyr4HsLnXMA9aN939dk_f/exec";
+        const SUPABASE_FUNCTION_URL = "여기에_슈퍼베이스_Edge_Function_URL을_입력하세요";
     </script>
 
     <div class="header-box">
@@ -246,7 +247,7 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 수노 단축 링크(s/...) 및 정식 링크(song/...) 모두 완벽 대응하는 스트리밍 파서
+        // 🎵 Supabase Edge Function을 경유하여 CORS 우회 스트리밍 실행
         window.toggleAudioPlayer = function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
@@ -268,43 +269,28 @@
                     b.innerText = '노래 듣기';
                 });
 
-                let songId = "";
-                // 단축 링크(/s/코드) 또는 정식 링크(/song/UUID) 패턴 모두 캐치
-                let match = sunoUrl.match(/(?:\/s\/|\/song\/)([a-zA-Z0-9-_]+)/);
-                if (match && match[1]) {
-                    songId = match[1];
-                }
-
-                if (!songId) {
-                    alert("올바른 수노 링크 형식이 아닙니다.");
+                if (!sunoUrl.includes('suno.com')) {
+                    alert("올바른 수노 링크가 아닙니다.");
                     btn.innerText = '노래 듣기';
                     return;
                 }
 
-                // 수노 공유 단축 링크의 경우 리디렉션 메타를 우회하는 전용 오디오 소스 라우팅 적용
-                let streamUrl = `https://cdn1.suno.ai/${songId}.mp3`;
-                let proxyUrl = `https://api.allorigins.win/raw?url=` + encodeURIComponent(streamUrl);
+                // Supabase 프록시 함수로 수노 링크 전달
+                const proxiedStreamUrl = `${SUPABASE_FUNCTION_URL}?url=${encodeURIComponent(sunoUrl)}`;
 
                 playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
-                    <audio class="audio-player" controls autoplay preload="auto" crossorigin="anonymous">
-                        <source src="${streamUrl}" type="audio/mpeg">
-                        <source src="${proxyUrl}" type="audio/mpeg">
+                    <audio class="audio-player" controls autoplay preload="auto">
+                        <source src="${proxiedStreamUrl}" type="audio/mpeg">
                         브라우저가 오디오 스트리밍을 지원하지 않습니다.
                     </audio>
                 `;
                 
                 const audioEl = playerContainer.querySelector('audio');
                 audioEl.onerror = function() {
-                    if (!audioEl.src.includes('allorigins.win')) {
-                        audioEl.src = proxyUrl;
-                        audioEl.load();
-                        audioEl.play().catch(e => console.log(e));
-                    } else {
-                        alert("음원 스트리밍을 불러오지 못했습니다. 올바른 링크인지 확인해주세요.");
-                        btn.innerText = '노래 듣기';
-                        playerContainer.style.display = 'none';
-                    }
+                    alert("음원 스트리밍을 불러오지 못했습니다. 링크를 확인해주세요.");
+                    btn.innerText = '노래 듣기';
+                    playerContainer.style.display = 'none';
                 };
 
                 btn.classList.add('active');
