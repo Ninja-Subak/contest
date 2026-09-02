@@ -83,7 +83,7 @@
 <body>
 
     <script>
-        // ⚙️ 설정 영역
+        // ⚙️ 설정 영역 (본인의 URL을 여기에 정확히 입력하세요)
         const API_URL = "https://script.google.com/macros/s/AKfycbzY-R8fO52OER-hZWv0JfKamnIIM5QC_UIiiFQKyAOKNPiQyr4HsLnXMA9aN939dk_f/exec";
         const SUPABASE_FUNCTION_URL = "여기에_슈퍼베이스_Edge_Function_URL을_입력하세요";
     </script>
@@ -247,7 +247,7 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 Supabase Edge Function을 경유하여 CORS 우회 스트리밍 실행
+        // 🎵 Supabase Edge Function 연동 및 디버깅 가드가 포함된 오디오 플레이어
         window.toggleAudioPlayer = function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
@@ -269,14 +269,14 @@
                     b.innerText = '노래 듣기';
                 });
 
-                if (!sunoUrl.includes('suno.com')) {
-                    alert("올바른 수노 링크가 아닙니다.");
+                if (!SUPABASE_FUNCTION_URL || SUPABASE_FUNCTION_URL.includes("여기에")) {
+                    alert("⚠️ Supabase Function URL이 설정되지 않았습니다!");
                     btn.innerText = '노래 듣기';
                     return;
                 }
 
-                // Supabase 프록시 함수로 수노 링크 전달
                 const proxiedStreamUrl = `${SUPABASE_FUNCTION_URL}?url=${encodeURIComponent(sunoUrl)}`;
+                console.log("요청 중인 프록시 주소:", proxiedStreamUrl);
 
                 playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
@@ -287,8 +287,18 @@
                 `;
                 
                 const audioEl = playerContainer.querySelector('audio');
-                audioEl.onerror = function() {
-                    alert("음원 스트리밍을 불러오지 못했습니다. 링크를 확인해주세요.");
+                
+                audioEl.onerror = function(e) {
+                    console.error("오디오 재생 에러 발생:", e);
+                    fetch(proxiedStreamUrl)
+                        .then(res => res.json())
+                        .then(data => {
+                            alert("서버 에러 내용: " + (data.error || "알 수 없는 에러"));
+                        })
+                        .catch(() => {
+                            alert("Supabase 서버와 통신하지 못했습니다. URL을 확인해주세요.");
+                        });
+                    
                     btn.innerText = '노래 듣기';
                     playerContainer.style.display = 'none';
                 };
