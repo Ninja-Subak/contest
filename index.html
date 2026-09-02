@@ -57,7 +57,7 @@
 
         .vote-count { font-weight: 800; color: #059669; margin-left: 5px; font-size: 16px; min-width: 45px; text-align: right; }
         
-        /* 🎧 페이지 이탈, 새 창, 다운로드 없는 순수 내부 오디오 플레이어 */
+        /* 🎧 순수 내부 오디오 플레이어 스타일 */
         .player-container { margin-top: 15px; display: none; border-top: 1px solid var(--border); padding-top: 15px; background: #f8fafc; border-radius: 10px; padding: 15px; text-align: center; }
         .native-audio-box { display: flex; flex-direction: column; gap: 8px; align-items: center; width: 100%; }
         .native-audio-box audio { width: 100%; max-width: 450px; outline: none; }
@@ -248,7 +248,7 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 [노래 듣기] 클릭 시 수노 링크에서 고유 ID를 추출하여 실제 CDN 오디오 주소로 변환 후 내부 재생
+        // 🎵 [노래 듣기] 클릭 시 수노 링크에서 ID를 추출해 CDN MP3 주소로 변환 후 내부 플레이어 구동
         window.toggleInlinePlayer = function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
@@ -261,7 +261,6 @@
                 btn.classList.remove('active');
                 btn.innerText = '노래 듣기';
             } else {
-                // 다른 열려있는 플레이어 닫기
                 document.querySelectorAll('.player-container').forEach(el => {
                     el.style.display = 'none';
                     el.innerHTML = '';
@@ -277,7 +276,7 @@
                     return;
                 }
 
-                // 수노 링크에서 고유 ID 추출
+                // URL에서 수노 곡 고유 ID 추출
                 let songId = "";
                 const matchSong = sunoUrl.match(/\/song\/([a-zA-Z0-9-_]+)/);
                 const matchShort = sunoUrl.match(/\/s\/([a-zA-Z0-9-_]+)/);
@@ -289,12 +288,12 @@
                 }
 
                 if (!songId) {
-                    alert("유효한 수노 곡 ID를 찾을 수 없습니다.");
+                    alert("유효한 수노 곡 ID를 추출할 수 없습니다.");
                     btn.innerText = '노래 듣기';
                     return;
                 }
 
-                // 수노 공식 음원 CDN 스트리밍 주소 생성 (0:00 에러 및 검은 화면 원천 차단)
+                // 수노 CDN 스트리밍 주소 생성 (검은 화면 및 0:00 에러 원천 차단)
                 let directAudioSrc = `https://cdn1.suno.ai/${songId}.mp3`;
 
                 playerContainer.style.display = 'block';
