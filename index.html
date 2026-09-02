@@ -591,16 +591,19 @@
             width: 9px;
             height: 9px;
             border-radius: 50%;
-            background: #00f2fe;
-            box-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+            background: rgba(0, 242, 254, 0.4);
+            box-shadow: 0 0 5px rgba(0, 242, 254, 0.25);
             display: inline-block;
             position: relative;
             flex-shrink: 0;
+            opacity: 0.5;
+            cursor: pointer;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        /* 🎵 재생 중 점멸 & 블러 효과 (Active Pulse Glow with Blur) */
-        .master-live-dot.playing,
-        .master-live-dot {
+        /* 🎵 재생 중일 때만 점멸 & 블러 효과 작동 */
+        .master-live-dot.playing {
+            opacity: 1;
+            background: #00f2fe;
             animation: cyberLiveDotBlinkBlur 1.2s ease-in-out infinite;
         }
         @keyframes cyberLiveDotBlinkBlur {
@@ -1662,7 +1665,7 @@
         <!-- 상단 헤더: 타이틀 + 트랙 카운터 + 가사 보기 + EQ 비주얼라이저 -->
         <div class="master-player-header">
             <div class="master-player-title-box">
-                <span class="master-live-dot playing" id="masterLiveDot" title="재생 상태 표시"></span>
+                <span class="master-live-dot" id="masterLiveDot" title="재생 상태 표시 (클릭 시 점멸 테스트)"></span>
                 <span class="master-card-badge">CYBER MASTER CONSOLE</span>
                 <span class="master-track-indicator" id="masterTrackIndicator">출품곡 1번째 트랙 준비 완료</span>
             </div>
@@ -1856,7 +1859,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbyURYCFcFXH7tpyNLJFkR0UdJKRTGm9Tl-7b9kt1ZNdYjJiKzmJyfi4B0DHv8P7EH3A/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwo_2CiCnmtE9zRTQUwjP18L41Zbl_Al_TL9gI9iKmG0u0u7jU037KVH6ashPJsEM3P/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -2763,6 +2766,76 @@
         let currentMasterSongIndex = -1;
         let isMasterShuffle = false;
         let masterRepeatMode = 'all'; // 'all' | 'one'
+        let isMasterAudioPlaying = false;
+
+        // 🎵 마스터 콘솔 라이브 인디케이터 점멸/블러 제어 함수
+        window.setMasterDotPlaying = function(isPlaying) {
+            isMasterAudioPlaying = !!isPlaying;
+            const dot = document.getElementById('masterLiveDot');
+            const card = document.getElementById('masterPlayerCard');
+            const spectrum = document.getElementById('masterSpectrum');
+            if (dot) {
+                if (isPlaying) {
+                    dot.classList.add('playing');
+                } else {
+                    dot.classList.remove('playing');
+                }
+            }
+            if (card) {
+                if (isPlaying) {
+                    card.classList.add('is-playing');
+                } else {
+                    card.classList.remove('is-playing');
+                }
+            }
+            if (spectrum) {
+                spectrum.style.opacity = isPlaying ? '1' : '0.35';
+            }
+        };
+
+        // 🎧 웹 오디오 및 인앱 플레이어 실제 사운드 재생/일시정지 실시간 연동
+        document.addEventListener('play', function(e) {
+            if (e.target && e.target.tagName === 'AUDIO') {
+                setMasterDotPlaying(true);
+            }
+        }, true);
+        document.addEventListener('pause', function(e) {
+            if (e.target && e.target.tagName === 'AUDIO') {
+                const anyPlaying = Array.from(document.querySelectorAll('audio')).some(a => !a.paused && !a.ended);
+                if (!anyPlaying) setMasterDotPlaying(false);
+            }
+        }, true);
+        document.addEventListener('ended', function(e) {
+            if (e.target && e.target.tagName === 'AUDIO') {
+                const anyPlaying = Array.from(document.querySelectorAll('audio')).some(a => !a.paused && !a.ended);
+                if (!anyPlaying) setMasterDotPlaying(false);
+            }
+        }, true);
+
+        // 📻 마스터 임베드 플레이어(Suno Iframe) 클릭/재생 토글 감지
+        let isMasterEmbedHovered = false;
+        window.addEventListener('DOMContentLoaded', () => {
+            const embedWrapper = document.querySelector('.master-embed-wrapper');
+            if (embedWrapper) {
+                embedWrapper.addEventListener('mouseenter', () => { isMasterEmbedHovered = true; });
+                embedWrapper.addEventListener('mouseleave', () => { isMasterEmbedHovered = false; });
+            }
+            const dotEl = document.getElementById('masterLiveDot');
+            if (dotEl) {
+                dotEl.addEventListener('click', () => {
+                    setMasterDotPlaying(!isMasterAudioPlaying);
+                });
+            }
+        });
+
+        window.addEventListener('blur', () => {
+            if (isMasterEmbedHovered) {
+                // 사용자가 수노 공식 플레이어의 재생/일시정지 버튼을 클릭함
+                isMasterAudioPlaying = !isMasterAudioPlaying;
+                setMasterDotPlaying(isMasterAudioPlaying);
+                setTimeout(() => { window.focus(); }, 150);
+            }
+        });
 
         // 🎵 마스터 플레이어 특정 곡 로드 (수노 공식 고음질 스트리밍 연동)
         window.loadMasterSong = async function(index) {
@@ -2773,14 +2846,14 @@
             currentMasterSongIndex = index;
             const song = songs[index];
 
-            // 상단 인디케이터 및 카운터 갱신
+            // 상단 인디케이터 및 카운터 갱신 (새 곡 준비 시 초기에는 일시정지 상태로 대기)
             const indicator = document.getElementById('masterTrackIndicator');
             if (indicator) {
-                indicator.innerText = `출품곡 ${index + 1}번째 트랙 (${song.title || '제목 없음'}) 감상 중`;
+                indicator.innerText = `출품곡 ${index + 1}번째 트랙 (${song.title || '제목 없음'}) 준비 완료`;
             }
 
-            const dot = document.getElementById('masterLiveDot');
-            if (dot) dot.classList.add('playing');
+            // 곡 로드 시에는 아직 재생 전이므로 점멸 끄기
+            setMasterDotPlaying(false);
 
             const counter = document.getElementById('masterPlaylistCounter');
             if (counter) {
