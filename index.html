@@ -57,11 +57,10 @@
 
         .vote-count { font-weight: 800; color: #059669; margin-left: 5px; font-size: 16px; min-width: 45px; text-align: right; }
         
-        /* 🎧 페이지 이탈, 새 창, 다운로드, 불필요한 텍스트 없는 순수 인라인 오디오 플레이어 */
-        .player-container { margin-top: 15px; display: none; border-top: 1px solid var(--border); padding-top: 15px; background: #f8fafc; border-radius: 10px; padding: 12px; text-align: center; }
+        /* 🎧 페이지 이탈, 새 창, 다운로드 없는 순수 내부 오디오 플레이어 */
+        .player-container { margin-top: 15px; display: none; border-top: 1px solid var(--border); padding-top: 15px; background: #f8fafc; border-radius: 10px; padding: 15px; text-align: center; }
         .native-audio-box { display: flex; flex-direction: column; gap: 8px; align-items: center; width: 100%; }
         .native-audio-box audio { width: 100%; max-width: 450px; outline: none; }
-        .player-msg { font-size: 13px; color: var(--text-sub); margin: 0; }
 
         .header-box { text-align: center; margin-bottom: 30px; position: relative; }
         .header-box p { color: var(--text-sub); font-size: 15px; line-height: 1.5; }
@@ -86,9 +85,8 @@
 <body>
 
     <script>
-        // ⚙️ 설정 영역 (구글 앱스 스크립트 URL 및 Supabase Edge Function URL 입력)
+        // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
         const API_URL = "https://script.google.com/macros/s/AKfycbzY-R8fO52OER-hZWv0JfKamnIIM5QC_UIiiFQKyAOKNPiQyr4HsLnXMA9aN939dk_f/exec";
-        const SUPABASE_FUNCTION_URL = "https://tdygshqxyckzpodffqsg.supabase.co/functions/v1/suno-proxy";
     </script>
 
     <div class="header-box">
@@ -250,7 +248,7 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 [노래 듣기] 클릭 시 Supabase 프록시를 통해 음원을 가져와 페이지 이탈 없이 카드 내부에서 즉시 재생
+        // 🎵 [노래 듣기] 클릭 시 수노 링크에서 고유 ID를 추출하여 실제 CDN 오디오 주소로 변환 후 내부 재생
         window.toggleInlinePlayer = function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
@@ -279,37 +277,37 @@
                     return;
                 }
 
+                // 수노 링크에서 고유 ID 추출
+                let songId = "";
+                const matchSong = sunoUrl.match(/\/song\/([a-zA-Z0-9-_]+)/);
+                const matchShort = sunoUrl.match(/\/s\/([a-zA-Z0-9-_]+)/);
+
+                if (matchSong && matchSong[1]) {
+                    songId = matchSong[1];
+                } else if (matchShort && matchShort[1]) {
+                    songId = matchShort[1];
+                }
+
+                if (!songId) {
+                    alert("유효한 수노 곡 ID를 찾을 수 없습니다.");
+                    btn.innerText = '노래 듣기';
+                    return;
+                }
+
+                // 수노 공식 음원 CDN 스트리밍 주소 생성 (0:00 에러 및 검은 화면 원천 차단)
+                let directAudioSrc = `https://cdn1.suno.ai/${songId}.mp3`;
+
                 playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
                     <div class="native-audio-box">
-                        <p id="p_msg_${id}" class="player-msg">음원을 불러오는 중입니다... ⏳</p>
-                        <audio id="audio_${id}" controls preload="auto" style="display:none;"></audio>
+                        <audio controls preload="auto" src="${directAudioSrc}">
+                            브라우저가 오디오 재생을 지원하지 않습니다.
+                        </audio>
                     </div>
                 `;
 
                 btn.classList.add('active');
                 btn.innerText = '플레이어 닫기';
-
-                // Supabase Edge Function을 통해 수노 페이지에서 실제 음원 CDN 링크 추출
-                fetch(`${SUPABASE_FUNCTION_URL}?url=${encodeURIComponent(sunoUrl)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        const audioEl = document.getElementById(`audio_${id}`);
-                        const msgEl = document.getElementById(`p_msg_${id}`);
-                        if (data.audioUrl && audioEl && msgEl) {
-                            audioEl.src = data.audioUrl;
-                            audioEl.style.display = 'block';
-                            msgEl.style.display = 'none';
-                            audioEl.play().catch(e => console.log("자동재생 제한:", e));
-                        } else {
-                            if (msgEl) msgEl.innerText = "❌ 음원을 불러오지 못했습니다.";
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        const msgEl = document.getElementById(`p_msg_${id}`);
-                        if (msgEl) msgEl.innerText = "❌ 연결 오류가 발생했습니다.";
-                    });
             }
         };
 
