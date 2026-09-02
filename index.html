@@ -1827,7 +1827,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbx1FOFqxs3r3l2lzldxDJMqKoWl8xJuNMpRgTbWr4dP1GprQEJ4jpFcmWAO6yf5qdt6/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycby755S_kl1L56jZsbPWDB5TPlIHOgqFpIUXon4kaqL5SnFZ6rwKlBph2hTHgDQVVon0/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -2987,6 +2987,48 @@
                 .replace(/"/g, '&quot;');
         }
 
+        // 🏷️ 순수 음악 장르 태그 정제 함수 (JSON 메타데이터 및 비장르 설명어 완전 제거)
+        function cleanMusicGenres(raw) {
+            if (!raw) return [];
+            let cleanStr = String(raw).trim();
+            // JSON 아티팩트(: " { } [ ] = $ _ 등)가 포함된 경우 첫 특수기호 이전 순수 텍스트만 추출
+            const cutMatch = cleanStr.match(/[:{}\[\]"$=_]|negative_tags|prompt|duration|refund|stream/i);
+            if (cutMatch && cutMatch.index !== undefined) {
+                cleanStr = cleanStr.substring(0, cutMatch.index);
+            }
+
+            // 음악 장르가 아닌 템포/보컬/분위기/시스템 비장르 단어 필터링
+            const blacklistWords = [
+                'tempo', 'vocal', 'vocals', 'bpm', 'male', 'female', 'playful', 'romantic', 
+                'relaxed', 'fast', 'slow', 'smooth', 'mood', 'instrumental', 'negative', 'prompt', 
+                'tags', 'style', 'music', 'song', 'audio', 'gen', 'true', 'false', 'clip', 'id'
+            ];
+
+            const tokens = cleanStr.split(/[,/·|]+/)
+                .map(t => t.trim())
+                .filter(t => {
+                    if (!t || t.length < 2 || t.length > 25) return false;
+                    if (/^\d+(\.\d+)?$/.test(t)) return false; // 숫자 제외
+                    if (/[:{}\[\]"$=_\\\/]/.test(t)) return false; // 특수문자 잔재 제외
+                    const lower = t.toLowerCase();
+                    if (blacklistWords.some(bw => lower === bw)) return false;
+                    if (lower.includes('vocal') || lower.includes('tempo') || lower.includes('bpm')) return false;
+                    return true;
+                });
+
+            // 중복 제거 및 최대 4개로 제한
+            const unique = [];
+            const seen = new Set();
+            for (const g of tokens) {
+                const norm = g.toLowerCase();
+                if (!seen.has(norm)) {
+                    seen.add(norm);
+                    unique.push(g);
+                }
+            }
+            return unique.slice(0, 4);
+        }
+
         function renderList() {
             const listEl = document.getElementById('contestList');
             if (!listEl) return;
@@ -3019,28 +3061,26 @@
                 songs.sort((a, b) => Number(a.id) - Number(b.id));
             }
 
-            // 🔍 실시간 검색 필터 적용 (제작자, 제목, 음악 장르 - 복수 장르 다중 매칭 지원)
+            // 🔍 실시간 검색 필터 적용 (제작자, 제목, 음악 장르 - 순수 장르만 매칭)
             let filteredSongs = songs;
             if (currentSearchKeyword) {
-                // 쉼표(,), 슬래시(/) 등으로 구분된 검색 키워드 토큰들 분리 (예: '발라드, 댄스' 검색 시 각각 분리 매칭)
                 const keywords = currentSearchKeyword.split(/[,/]+/).map(k => k.trim().toLowerCase()).filter(Boolean);
 
                 filteredSongs = songs.filter(song => {
                     const author = (song.author || '').toLowerCase();
                     const title = (song.title || '').toLowerCase();
-                    let rawGenre = (song.genre || '').toLowerCase();
-                    if (sunoCache.has(song.url) && sunoCache.get(song.url).genre) {
-                        rawGenre += ', ' + sunoCache.get(song.url).genre.toLowerCase();
-                    }
+                    const rawG = song.genre || (sunoCache.has(song.url) && sunoCache.get(song.url).genre ? sunoCache.get(song.url).genre : '');
+                    const cleanGenres = cleanMusicGenres(rawG);
+                    const genreStr = cleanGenres.join(', ').toLowerCase();
 
                     if (currentSearchType === 'author') {
                         return keywords.some(kw => author.includes(kw));
                     } else if (currentSearchType === 'title') {
                         return keywords.some(kw => title.includes(kw));
                     } else if (currentSearchType === 'genre') {
-                        return keywords.some(kw => rawGenre.includes(kw));
+                        return keywords.some(kw => genreStr.includes(kw));
                     } else { // 'all'
-                        return keywords.some(kw => author.includes(kw) || title.includes(kw) || rawGenre.includes(kw));
+                        return keywords.some(kw => author.includes(kw) || title.includes(kw) || genreStr.includes(kw));
                     }
                 });
             }
@@ -3106,16 +3146,14 @@
                     ? `<span class="vote-count">❤️ ${song.votes}표</span>` 
                     : ``;
 
-                // 🏷️ 복수 장르 개별 칩 생성
+                // 🏷️ 순수 음악 장르 개별 칩 생성 (최대 3~4개 엄선)
                 const rawGenre = song.genre || (sunoCache.has(song.url) && sunoCache.get(song.url).genre ? sunoCache.get(song.url).genre : '');
+                const genreList = cleanMusicGenres(rawGenre);
                 let genreBadgesHtml = '';
-                if (rawGenre) {
-                    const genreList = rawGenre.split(/[,/·|]+/).map(g => g.trim()).filter(Boolean);
-                    if (genreList.length > 0) {
-                        genreBadgesHtml = `<span class="song-genres-wrap">` +
-                            genreList.map(g => `<span class="song-genre-badge" onclick="event.stopPropagation(); setQuickGenre('${escapeHtml(g)}');" title="'#${escapeHtml(g)}' 장르 곡 모아보기">#${escapeHtml(g)}</span>`).join('') +
-                        `</span>`;
-                    }
+                if (genreList.length > 0) {
+                    genreBadgesHtml = `<span class="song-genres-wrap">` +
+                        genreList.map(g => `<span class="song-genre-badge" onclick="event.stopPropagation(); setQuickGenre('${escapeHtml(g)}');" title="'#${escapeHtml(g)}' 장르 곡 모아보기">#${escapeHtml(g)}</span>`).join('') +
+                    `</span>`;
                 }
 
                 const item = document.createElement('div');
