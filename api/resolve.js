@@ -57,10 +57,13 @@ export default async function handler(req, res) {
                      html.match(/https:\\?\/\\?\/cdn2\.suno\.ai\\?\/image_[0-9a-f-]+\.jpeg/i);
     const coverUrl = imgMatch ? imgMatch[0].replace(/\\/g, '') : `https://cdn2.suno.ai/image_large_${songId}.jpeg`;
 
-    // 5.5 음악 장르 / 스타일 태그 추출
-    const tagMatch = html.match(/\\?"tags\\?"\s*:\s*\\?"([^"\\]*(?:\\.[^"\\]*)*)\\?"/i) ||
-                     html.match(/\\?"display_tags\\?"\s*:\s*\\?"([^"\\]*(?:\\.[^"\\]*)*)\\?"/i);
-    const genre = tagMatch ? tagMatch[1].replace(/\\"/g, '"').trim() : '';
+    // 5.5 음악 장르 / 스타일 태그 추출 (JSON 메타데이터 유출 차단)
+    const tagMatch = html.match(/\\*"tags\\*"\s*:\s*\\*"([^"\\{}:]+?)\\*"/i) ||
+                     html.match(/\\*"display_tags\\*"\s*:\s*\\*"([^"\\{}:]+?)\\*"/i);
+    let genre = tagMatch ? tagMatch[1].replace(/\\"/g, '"').trim() : '';
+    if (genre.includes(':') || genre.includes('{') || genre.includes('"')) {
+      genre = genre.split(/[:{"']/)[0].trim();
+    }
 
     // 6. 가사 (Prompt) 정밀 추출 및 메타데이터 아티팩트 정제
     let lyrics = '';
