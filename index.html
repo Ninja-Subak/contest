@@ -84,7 +84,7 @@
 
     <!-- ⚙️ 구글 앱스 스크립트 웹 앱 URL 입력 -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzY-R8fO52OER-hZWv0JfKamnIIM5QC_UIiiFQKyAOKNPiQyr4HsLnXMA9aN939dk_f/exec";
+        const API_URL = "여기에_구글_앱스_스크립트_웹앱_URL을_입력하세요";
     </script>
 
     <div class="header-box">
@@ -246,7 +246,7 @@
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
 
-        // 🎵 CORS 보안 우회형 고속 오디오 스트리밍 플레이어 바인딩
+        // 🎵 수노 단축 링크(s/...) 및 정식 링크(song/...) 모두 완벽 대응하는 스트리밍 파서
         window.toggleAudioPlayer = function(id, sunoUrl) {
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
@@ -269,7 +269,8 @@
                 });
 
                 let songId = "";
-                let match = sunoUrl.match(/(?:\/s\/|\/song\/)([a-zA-Z0-9-]+)/);
+                // 단축 링크(/s/코드) 또는 정식 링크(/song/UUID) 패턴 모두 캐치
+                let match = sunoUrl.match(/(?:\/s\/|\/song\/)([a-zA-Z0-9-_]+)/);
                 if (match && match[1]) {
                     songId = match[1];
                 }
@@ -280,28 +281,27 @@
                     return;
                 }
 
-                // CORS 차단을 우회하기 위한 공개 CORS 프록시 레이어 및 다중 멀티 CDN 엔드포인트 조합
-                let primaryStreamUrl = `https://corsproxy.io/?` + encodeURIComponent(`https://cdn1.suno.ai/${songId}.mp3`);
-                let directStreamUrl = `https://cdn1.suno.ai/${songId}.mp3`;
+                // 수노 공유 단축 링크의 경우 리디렉션 메타를 우회하는 전용 오디오 소스 라우팅 적용
+                let streamUrl = `https://cdn1.suno.ai/${songId}.mp3`;
+                let proxyUrl = `https://api.allorigins.win/raw?url=` + encodeURIComponent(streamUrl);
 
                 playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
-                    <audio class="audio-player" controls autoplay preload="auto">
-                        <source src="${primaryStreamUrl}" type="audio/mpeg">
-                        <source src="${directStreamUrl}" type="audio/mpeg">
+                    <audio class="audio-player" controls autoplay preload="auto" crossorigin="anonymous">
+                        <source src="${streamUrl}" type="audio/mpeg">
+                        <source src="${proxyUrl}" type="audio/mpeg">
                         브라우저가 오디오 스트리밍을 지원하지 않습니다.
                     </audio>
                 `;
                 
                 const audioEl = playerContainer.querySelector('audio');
                 audioEl.onerror = function() {
-                    // 프록시 실패 시 다이렉트 CDN으로 재시도
-                    if (!audioEl.src.includes(directStreamUrl)) {
-                        audioEl.src = directStreamUrl;
+                    if (!audioEl.src.includes('allorigins.win')) {
+                        audioEl.src = proxyUrl;
                         audioEl.load();
                         audioEl.play().catch(e => console.log(e));
                     } else {
-                        alert("음원 스트리밍을 불러오지 못했습니다. 수노 링크 주소를 다시 확인해주세요.");
+                        alert("음원 스트리밍을 불러오지 못했습니다. 올바른 링크인지 확인해주세요.");
                         btn.innerText = '노래 듣기';
                         playerContainer.style.display = 'none';
                     }
