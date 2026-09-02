@@ -545,6 +545,609 @@
             background: rgba(0, 242, 254, 0.6);
         }
 
+        /* 🎛️ 사이버 사운드 플레이어 마스터 콘솔 카드 */
+        .master-player-card {
+            background: linear-gradient(145deg, rgba(16, 24, 48, 0.95), rgba(24, 18, 48, 0.95));
+            border: 1px solid rgba(0, 242, 254, 0.45);
+            border-radius: 18px;
+            padding: 22px 24px;
+            margin-bottom: 24px;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.6),
+                0 0 30px rgba(0, 242, 254, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .master-player-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00f2fe, #a855f7, #ec4899, #00f2fe);
+            background-size: 300% 100%;
+            animation: cyberBorder 4s linear infinite;
+        }
+        @keyframes cyberBorder {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 300% 0%; }
+        }
+        .master-player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .master-player-title-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .master-live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00f2fe;
+            box-shadow: 0 0 10px #00f2fe;
+            animation: pulseDot 1.5s ease-in-out infinite;
+        }
+        .master-card-badge {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            color: #00f2fe;
+            background: rgba(0, 242, 254, 0.12);
+            border: 1px solid rgba(0, 242, 254, 0.35);
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+        .master-track-indicator {
+            font-size: 13px;
+            font-weight: 700;
+            color: #94a3b8;
+        }
+        .master-spectrum {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 18px;
+        }
+        .master-spectrum span {
+            width: 3px;
+            height: 4px;
+            background: linear-gradient(to top, #00f2fe, #a855f7);
+            border-radius: 2px;
+            transition: height 0.2s;
+        }
+        .master-spectrum.playing span:nth-child(1) { animation: specAnim 0.6s infinite ease-in-out alternate; }
+        .master-spectrum.playing span:nth-child(2) { animation: specAnim 0.4s infinite ease-in-out alternate 0.1s; }
+        .master-spectrum.playing span:nth-child(3) { animation: specAnim 0.8s infinite ease-in-out alternate 0.2s; }
+        .master-spectrum.playing span:nth-child(4) { animation: specAnim 0.5s infinite ease-in-out alternate 0.15s; }
+        .master-spectrum.playing span:nth-child(5) { animation: specAnim 0.7s infinite ease-in-out alternate 0.25s; }
+        @keyframes specAnim {
+            0% { height: 4px; }
+            100% { height: 18px; }
+        }
+        .master-track-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .master-cover-art {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: #0b1329;
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.25);
+            flex-shrink: 0;
+            transition: transform 0.3s;
+        }
+        .master-cover-art.playing {
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.5), 0 0 15px rgba(0, 242, 254, 0.4);
+        }
+        .master-meta {
+            flex: 1;
+            min-width: 0;
+        }
+        .master-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .master-song-title {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 800;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        .master-lyrics-btn {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .master-lyrics-btn:hover {
+            background: rgba(168, 85, 247, 0.3);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+        .master-author-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        .master-song-author {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .master-playlist-counter {
+            font-size: 11px;
+            font-weight: 800;
+            color: #00f2fe;
+            background: rgba(0, 242, 254, 0.1);
+            padding: 2px 7px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 242, 254, 0.25);
+        }
+
+        /* 🎚️ 프로그레스 재생바 */
+        .master-progress-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .time-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #94a3b8;
+            min-width: 40px;
+            font-family: monospace;
+        }
+        .master-progress-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: visible;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: height 0.15s;
+        }
+        .master-progress-bar:hover {
+            height: 10px;
+        }
+        .master-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00f2fe, #a855f7, #ec4899);
+            border-radius: 6px;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+            pointer-events: none;
+        }
+        .master-progress-thumb {
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 0 10px #00f2fe, 0 0 15px rgba(168, 85, 247, 0.8);
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .master-progress-bar:hover .master-progress-thumb {
+            opacity: 1;
+        }
+
+        /* 📜 재생바 옆 가사 보기 버튼 */
+        .master-lyrics-bar-btn {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(99, 102, 241, 0.35));
+            color: #e0e7ff;
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-shrink: 0;
+        }
+        .master-lyrics-bar-btn:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.45), rgba(99, 102, 241, 0.55));
+            color: #ffffff;
+            border-color: #c084fc;
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.55);
+            transform: translateY(-1px);
+        }
+        .master-lyrics-bar-btn.active {
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            color: #ffffff;
+            border-color: #e0e7ff;
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.7);
+        }
+        @media (max-width: 600px) {
+            .master-progress-container {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .master-progress-bar {
+                width: 100%;
+                flex-basis: 100%;
+                order: 1;
+            }
+            .time-label#masterCurrentTime {
+                order: 2;
+            }
+            .time-label#masterTotalTime {
+                order: 3;
+            }
+            .master-lyrics-bar-btn {
+                order: 4;
+                margin-left: auto;
+                padding: 4px 10px;
+                font-size: 11px;
+            }
+        }
+
+        /* 🎮 7종 컨트롤러 버튼 바 */
+        .master-controls-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+        }
+        @media (max-width: 480px) {
+            .master-controls-bar {
+                gap: 8px;
+            }
+        }
+        .master-ctrl-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94a3b8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        .master-ctrl-btn:hover {
+            background: rgba(0, 242, 254, 0.15);
+            color: #00f2fe;
+            border-color: rgba(0, 242, 254, 0.5);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.35);
+            transform: translateY(-2px);
+        }
+        .master-ctrl-btn:active {
+            transform: scale(0.92);
+        }
+        .master-ctrl-btn.active {
+            color: #00f2fe;
+            border-color: #00f2fe;
+            background: rgba(0, 242, 254, 0.22);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.45);
+        }
+        .master-ctrl-btn .skip-badge {
+            position: absolute;
+            bottom: 3px;
+            font-size: 8px;
+            font-weight: 900;
+            color: currentColor;
+            letter-spacing: -0.05em;
+        }
+        .master-ctrl-btn .repeat-mode-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            font-size: 8px;
+            font-weight: 800;
+            background: #00f2fe;
+            color: #0b1329;
+            padding: 1px 4px;
+            border-radius: 4px;
+            box-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+        }
+
+        /* 🔘 중앙 대형 메인 재생/일시정지 버튼 */
+        .master-play-main-btn {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #1e293b 0%, #050b1a 100%);
+            border: 2px solid #00f2fe;
+            color: #00f2fe;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 
+                0 0 25px rgba(0, 242, 254, 0.55),
+                0 0 45px rgba(168, 85, 247, 0.35),
+                inset 0 0 15px rgba(0, 242, 254, 0.25);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .master-play-main-btn:hover {
+            transform: scale(1.08);
+            border-color: #ffffff;
+            color: #ffffff;
+            box-shadow: 
+                0 0 35px rgba(0, 242, 254, 0.8),
+                0 0 60px rgba(168, 85, 247, 0.6),
+                inset 0 0 20px rgba(0, 242, 254, 0.4);
+        }
+        .master-play-main-btn:active {
+            transform: scale(0.95);
+        }
+        .master-play-main-btn.playing {
+            border-color: #ec4899;
+            color: #ec4899;
+            box-shadow: 
+                0 0 30px rgba(236, 72, 153, 0.65),
+                0 0 50px rgba(168, 85, 247, 0.45),
+                inset 0 0 15px rgba(236, 72, 153, 0.3);
+            animation: playPulse 2s infinite ease-in-out;
+        }
+
+        /* 🔍 검색 및 카테고리 필터 바 */
+        .search-filter-box {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+        }
+        .search-input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        @media (max-width: 600px) {
+            .search-input-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+        .search-type-wrapper {
+            position: relative;
+            flex-shrink: 0;
+            width: 140px;
+        }
+        @media (max-width: 600px) {
+            .search-type-wrapper {
+                width: 100%;
+            }
+        }
+        .search-type-select {
+            width: 100%;
+            padding: 10px 12px;
+            background: #0f172a;
+            color: #38bdf8;
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            appearance: auto;
+        }
+        .search-type-select:hover, .search-type-select:focus {
+            border-color: #00f2fe;
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.35);
+        }
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .search-svg-icon {
+            position: absolute;
+            left: 14px;
+            color: #64748b;
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+        .search-input-wrapper:focus-within .search-svg-icon {
+            color: #00f2fe;
+        }
+        .search-input-field {
+            width: 100%;
+            padding: 10px 38px 10px 42px;
+            background: rgba(2, 6, 23, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .search-input-field:focus {
+            border-color: #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+            background: rgba(2, 6, 23, 0.95);
+        }
+        .search-input-field::placeholder {
+            color: #64748b;
+            font-size: 13px;
+        }
+        .search-clear-btn {
+            position: absolute;
+            right: 12px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #cbd5e1;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .search-clear-btn:hover {
+            background: rgba(239, 68, 68, 0.6);
+            color: #ffffff;
+        }
+
+        /* 🏷️ 빠른 장르 추천 칩 */
+        .quick-genre-tags {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .quick-tag-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-right: 2px;
+            white-space: nowrap;
+        }
+        .genre-chip {
+            background: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            padding: 2px 9px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .genre-chip:hover {
+            background: rgba(168, 85, 247, 0.2);
+            color: #c084fc;
+            border-color: rgba(168, 85, 247, 0.4);
+            transform: translateY(-1px);
+        }
+        .genre-chip.active {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.25), rgba(168, 85, 247, 0.25));
+            color: #00f2fe;
+            border-color: #00f2fe;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+            font-weight: 800;
+        }
+
+        /* 📊 검색 결과 상태 바 */
+        .search-result-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+        .search-reset-btn {
+            background: none;
+            border: none;
+            color: #38bdf8;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 2px 6px;
+        }
+        .search-reset-btn:hover {
+            color: #00f2fe;
+        }
+
+        /* 🏷️ 노래 카드 내 다중 장르 태그 랩 & 배지 */
+        .song-genres-wrap {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        .song-genre-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #c084fc;
+            background: rgba(168, 85, 247, 0.14);
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            padding: 1px 8px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .song-genre-badge:hover {
+            background: rgba(0, 242, 254, 0.22);
+            border-color: #00f2fe;
+            color: #00f2fe;
+            transform: translateY(-1px);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+        }
+        .contest-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .total-songs-badge {
+            font-size: 12px;
+            font-weight: 800;
+            color: #00f2fe;
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            padding: 3px 10px;
+            border-radius: 999px;
+        }
+
         .header-box { text-align: center; margin-bottom: 30px; position: relative; z-index: 1; }
         
         /* 🔮 형이상학적 헤더 배지 & 타이틀 */
@@ -1116,6 +1719,116 @@
                 </div>
             </div>
         </div>
+    <!-- 🎛️ 사이버 사운드 플레이어 마스터 콘솔 카드 -->
+    <div class="card master-player-card" id="masterPlayerCard">
+        <!-- 상단 헤더: 타이틀 + 스펙트럼 EQ 비주얼라이저 -->
+        <div class="master-player-header">
+            <div class="master-player-title-box">
+                <span class="master-live-dot"></span>
+                <span class="master-card-badge">CYBER MASTER CONSOLE</span>
+                <span class="master-track-indicator" id="masterTrackIndicator">출품곡 연속 재생 플레이어</span>
+            </div>
+            <div class="master-spectrum" id="masterSpectrum">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <!-- 현재 재생 곡 정보 박스 -->
+        <div class="master-track-info">
+            <img id="masterCover" src="https://suno.com/favicon.ico" alt="앨범 커버" class="master-cover-art">
+            <div class="master-meta">
+                <div class="master-title-row">
+                    <h4 id="masterTitle" class="master-song-title">출품곡을 선택하여 재생해 보세요</h4>
+                </div>
+                <div class="master-author-row">
+                    <span id="masterAuthor" class="master-song-author">전곡 연속 스트리밍 지원</span>
+                    <span class="master-playlist-counter" id="masterPlaylistCounter">0 / 0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🎚️ 프로그레스 재생바 + 바로 옆 '가사 보기' 버튼 -->
+        <div class="master-progress-container">
+            <span class="time-label" id="masterCurrentTime">00:00</span>
+            <div class="master-progress-bar" id="masterProgressBar" onclick="handleMasterSeek(event)" title="클릭하여 재생 위치 이동">
+                <div class="master-progress-fill" id="masterProgressFill">
+                    <span class="master-progress-thumb"></span>
+                </div>
+            </div>
+            <span class="time-label" id="masterTotalTime">00:00</span>
+            <button type="button" class="master-lyrics-bar-btn" id="masterLyricsBtn" onclick="toggleMasterLyrics()" title="현재 재생 중인 곡의 가사 보기">
+                📜 가사 보기
+            </button>
+        </div>
+
+        <!-- 🎮 7종 컨트롤러 버튼 바 (첨부 이미지 형태 완벽 구현) -->
+        <div class="master-controls-bar">
+            <!-- 1. 셔플 (무작위 재생) -->
+            <button type="button" class="master-ctrl-btn" id="masterShuffleBtn" onclick="toggleMasterShuffle()" title="셔플(무작위) 재생 토글">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/>
+                </svg>
+            </button>
+
+            <!-- 2. 이전 곡 -->
+            <button type="button" class="master-ctrl-btn" id="masterPrevBtn" onclick="playMasterPrevTrack()" title="이전 곡 (Previous)">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                </svg>
+            </button>
+
+            <!-- 3. 되감기 (-10초) -->
+            <button type="button" class="master-ctrl-btn" id="masterRewindBtn" onclick="masterRewind10()" title="10초 뒤로 건너뛰기">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/>
+                </svg>
+                <span class="skip-badge">10</span>
+            </button>
+
+            <!-- 4. 재생 / 일시정지 (중앙 대형 메인 네온 버튼) -->
+            <button type="button" class="master-play-main-btn" id="masterPlayBtn" onclick="toggleMasterPlay()" title="재생 / 일시정지">
+                <svg id="masterPlayIcon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+            </button>
+
+            <!-- 5. 빨리감기 (+10초) -->
+            <button type="button" class="master-ctrl-btn" id="masterForwardBtn" onclick="masterForward10()" title="10초 앞으로 건너뛰기">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/>
+                </svg>
+                <span class="skip-badge">10</span>
+            </button>
+
+            <!-- 6. 다음 곡 -->
+            <button type="button" class="master-ctrl-btn" id="masterNextBtn" onclick="playMasterNextTrack()" title="다음 곡 (Next)">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                </svg>
+            </button>
+
+            <!-- 7. 반복 재생 -->
+            <button type="button" class="master-ctrl-btn active" id="masterRepeatBtn" onclick="toggleMasterRepeat()" title="반복 모드 변경 (전체/한곡/해제)">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                    <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
+                </svg>
+                <span class="repeat-mode-badge" id="masterRepeatBadge">ALL</span>
+            </button>
+        </div>
+
+        <!-- 숨김 마스터 오디오 엔진 -->
+        <audio id="masterAudioPlayer" playsinline webkit-playsinline preload="auto"></audio>
+
+        <!-- 마스터 가사 팝업 창 -->
+        <div class="lyrics-popup-box" id="masterLyricsBox" style="display:none; margin-top:18px;">
+            <div class="lyrics-popup-header">
+                <div class="lyrics-popup-title">
+                    <span>📜</span> <b id="masterLyricsTitle">가사</b>
+                </div>
+                <button type="button" class="lyrics-close-btn" onclick="toggleMasterLyrics()">✕ 닫기</button>
+            </div>
+            <div class="lyrics-popup-body" id="masterLyricsContent"></div>
+        </div>
     </div>
 
     <div class="card">
@@ -1123,13 +1836,63 @@
         <div class="input-group">
             <input type="text" id="authorName" placeholder="참가자 별명 (예: 닌자수박)" maxlength="20">
             <input type="text" id="songTitle" placeholder="노래 제목 (예: 우주를 건너서)" maxlength="30">
+            <input type="text" id="songGenre" placeholder="음악 장르 (복수 입력 시 쉼표로 구분 예: 발라드, R&B)" maxlength="50">
             <input type="text" id="sunoUrl" placeholder="수노 링크 (예: https://suno.com/s/...)">
         </div>
         <button type="button" onclick="registerSong()" class="submit-btn">콘테스트 곡 제출하기</button>
     </div>
 
     <div class="card">
-        <h3>🏆 실시간 출품곡 목록 및 투표</h3>
+        <div class="contest-list-header">
+            <h3>🏆 실시간 출품곡 목록 및 투표</h3>
+            <span class="total-songs-badge" id="totalSongsBadge">총 0곡</span>
+        </div>
+
+        <!-- 🔍 실시간 검색 & 카테고리 필터 바 (제작자, 제목, 음악 장르) -->
+        <div class="search-filter-box">
+            <div class="search-input-row">
+                <!-- 검색 구분 선택 (제작자, 제목, 음악 장르) -->
+                <div class="search-type-wrapper">
+                    <select id="searchType" class="search-type-select" onchange="handleSearchChange()">
+                        <option value="all">🔍 전체 구분</option>
+                        <option value="author">👤 제작자</option>
+                        <option value="title">🎵 제목</option>
+                        <option value="genre">🏷️ 음악 장르</option>
+                    </select>
+                </div>
+                <!-- 검색어 입력창 -->
+                <div class="search-input-wrapper">
+                    <svg class="search-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="searchInput" class="search-input-field" placeholder="검색어를 입력하세요 (실시간 검색)" oninput="handleSearchChange()" autocomplete="off">
+                    <button type="button" id="searchClearBtn" class="search-clear-btn" onclick="clearSearch()" style="display:none;" title="검색어 지우기">✕</button>
+                </div>
+            </div>
+
+            <!-- 🏷️ 빠른 장르 추천 태그 -->
+            <div class="quick-genre-tags" id="quickGenreTags">
+                <span class="quick-tag-title">빠른 장르:</span>
+                <button type="button" class="genre-chip" onclick="setQuickGenre('발라드')">#발라드</button>
+                <button type="button" class="genre-chip" onclick="setQuickGenre('K-POP')">#K-POP</button>
+                <button type="button" class="genre-chip" onclick="setQuickGenre('댄스')">#댄스</button>
+                <button type="button" class="genre-chip" onclick="setQuickGenre('힙합')">#힙합</button>
+                <button type="button" class="genre-chip" onclick="setQuickGenre('팝')">#팝</button>
+                <button type="button" class="genre-chip" onclick="setQuickGenre('락')">#락</button>
+                <button type="button" class="genre-chip" onclick="setQuickGenre('재즈')">#재즈</button>
+                <button type="button" class="genre-chip" onclick="setQuickGenre('R&B')">#R&B</button>
+                <button type="button" class="genre-chip" onclick="setQuickGenre('트로트')">#트로트</button>
+                <button type="button" class="genre-chip" onclick="setQuickGenre('OST')">#OST</button>
+            </div>
+
+            <!-- 📊 검색 결과 요약 상태 바 -->
+            <div class="search-result-info" id="searchResultInfo" style="display:none;">
+                <span id="searchResultText"></span>
+                <button type="button" class="search-reset-btn" onclick="clearSearch()">✕ 전체 목록 보기</button>
+            </div>
+        </div>
+
         <div id="contestList">
             <div class="loading">데이터를 불러오는 중입니다...</div>
         </div>
@@ -1189,7 +1952,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbxVz-ma7Jywh4c8dq_6nGEBmQQ1e1SFQNHF7p8ucIHUk_oOrHOS6F21NnYd89M4XRe8/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxIvwn5-saIAF5gQLjGP1L9Sz_ZY-VsP8SNM1WLROLibRcZZ_vJRtqudaxMhLhwMEsZ/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -1650,6 +2413,16 @@
                 if (!author) author = song.author;
             }
 
+            // 마스터 사운드 콘솔과 실시간 동기화
+            const songIndex = songs.findIndex(s => String(s.id) === String(id));
+            if (songIndex !== -1) {
+                currentMasterSongIndex = songIndex;
+                document.getElementById('masterTitle').innerText = (song ? song.title : title) || '출품곡';
+                document.getElementById('masterAuthor').innerText = `제작자: ${(song ? song.author : author) || '참가자'}`;
+                document.getElementById('masterTrackIndicator').innerText = `출품곡 ${songIndex + 1}번째 트랙 감상 중`;
+                document.getElementById('masterPlaylistCounter').innerText = `${songIndex + 1} / ${songs.length}`;
+            }
+
             // 다른 곡 재생 중이면 모두 닫기
             document.querySelectorAll('.player-container').forEach(el => {
                 el.style.display = 'none';
@@ -2000,6 +2773,7 @@
         window.registerSong = function() {
             const author = document.getElementById('authorName').value.trim();
             const title = document.getElementById('songTitle').value.trim();
+            const genre = document.getElementById('songGenre') ? document.getElementById('songGenre').value.trim() : '';
             let url = document.getElementById('sunoUrl').value.trim();
 
             if (!author || !title || !url) {
@@ -2018,11 +2792,12 @@
 
             alert('곡을 등록하고 있습니다. 잠시만 기다려주세요...');
 
-            fetch(`${API_URL}?action=addSong&title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&url=${encodeURIComponent(url)}`)
+            fetch(`${API_URL}?action=addSong&title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&genre=${encodeURIComponent(genre)}&url=${encodeURIComponent(url)}`)
                 .then(res => res.json())
                 .then(() => {
                     document.getElementById('authorName').value = '';
                     document.getElementById('songTitle').value = '';
+                    if (document.getElementById('songGenre')) document.getElementById('songGenre').value = '';
                     document.getElementById('sunoUrl').value = '';
                     alert('등록 완료!');
                     fetchAppData();
@@ -2060,12 +2835,14 @@
             if (newTitle === null) return;
             const newAuthor = prompt("제작자 수정:", song.author);
             if (newAuthor === null) return;
+            const newGenre = prompt("음악 장르 수정 (복수 입력 시 쉼표(,)로 구분 예: 발라드, R&B):", song.genre || '');
+            if (newGenre === null) return;
             const newUrl = prompt("링크 수정:", song.url);
             if (newUrl === null) return;
             const newVotes = prompt("투표수 수정:", song.votes);
             if (newVotes === null || isNaN(newVotes)) return;
 
-            fetch(`${API_URL}?action=updateSong&id=${id}&title=${encodeURIComponent(newTitle)}&author=${encodeURIComponent(newAuthor)}&url=${encodeURIComponent(newUrl)}&votes=${newVotes}`)
+            fetch(`${API_URL}?action=updateSong&id=${id}&title=${encodeURIComponent(newTitle)}&author=${encodeURIComponent(newAuthor)}&genre=${encodeURIComponent(newGenre)}&url=${encodeURIComponent(newUrl)}&votes=${newVotes}`)
                 .then(res => res.json())
                 .then(() => { alert("수정되었습니다."); fetchAppData(); });
         };
@@ -2080,13 +2857,414 @@
                 .then(() => { alert("삭제되었습니다. (실수로 삭제한 경우 [복구하기] 또는 Ctrl+Z 로 복구 가능)"); fetchAppData(); });
         };
 
+        // ==========================================
+        // 🎛️ 사이버 사운드 플레이어 마스터 컨트롤러
+        // ==========================================
+        let currentMasterSongIndex = -1;
+        let isMasterPlaying = false;
+        let isMasterShuffle = false;
+        let masterRepeatMode = 'all'; // 'all', 'one', 'none'
+        let masterAudio = null;
+
+        function initMasterPlayer() {
+            masterAudio = document.getElementById('masterAudioPlayer');
+            if (!masterAudio) return;
+
+            masterAudio.addEventListener('timeupdate', () => {
+                if (!masterAudio.duration) return;
+                const percent = (masterAudio.currentTime / masterAudio.duration) * 100;
+                const fill = document.getElementById('masterProgressFill');
+                if (fill) fill.style.width = percent + '%';
+                const cur = document.getElementById('masterCurrentTime');
+                if (cur) cur.innerText = formatPlayerTime(masterAudio.currentTime);
+            });
+
+            masterAudio.addEventListener('loadedmetadata', () => {
+                const total = document.getElementById('masterTotalTime');
+                if (total) total.innerText = formatPlayerTime(masterAudio.duration);
+            });
+
+            masterAudio.addEventListener('play', () => {
+                isMasterPlaying = true;
+                updateMasterPlayButtonUI(true);
+            });
+
+            masterAudio.addEventListener('pause', () => {
+                isMasterPlaying = false;
+                updateMasterPlayButtonUI(false);
+            });
+
+            masterAudio.addEventListener('ended', () => {
+                if (masterRepeatMode === 'one') {
+                    masterAudio.currentTime = 0;
+                    masterAudio.play().catch(() => {});
+                } else if (masterRepeatMode === 'all') {
+                    playMasterNextTrack(true);
+                } else {
+                    if (currentMasterSongIndex < songs.length - 1) {
+                        playMasterNextTrack(true);
+                    } else {
+                        isMasterPlaying = false;
+                        updateMasterPlayButtonUI(false);
+                    }
+                }
+            });
+
+            masterAudio.addEventListener('error', () => {
+                if (currentMasterSongIndex >= 0 && currentMasterSongIndex < songs.length) {
+                    const song = songs[currentMasterSongIndex];
+                    const proxyUrl = `https://contest-omega-pink.vercel.app/api/resolve?url=${encodeURIComponent(song.url)}&stream=1`;
+                    if (masterAudio.src !== proxyUrl) {
+                        console.log("Master Audio: Falling back to proxy stream...");
+                        masterAudio.src = proxyUrl;
+                        masterAudio.play().catch(() => {});
+                    }
+                }
+            });
+        }
+
+        function formatPlayerTime(seconds) {
+            if (isNaN(seconds) || seconds < 0) return "00:00";
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+        }
+
+        function updateMasterPlayButtonUI(playing) {
+            const playBtn = document.getElementById('masterPlayBtn');
+            const spectrum = document.getElementById('masterSpectrum');
+            const cover = document.getElementById('masterCover');
+
+            if (playBtn) {
+                if (playing) {
+                    playBtn.classList.add('playing');
+                    playBtn.innerHTML = `
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                        </svg>
+                    `;
+                    if (spectrum) spectrum.classList.add('playing');
+                    if (cover) cover.classList.add('playing');
+                } else {
+                    playBtn.classList.remove('playing');
+                    playBtn.innerHTML = `
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    `;
+                    if (spectrum) spectrum.classList.remove('playing');
+                    if (cover) cover.classList.remove('playing');
+                }
+            }
+        }
+
+        window.loadMasterSong = async function(index, autoPlay = true) {
+            if (!songs || songs.length === 0) return;
+            if (index < 0) index = 0;
+            if (index >= songs.length) index = songs.length - 1;
+
+            currentMasterSongIndex = index;
+            const song = songs[index];
+
+            if (!masterAudio) masterAudio = document.getElementById('masterAudioPlayer');
+
+            document.getElementById('masterTitle').innerText = song.title || '출품곡';
+            document.getElementById('masterAuthor').innerText = `제작자: ${song.author || '참가자'}`;
+            document.getElementById('masterTrackIndicator').innerText = `출품곡 ${index + 1}번째 트랙 감상 중`;
+            document.getElementById('masterPlaylistCounter').innerText = `${index + 1} / ${songs.length}`;
+
+            try {
+                let data = sunoCache.get(song.url);
+                if (!data) {
+                    data = await resolveSunoTrack(song.url);
+                }
+
+                if (data) {
+                    if (data.coverUrl) {
+                        document.getElementById('masterCover').src = data.coverUrl;
+                    }
+                    const audioSrc = data.audioUrl || `https://contest-omega-pink.vercel.app/api/resolve?url=${encodeURIComponent(song.url)}&stream=1`;
+                    if (masterAudio.src !== audioSrc) {
+                        masterAudio.src = audioSrc;
+                    }
+
+                    if (autoPlay) {
+                        masterAudio.play().then(() => {
+                            isMasterPlaying = true;
+                            updateMasterPlayButtonUI(true);
+                        }).catch(() => {
+                            isMasterPlaying = false;
+                            updateMasterPlayButtonUI(false);
+                        });
+                    }
+                }
+
+                // 가사 보기 창이 열려있다면 지금 재생 곡의 가사로 실시간 즉시 갱신
+                const masterBox = document.getElementById('masterLyricsBox');
+                if (masterBox && masterBox.style.display === 'block') {
+                    updateMasterLyricsDisplay(song);
+                }
+            } catch (err) {
+                console.error("Master Player Song Load Error:", err);
+            }
+        };
+
+        window.toggleMasterPlay = function() {
+            if (!songs || songs.length === 0) {
+                alert("등록된 출품곡이 없습니다.");
+                return;
+            }
+
+            if (!masterAudio) masterAudio = document.getElementById('masterAudioPlayer');
+
+            if (currentMasterSongIndex === -1) {
+                loadMasterSong(0, true);
+                return;
+            }
+
+            if (masterAudio.paused) {
+                masterAudio.play().then(() => {
+                    isMasterPlaying = true;
+                    updateMasterPlayButtonUI(true);
+                }).catch(e => console.error(e));
+            } else {
+                masterAudio.pause();
+                isMasterPlaying = false;
+                updateMasterPlayButtonUI(false);
+            }
+        };
+
+        window.playMasterNextTrack = function(fromAutoEnd = false) {
+            if (!songs || songs.length === 0) return;
+            let nextIndex = 0;
+            if (isMasterShuffle && songs.length > 1) {
+                do {
+                    nextIndex = Math.floor(Math.random() * songs.length);
+                } while (nextIndex === currentMasterSongIndex);
+            } else {
+                nextIndex = (currentMasterSongIndex + 1) % songs.length;
+            }
+            loadMasterSong(nextIndex, true);
+        };
+
+        window.playMasterPrevTrack = function() {
+            if (!songs || songs.length === 0) return;
+            if (masterAudio && masterAudio.currentTime > 3) {
+                masterAudio.currentTime = 0;
+                return;
+            }
+            let prevIndex = (currentMasterSongIndex - 1 + songs.length) % songs.length;
+            loadMasterSong(prevIndex, true);
+        };
+
+        window.masterRewind10 = function() {
+            if (!masterAudio) masterAudio = document.getElementById('masterAudioPlayer');
+            if (masterAudio) {
+                masterAudio.currentTime = Math.max(0, masterAudio.currentTime - 10);
+            }
+        };
+
+        window.masterForward10 = function() {
+            if (!masterAudio) masterAudio = document.getElementById('masterAudioPlayer');
+            if (masterAudio && masterAudio.duration) {
+                masterAudio.currentTime = Math.min(masterAudio.duration, masterAudio.currentTime + 10);
+            }
+        };
+
+        window.toggleMasterShuffle = function() {
+            isMasterShuffle = !isMasterShuffle;
+            const btn = document.getElementById('masterShuffleBtn');
+            if (btn) {
+                if (isMasterShuffle) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            }
+        };
+
+        window.toggleMasterRepeat = function() {
+            const badge = document.getElementById('masterRepeatBadge');
+            const btn = document.getElementById('masterRepeatBtn');
+            if (masterRepeatMode === 'all') {
+                masterRepeatMode = 'one';
+                if (badge) badge.innerText = '1';
+                if (btn) btn.classList.add('active');
+            } else if (masterRepeatMode === 'one') {
+                masterRepeatMode = 'none';
+                if (badge) badge.innerText = 'OFF';
+                if (btn) btn.classList.remove('active');
+            } else {
+                masterRepeatMode = 'all';
+                if (badge) badge.innerText = 'ALL';
+                if (btn) btn.classList.add('active');
+            }
+        };
+
+        window.handleMasterSeek = function(e) {
+            if (!masterAudio) masterAudio = document.getElementById('masterAudioPlayer');
+            if (!masterAudio || !masterAudio.duration) return;
+            const bar = document.getElementById('masterProgressBar');
+            const rect = bar.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const width = rect.width;
+            const percent = Math.max(0, Math.min(1, clickX / width));
+            masterAudio.currentTime = percent * masterAudio.duration;
+        };
+
+        function updateMasterLyricsDisplay(song) {
+            const box = document.getElementById('masterLyricsBox');
+            const titleEl = document.getElementById('masterLyricsTitle');
+            const content = document.getElementById('masterLyricsContent');
+            if (!box || !content || !song) return;
+
+            if (titleEl) titleEl.innerText = `${song.title || '출품곡'} - 지금 재생 가사`;
+            content.innerHTML = `<div style="padding:15px; text-align:center; color:var(--text-sub);">⏳ 가사를 불러오는 중입니다...</div>`;
+
+            if (sunoCache.has(song.url) && sunoCache.get(song.url).lyrics) {
+                displayLyricsContent(content, sunoCache.get(song.url).lyrics);
+            } else if (song.lyrics) {
+                displayLyricsContent(content, song.lyrics);
+            } else {
+                resolveSunoTrack(song.url).then(data => {
+                    if (data && data.lyrics) {
+                        displayLyricsContent(content, data.lyrics);
+                    } else {
+                        content.innerHTML = `<div style="padding:15px; text-align:center; color:#94a3b8;">ℹ️ 등록된 가사가 없거나 연주곡(Instrumental)입니다.</div>`;
+                    }
+                }).catch(err => {
+                    content.innerHTML = `<div style="padding:15px; text-align:center; color:#ef4444;">⚠️ 가사를 불러오지 못했습니다.</div>`;
+                });
+            }
+        }
+
+        window.toggleMasterLyrics = function() {
+            const box = document.getElementById('masterLyricsBox');
+            const btn = document.getElementById('masterLyricsBtn');
+            if (!box) return;
+
+            if (box.style.display === 'block') {
+                box.style.display = 'none';
+                if (btn) {
+                    btn.classList.remove('active');
+                    btn.innerHTML = '📜 가사 보기';
+                }
+                return;
+            }
+
+            if (currentMasterSongIndex === -1 || !songs[currentMasterSongIndex]) {
+                if (songs && songs.length > 0) {
+                    currentMasterSongIndex = 0;
+                } else {
+                    alert("현재 재생 가능한 곡이 없습니다.");
+                    return;
+                }
+            }
+
+            box.style.display = 'block';
+            if (btn) {
+                btn.classList.add('active');
+                btn.innerHTML = '📜 가사 닫기';
+            }
+
+            const song = songs[currentMasterSongIndex];
+            updateMasterLyricsDisplay(song);
+        };
+
+        // ==========================================
+        // 🔍 실시간 검색 & 필터 (제작자, 제목, 음악 장르)
+        // ==========================================
+        let currentSearchType = 'all'; // 'all', 'author', 'title', 'genre'
+        let currentSearchKeyword = '';
+
+        window.handleSearchChange = function() {
+            const typeEl = document.getElementById('searchType');
+            const inputEl = document.getElementById('searchInput');
+            if (typeEl) currentSearchType = typeEl.value;
+            if (inputEl) currentSearchKeyword = inputEl.value.trim().toLowerCase();
+
+            const clearBtn = document.getElementById('searchClearBtn');
+            if (clearBtn) {
+                clearBtn.style.display = currentSearchKeyword ? 'flex' : 'none';
+            }
+
+            renderList();
+        };
+
+        window.clearSearch = function() {
+            const inputEl = document.getElementById('searchInput');
+            if (inputEl) inputEl.value = '';
+            currentSearchKeyword = '';
+            const clearBtn = document.getElementById('searchClearBtn');
+            if (clearBtn) clearBtn.style.display = 'none';
+            document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
+            renderList();
+        };
+
+        window.setQuickGenre = function(genreName) {
+            const typeEl = document.getElementById('searchType');
+            const inputEl = document.getElementById('searchInput');
+            if (typeEl) typeEl.value = 'genre';
+
+            const cleanName = genreName.replace(/^#/, '').trim();
+            if (inputEl) {
+                // 이미 선택된 장르를 다시 누르면 해제 (토글 기능)
+                if (inputEl.value.trim().toLowerCase() === cleanName.toLowerCase()) {
+                    clearSearch();
+                    return;
+                }
+                inputEl.value = cleanName;
+            }
+
+            document.querySelectorAll('.genre-chip').forEach(c => {
+                if (c.innerText.replace('#', '').trim().toLowerCase() === cleanName.toLowerCase()) {
+                    c.classList.add('active');
+                } else {
+                    c.classList.remove('active');
+                }
+            });
+            handleSearchChange();
+        };
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
         function renderList() {
             const listEl = document.getElementById('contestList');
             if (!listEl) return;
 
+            // 총 등록 곡수 배지 갱신
+            const totalBadge = document.getElementById('totalSongsBadge');
+            if (totalBadge && Array.isArray(songs)) {
+                totalBadge.innerText = `총 ${songs.length}곡`;
+            }
+
             if (!Array.isArray(songs) || songs.length === 0) {
                 listEl.innerHTML = `<p style="text-align: center; color: var(--text-sub); padding: 20px;">등록된 곡이 없습니다.</p>`;
                 return;
+            }
+
+            // 마스터 플레이어 재생 목록 카운터 및 1번 곡 프리뷰
+            const counter = document.getElementById('masterPlaylistCounter');
+            if (counter && currentMasterSongIndex === -1 && songs.length > 0) {
+                currentMasterSongIndex = 0;
+                document.getElementById('masterTitle').innerText = songs[0].title || '출품곡';
+                document.getElementById('masterAuthor').innerText = `제작자: ${songs[0].author || '참가자'}`;
+                counter.innerText = `1 / ${songs.length}`;
+                document.getElementById('masterTrackIndicator').innerText = `총 ${songs.length}곡 대기 중`;
+                resolveSunoTrack(songs[0].url).then(d => {
+                    if (d && d.coverUrl) {
+                        document.getElementById('masterCover').src = d.coverUrl;
+                    }
+                }).catch(() => {});
+            } else if (counter && currentMasterSongIndex >= 0) {
+                counter.innerText = `${currentMasterSongIndex + 1} / ${songs.length}`;
             }
 
             // 결과 공개 상태이거나 관리자 모드일 때만 득표순 정렬, 아니면 등록순(id순) 정렬
@@ -2098,8 +3276,67 @@
                 songs.sort((a, b) => Number(a.id) - Number(b.id));
             }
 
+            // 🔍 실시간 검색 필터 적용 (제작자, 제목, 음악 장르 - 복수 장르 다중 매칭 지원)
+            let filteredSongs = songs;
+            if (currentSearchKeyword) {
+                // 쉼표(,), 슬래시(/) 등으로 구분된 검색 키워드 토큰들 분리 (예: '발라드, 댄스' 검색 시 각각 분리 매칭)
+                const keywords = currentSearchKeyword.split(/[,/]+/).map(k => k.trim().toLowerCase()).filter(Boolean);
+
+                filteredSongs = songs.filter(song => {
+                    const author = (song.author || '').toLowerCase();
+                    const title = (song.title || '').toLowerCase();
+                    let rawGenre = (song.genre || '').toLowerCase();
+                    if (sunoCache.has(song.url) && sunoCache.get(song.url).genre) {
+                        rawGenre += ', ' + sunoCache.get(song.url).genre.toLowerCase();
+                    }
+
+                    if (currentSearchType === 'author') {
+                        return keywords.some(kw => author.includes(kw));
+                    } else if (currentSearchType === 'title') {
+                        return keywords.some(kw => title.includes(kw));
+                    } else if (currentSearchType === 'genre') {
+                        return keywords.some(kw => rawGenre.includes(kw));
+                    } else { // 'all'
+                        return keywords.some(kw => author.includes(kw) || title.includes(kw) || rawGenre.includes(kw));
+                    }
+                });
+            }
+
+            // 검색 결과 요약 표시바 갱신
+            const resInfo = document.getElementById('searchResultInfo');
+            const resText = document.getElementById('searchResultText');
+            if (resInfo && resText) {
+                if (currentSearchKeyword) {
+                    resInfo.style.display = 'flex';
+                    const typeLabel = currentSearchType === 'author' ? '제작자' :
+                                      currentSearchType === 'title' ? '제목' :
+                                      currentSearchType === 'genre' ? '음악 장르' : '전체 구분';
+                    resText.innerHTML = `🔍 <b>[${typeLabel}]</b> "<b>${escapeHtml(currentSearchKeyword)}</b>" 검색 결과: <b style="color:#00f2fe;">${filteredSongs.length}곡</b> (전체 ${songs.length}곡 중)`;
+                } else {
+                    resInfo.style.display = 'none';
+                }
+            }
+
+            // 검색 결과가 없는 경우
+            if (filteredSongs.length === 0) {
+                listEl.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: var(--text-sub);">
+                        <div style="font-size: 38px; margin-bottom: 12px;">🔎</div>
+                        <div style="font-size: 16px; font-weight: 800; color: #ffffff; margin-bottom: 6px;">검색 결과가 없습니다</div>
+                        <div style="font-size: 13px; color: #94a3b8; margin-bottom: 16px;">
+                            입력하신 '<b>${escapeHtml(currentSearchKeyword)}</b>'에 해당하는 곡을 찾지 못했습니다.<br>
+                            검색어 철자를 확인하시거나 다른 구분(제작자, 제목, 장르)을 선택해 보세요.
+                        </div>
+                        <button type="button" onclick="clearSearch()" style="background: rgba(0, 242, 254, 0.15); color: #00f2fe; border: 1px solid rgba(0, 242, 254, 0.4); padding: 7px 18px; border-radius: 999px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+                            ✕ 전체 목록 보기
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
             listEl.innerHTML = '';
-            songs.forEach((song, index) => {
+            filteredSongs.forEach((song, index) => {
                 const isThisMyVote = (myVotedId !== null && String(myVotedId) === String(song.id));
                 const safeUrl = (song.url || '').replace(/'/g, "\\'");
                 const safeTitle = (song.title || '').replace(/'/g, "\\'");
@@ -2126,12 +3363,24 @@
                     ? `<span class="vote-count">❤️ ${song.votes}표</span>` 
                     : ``;
 
+                // 🏷️ 복수 장르 개별 칩 생성
+                const rawGenre = song.genre || (sunoCache.has(song.url) && sunoCache.get(song.url).genre ? sunoCache.get(song.url).genre : '');
+                let genreBadgesHtml = '';
+                if (rawGenre) {
+                    const genreList = rawGenre.split(/[,/·|]+/).map(g => g.trim()).filter(Boolean);
+                    if (genreList.length > 0) {
+                        genreBadgesHtml = `<span class="song-genres-wrap">` +
+                            genreList.map(g => `<span class="song-genre-badge" onclick="event.stopPropagation(); setQuickGenre('${escapeHtml(g)}');" title="'#${escapeHtml(g)}' 장르 곡 모아보기">#${escapeHtml(g)}</span>`).join('') +
+                        `</span>`;
+                    }
+                }
+
                 const item = document.createElement('div');
                 item.className = 'song-card';
                 item.innerHTML = `
                     <div class="song-row">
                         <div class="song-info">
-                            <div class="song-title">${rankBadge}${song.title} ${myVoteBadge}</div>
+                            <div class="song-title">${rankBadge}${song.title} ${genreBadgesHtml} ${myVoteBadge}</div>
                             <div class="song-author" style="display: ${showAuthor ? 'block' : 'none'};">제작자: <b style="color:#e2e8f0;">${song.author}</b></div>
                         </div>
                         <div class="action-group">
@@ -2159,6 +3408,7 @@
             });
         }
 
+        initMasterPlayer();
         fetchAppData();
     </script>
 </body>
