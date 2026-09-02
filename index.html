@@ -6,56 +6,308 @@
     <title>Suno 카페 노래 콘테스트</title>
     <style>
         :root {
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --accent: #10b981;
-            --border: #e2e8f0;
+            --void-bg: #050814;
+            --card-glass: rgba(13, 20, 38, 0.72);
+            --card-border: rgba(255, 255, 255, 0.09);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --cyan-glow: #00f2fe;
+            --purple-glow: #a855f7;
+            --pink-glow: #ec4899;
+            --emerald-glow: #10b981;
+            --primary-grad: linear-gradient(135deg, #4f46e5 0%, #9333ea 35%, #ec4899 75%, #06b6d4 100%);
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 750px; margin: 40px auto; padding: 20px; background: var(--bg-color); color: var(--text-main); }
-        .card { background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid var(--border); }
-        h2, h3 { margin-top: 0; color: #0f172a; font-weight: 800; }
+        
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; 
+            max-width: 780px; 
+            margin: 0 auto; 
+            padding: 40px 20px 60px 20px; 
+            background-color: var(--void-bg); 
+            color: var(--text-main); 
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.22) 0%, transparent 55%),
+                radial-gradient(circle at 100% 30%, rgba(236, 72, 153, 0.14) 0%, transparent 45%),
+                radial-gradient(circle at 0% 70%, rgba(0, 242, 254, 0.15) 0%, transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+        }
+
+        /* 🌌 형이상학적 우주 오로라 빛줄기 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -150px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 750px;
+            height: 380px;
+            background: radial-gradient(ellipse at center, rgba(168, 85, 247, 0.25), rgba(6, 182, 212, 0.18), transparent 70%);
+            filter: blur(65px);
+            pointer-events: none;
+            z-index: 0;
+            animation: auraBreathing 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes auraBreathing {
+            0% { opacity: 0.6; transform: translateX(-50%) scale(0.9); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.15); filter: blur(75px); }
+        }
+
+        /* 🔮 입체적 3D 볼류메트릭 글래스 박스 */
+        .card { 
+            position: relative;
+            background: var(--card-glass); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 30px; 
+            border-radius: 20px; 
+            border: 1px solid var(--card-border); 
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.75),
+                0 0 0 1px rgba(255, 255, 255, 0.07),
+                inset 0 1px 1px rgba(255, 255, 255, 0.2),
+                0 0 35px rgba(99, 102, 241, 0.08); 
+            margin-bottom: 25px; 
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), rgba(0, 242, 254, 0.5), transparent);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(168, 85, 247, 0.35);
+            box-shadow: 
+                0 35px 65px -15px rgba(0, 0, 0, 0.85),
+                0 0 0 1px rgba(168, 85, 247, 0.35),
+                inset 0 1px 2px rgba(255, 255, 255, 0.3),
+                0 0 45px rgba(147, 51, 234, 0.2);
+        }
+
+        h2, h3 { 
+            margin-top: 0; 
+            color: #ffffff; 
+            font-weight: 800; 
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        h3 {
+            font-size: 19px;
+            color: #f1f5f9;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+
         .input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
         
+        /* 🌌 3D 다크 글래스 인풋 폼 */
         input, textarea { 
             width: 100%; 
             box-sizing: border-box; 
-            padding: 12px 16px; 
+            padding: 13px 18px; 
             font-size: 15px; 
-            border: 1px solid #cbd5e1; 
-            border-radius: 8px; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 12px; 
             font-family: inherit; 
-            background: #fff;
-            color: #1e293b;
+            background: rgba(7, 11, 22, 0.75);
+            color: #f8fafc;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            transition: all 0.25s;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #06b6d4;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(6, 182, 212, 0.35);
+        }
+        input::placeholder, textarea::placeholder {
+            color: #475569;
         }
 
-        button { padding: 10px 16px; font-size: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.2s; display: inline-block; text-align: center; }
+        button { 
+            padding: 10px 18px; 
+            font-size: 14px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
         
-        .submit-btn { background: var(--primary); color: white; width: 100%; padding: 12px; font-size: 15px; }
-        .submit-btn:hover { background: var(--primary-hover); }
+        /* ⚡ 화려한 오로라 제출 버튼 (Submit Button) */
+        .submit-btn { 
+            background: var(--primary-grad); 
+            color: white; 
+            width: 100%; 
+            padding: 15px 20px; 
+            font-size: 16px; 
+            font-weight: 800;
+            border-radius: 12px;
+            box-shadow: 
+                0 0 30px rgba(147, 51, 234, 0.45),
+                0 8px 25px rgba(0, 0, 0, 0.6),
+                inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.02em;
+            background-size: 200% 200%;
+            animation: gradFlow 6s ease infinite;
+        }
+
+        @keyframes gradFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .submit-btn::before {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: skewX(-25deg);
+            transition: 0.6s;
+        }
+        .submit-btn:hover::before {
+            left: 150%;
+        }
+
+        .submit-btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 
+                0 0 40px rgba(168, 85, 247, 0.65),
+                0 12px 30px rgba(0, 0, 0, 0.7),
+                inset 0 1px 1px rgba(255, 255, 255, 0.6);
+        }
+
+        .submit-btn:active {
+            transform: translateY(1px) scale(0.99);
+        }
         
-        .song-card { background: #fff; padding: 20px; margin-bottom: 15px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        /* 💎 입체적 출품곡 카드 */
+        .song-card { 
+            background: linear-gradient(145deg, rgba(17, 24, 44, 0.75), rgba(10, 15, 30, 0.85)); 
+            padding: 22px 24px; 
+            margin-bottom: 18px; 
+            border-radius: 16px; 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            box-shadow: 
+                0 15px 35px -5px rgba(0, 0, 0, 0.7),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .song-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 15%;
+            bottom: 15%;
+            width: 3px;
+            background: linear-gradient(to bottom, #00f2fe, #a855f7);
+            border-radius: 0 4px 4px 0;
+            opacity: 0.6;
+            transition: opacity 0.3s, box-shadow 0.3s;
+        }
+
+        .song-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 242, 254, 0.3);
+            box-shadow: 
+                0 25px 45px -10px rgba(0, 0, 0, 0.85),
+                0 0 25px rgba(0, 242, 254, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        .song-card:hover::before {
+            opacity: 1;
+            box-shadow: 0 0 15px #00f2fe;
+        }
+
         .song-row { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
         .song-info { flex: 1; overflow: hidden; }
-        .song-title { font-weight: 800; font-size: 18px; color: #1e293b; margin-bottom: 6px; }
-        .song-author { font-size: 14px; color: var(--text-sub); }
+        .song-title { 
+            font-weight: 800; 
+            font-size: 18px; 
+            color: #f8fafc; 
+            margin-bottom: 6px; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .song-author { font-size: 13px; color: #94a3b8; }
         
-        .action-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
-        .listen-btn { background: #f1f5f9; color: #475569; }
-        .listen-btn:hover { background: #e2e8f0; }
-        .listen-btn.active { background: var(--primary); color: white; }
+        .action-group { display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
         
-        .vote-btn { background: var(--accent); color: white; }
-        .vote-btn:hover { background: #059669; }
-        .vote-btn.voted { background: #94a3b8; cursor: not-allowed; }
+        /* 🎧 사이버 시안 네온 [노래 듣기] 버튼 */
+        .listen-btn { 
+            background: rgba(6, 182, 212, 0.12); 
+            color: #38bdf8; 
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.15), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .listen-btn:hover { 
+            background: rgba(6, 182, 212, 0.25); 
+            border-color: #38bdf8;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.4), 0 5px 15px rgba(0,0,0,0.4);
+        }
+        .listen-btn.active { 
+            background: linear-gradient(135deg, #0284c7, #06b6d4); 
+            color: white; 
+            border-color: transparent;
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.6);
+        }
+        
+        /* 💎 에메랄드 크리스탈 [투표하기] 버튼 */
+        .vote-btn { 
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%); 
+            color: white; 
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.35), inset 0 1px 1px rgba(255,255,255,0.3);
+        }
+        .vote-btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.65), 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .vote-btn.voted { 
+            background: rgba(148, 163, 184, 0.15); 
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            color: #94a3b8; 
+            cursor: not-allowed; 
+            box-shadow: none;
+            transform: none;
+        }
 
-        .edit-btn { background: #f59e0b; color: white; display: none; }
-        .delete-btn { background: #ef4444; color: white; display: none; }
+        .edit-btn { background: linear-gradient(135deg, #d97706, #f59e0b); color: white; display: none; box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
+        .delete-btn { background: linear-gradient(135deg, #b91c1c, #ef4444); color: white; display: none; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
 
-        .vote-count { font-weight: 800; color: #059669; margin-left: 5px; font-size: 16px; min-width: 45px; text-align: right; }
+        .vote-count { 
+            font-weight: 800; 
+            color: #34d399; 
+            margin-left: 8px; 
+            font-size: 16px; 
+            min-width: 48px; 
+            text-align: right; 
+            text-shadow: 0 0 12px rgba(52, 211, 153, 0.45);
+        }
         
         /* 🚫 제작자 숨김 및 곡 상세정보 숨김 강제 제어 */
         body.hide-author .song-author,
@@ -66,58 +318,62 @@
             display: none !important;
         }
 
-        /* 🎧 고성능 통합 오디오 플레이어 스타일 */
+        /* 🎧 미래형 사운드 콘솔 플레이어 스타일 */
         .player-container { 
-            margin-top: 15px; 
+            margin-top: 16px; 
             display: none; 
-            border-top: 1px solid var(--border); 
-            padding-top: 16px; 
-            background: #f8fafc; 
-            border-radius: 12px; 
-            padding: 16px; 
+            background: rgba(8, 12, 24, 0.85); 
+            border-radius: 14px; 
+            padding: 16px 20px; 
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.6), 0 0 25px rgba(0, 242, 254, 0.1);
         }
         .player-card {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             width: 100%;
         }
         .player-header {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             text-align: left;
         }
         .player-cover {
-            width: 52px;
-            height: 52px;
-            border-radius: 8px;
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
             object-fit: cover;
-            background: #e2e8f0;
+            background: #0f172a;
             flex-shrink: 0;
-            border: 1px solid rgba(0,0,0,0.06);
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
         }
         .player-meta {
             flex: 1;
             min-width: 0;
         }
         .player-badge {
-            font-size: 11px;
-            font-weight: 700;
-            color: #4f46e5;
-            background: #e0e7ff;
-            padding: 2px 6px;
-            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 2px 7px;
+            border-radius: 6px;
             display: inline-block;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
         .player-track-name {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 800;
-            color: #0f172a;
+            color: #ffffff;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
         }
         .audio-wrapper {
             width: 100%;
@@ -125,29 +381,34 @@
         .audio-wrapper audio { 
             width: 100%; 
             outline: none; 
-            border-radius: 8px;
+            border-radius: 10px;
+            filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.25));
         }
         .player-footer-tools {
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 12px;
-            color: var(--text-sub);
-            padding-top: 4px;
-            border-top: 1px dashed #e2e8f0;
+            color: #94a3b8;
+            padding-top: 6px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
         }
         .switch-player-btn {
-            background: transparent;
-            color: #4f46e5;
-            padding: 4px 8px;
+            background: rgba(168, 85, 247, 0.12);
+            color: #c084fc;
+            padding: 5px 12px;
             font-size: 12px;
-            font-weight: 600;
-            border: 1px solid #c7d2fe;
-            border-radius: 6px;
+            font-weight: 700;
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 8px;
             cursor: pointer;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.15);
+            transition: all 0.2s;
         }
         .switch-player-btn:hover {
-            background: #e0e7ff;
+            background: rgba(168, 85, 247, 0.25);
+            color: #ffffff;
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.4);
         }
         .embed-frame-box {
             width: 100%;
@@ -155,6 +416,8 @@
             overflow: hidden;
             margin-top: 6px;
             background: #000;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
         }
         .embed-frame-box iframe {
             width: 100%;
@@ -163,31 +426,424 @@
             display: block;
         }
 
-        .header-box { text-align: center; margin-bottom: 30px; position: relative; }
-        .header-box p { color: var(--text-sub); font-size: 15px; line-height: 1.5; }
-        .loading { text-align: center; color: var(--text-sub); padding: 20px; }
+        .header-box { text-align: center; margin-bottom: 30px; position: relative; z-index: 1; }
         
-        .admin-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
-        .admin-toggle { background: #e2e8f0; color: #475569; font-size: 12px; padding: 6px 12px; }
-        .author-toggle, .info-toggle, .download-btn, .reset-btn { background: #e2e8f0; color: #475569; font-size: 12px; padding: 6px 12px; display: none; }
-        .download-btn { background: #0ea5e9; color: white; }
-        .reset-btn { background: #dc2626; color: white; }
+        /* 🔮 형이상학적 헤더 배지 & 타이틀 */
+        .metaphysical-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(168, 85, 247, 0.12);
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            color: #d8b4fe;
+            margin-bottom: 14px;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+            text-transform: uppercase;
+        }
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #00f2fe;
+            box-shadow: 0 0 10px #00f2fe, 0 0 20px #00f2fe;
+            animation: pulseGlow 1.8s infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; transform: scale(0.85); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        .sig-code {
+            color: #38bdf8;
+            font-size: 10px;
+            opacity: 0.8;
+        }
+        .title-glow {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 30%, #c084fc 70%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 35px rgba(192, 132, 252, 0.35);
+            margin: 10px 0 8px 0;
+        }
+        .subtitle-cyber {
+            color: #94a3b8;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
 
-        .notice-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 15px 20px; margin-top: 15px; text-align: left; }
-        .notice-title { font-weight: 800; color: #1e40af; font-size: 14px; margin-bottom: 6px; }
-        .notice-content { color: #334155; font-size: 14px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; }
-        .notice-textarea { width: 100%; height: 80px; resize: vertical; display: none; margin-top: 8px; box-sizing: border-box; }
-        .notice-save-btn { background: #2563eb; color: white; font-size: 12px; padding: 6px 12px; margin-top: 8px; display: none; }
+        /* 🌊 3D 스펙트럼 이퀄라이저 바 */
+        .spectrum-visualizer {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 5px;
+            height: 38px;
+            margin: 15px 0 25px 0;
+        }
+        .spectrum-visualizer span {
+            width: 4px;
+            height: 8px;
+            background: linear-gradient(to top, #00f2fe, #a855f7, #ff0080);
+            border-radius: 4px;
+            box-shadow: 0 0 8px rgba(0, 242, 254, 0.5);
+            animation: eqAnim 1.2s ease-in-out infinite alternate;
+            animation-delay: var(--d);
+        }
+        @keyframes eqAnim {
+            0% { height: 6px; opacity: 0.4; }
+            100% { height: var(--h); opacity: 1; box-shadow: 0 0 14px rgba(236, 72, 153, 0.8); }
+        }
 
-        .footer { text-align: center; margin-top: 40px; padding: 20px 0; font-size: 14px; color: var(--text-sub); border-top: 1px solid var(--border); }
-        .footer span { color: #475569; font-weight: 700; cursor: pointer; }
+        .loading { text-align: center; color: var(--text-sub); padding: 25px; font-size: 15px; }
+        
+        /* 🕹️ 사이버 콘솔 관리자 바 */
+        .admin-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .admin-toggle { background: rgba(255, 255, 255, 0.08); color: #cbd5e1; font-size: 12px; padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.12); }
+        .author-toggle, .info-toggle, .results-btn, .download-btn, .reset-btn { background: rgba(255, 255, 255, 0.08); color: #cbd5e1; font-size: 12px; padding: 7px 14px; border-radius: 8px; display: none; border: 1px solid rgba(255, 255, 255, 0.12); }
+        .results-btn { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; border: none; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); font-weight: 800; }
+        .results-btn:hover { background: linear-gradient(135deg, #6d28d9, #9333ea); box-shadow: 0 0 25px rgba(168, 85, 247, 0.6); transform: translateY(-2px); }
+        .download-btn { background: linear-gradient(135deg, #0284c7, #0ea5e9); color: white; border: none; box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); }
+        .reset-btn { background: linear-gradient(135deg, #b91c1c, #dc2626); color: white; border: none; box-shadow: 0 0 15px rgba(220, 38, 38, 0.3); }
+
+        /* 📌 홀로그램 공지사항 박스 */
+        .notice-box { 
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.25), rgba(15, 23, 42, 0.6)); 
+            border: 1px solid rgba(59, 130, 246, 0.35); 
+            border-radius: 16px; 
+            padding: 18px 22px; 
+            margin-top: 20px; 
+            text-align: left; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(59, 130, 246, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        .notice-title { 
+            font-weight: 800; 
+            color: #60a5fa; 
+            font-size: 14px; 
+            margin-bottom: 8px; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px;
+            letter-spacing: 0.04em;
+        }
+        .notice-content { color: #cbd5e1; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
+        .notice-textarea { 
+            width: 100%; 
+            height: 90px; 
+            resize: vertical; 
+            display: none; 
+            margin-top: 10px; 
+            box-sizing: border-box; 
+            background: rgba(10, 15, 30, 0.85);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #f8fafc;
+            border-radius: 10px;
+        }
+        .notice-save-btn { 
+            background: linear-gradient(135deg, #2563eb, #3b82f6); 
+            color: white; 
+            font-size: 12px; 
+            padding: 8px 16px; 
+            margin-top: 10px; 
+            display: none; 
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+        }
+
+        /* 💡 이용 안내 & 종합 가이드 스타일 */
+        .guide-box { 
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(15, 23, 42, 0.7)); 
+            border: 1px solid rgba(99, 102, 241, 0.35); 
+            border-radius: 18px; 
+            margin-top: 15px;
+            margin-bottom: 25px; 
+            overflow: hidden; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            transition: all 0.3s;
+        }
+        .guide-header { 
+            padding: 14px 22px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            cursor: pointer; 
+            user-select: none;
+            background: rgba(255, 255, 255, 0.03);
+            transition: background 0.2s;
+        }
+        .guide-header:hover {
+            background: rgba(99, 102, 241, 0.15);
+        }
+        .guide-header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 15px;
+            color: #e0e7ff;
+            letter-spacing: 0.02em;
+        }
+        .guide-toggle-icon {
+            font-size: 12px;
+            color: #38bdf8;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+        }
+        .guide-body { 
+            padding: 18px 22px 22px 22px; 
+            display: none; 
+            border-top: 1px solid rgba(255, 255, 255, 0.08); 
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .guide-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 14px; 
+        }
+        @media (max-width: 650px) {
+            .guide-grid { grid-template-columns: 1fr; }
+        }
+        .guide-item {
+            background: rgba(7, 11, 24, 0.65);
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .guide-item-title {
+            font-weight: 800;
+            font-size: 13px;
+            color: #38bdf8;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .guide-item-desc {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        .guide-item-desc code {
+            background: rgba(255, 255, 255, 0.1);
+            color: #f472b6;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        /* 🏆 투표 결과 모달 콘솔 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(3, 7, 18, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            padding: 20px;
+        }
+        .modal-box {
+            background: linear-gradient(145deg, rgba(17, 24, 48, 0.95), rgba(9, 13, 28, 0.95));
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 28px;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9), 0 0 40px rgba(168, 85, 247, 0.35);
+            position: relative;
+            animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.92) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 900;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #ffffff, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .modal-close-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+            border: none;
+            font-size: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .modal-close-btn:hover {
+            background: rgba(239, 68, 68, 0.4);
+            color: #fff;
+        }
+        .modal-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: rgba(8, 12, 24, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+        }
+        .stat-label { font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; }
+        .stat-val { font-size: 20px; font-weight: 900; color: #38bdf8; text-shadow: 0 0 12px rgba(56, 189, 248, 0.5); }
+
+        .public-toggle-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px dashed rgba(168, 85, 247, 0.35);
+            border-radius: 12px;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .public-toggle-btn {
+            background: linear-gradient(135deg, #0284c7, #0ea5e9);
+            color: white;
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(14, 165, 233, 0.4);
+            font-weight: 700;
+        }
+
+        .modal-results-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 420px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .result-row {
+            background: rgba(8, 12, 24, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .result-row:hover {
+            border-color: rgba(0, 242, 254, 0.3);
+            background: rgba(14, 20, 38, 0.85);
+        }
+        .result-row-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .result-info-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .result-song-title {
+            font-weight: 800;
+            font-size: 15px;
+            color: #f8fafc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .result-votes {
+            font-size: 15px;
+            font-weight: 900;
+            color: #34d399;
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+        .result-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .result-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00f2fe, #a855f7, #ff0080);
+            border-radius: 6px;
+            transition: width 0.6s ease;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .modal-btn-backup {
+            background: #0284c7;
+            color: white;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+        .modal-btn-close {
+            background: rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .footer { text-align: center; margin-top: 40px; padding: 25px 0; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+        .footer-credit { font-size: 11px; color: #64748b; margin: 0; letter-spacing: 0.05em; font-family: monospace; }
     </style>
 </head>
 <body>
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbwwoisILSXtMTKNglstkuwDVTp5xM903FW-4mG_URTDa8Bl3JBVMQK0YnR0YAu7Edqh/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxXY47JBcMiLcJ-1iopjbYQRmWcP_05YRY0xrdNyLrC57Lj2m609HNCv1tSC4NH_ena/exec";
         
         // ⚙️ Supabase Edge Function 주소 (옵션)
         const SUPABASE_RESOLVE_URL = "https://tdygshqxyckzpodffqsg.supabase.co/functions/v1/resolve-suno-audio";
@@ -200,18 +856,84 @@
         <div class="admin-bar">
             <button type="button" onclick="clearData()" class="reset-btn" id="resetBtn">🗑️ 데이터 초기화</button>
             <button type="button" onclick="downloadExcel()" class="download-btn" id="downloadBtn">📥 엑셀 백업</button>
+            <button type="button" onclick="openVoteResultsModal()" class="results-btn" id="resultsBtn">📊 투표 결과</button>
             <button type="button" onclick="toggleAuthorDisplay()" class="author-toggle" id="authorToggleBtn">제작자: ON</button>
             <button type="button" onclick="togglePlayerInfoDisplay()" class="info-toggle" id="playerInfoToggleBtn">곡 상세정보: ON</button>
             <button type="button" onclick="toggleAdminMode()" class="admin-toggle" id="adminToggleBtn">관리자 모드</button>
         </div>
-        <h2>🎤 Suno 카페 노래 콘테스트</h2>
-        <p>참가자 분들은 직접 곡을 등록하고, 회원님들은 곡을 감상한 뒤 실시간으로 투표해 주세요!</p>
+        <div class="metaphysical-badge">
+            <span class="pulse-dot"></span>
+            <span>METAPHYSICAL SOUND NEXUS 2026</span>
+            <span class="sig-code">// ARCHIVE</span>
+        </div>
+        <h2 class="title-glow">🎤 Suno 카페 노래 콘테스트</h2>
+        <p class="subtitle-cyber">참가자 분들은 직접 곡을 등록하고, 회원님들은 곡을 감상한 뒤 실시간으로 투표해 주세요!</p>
+
+        <div class="spectrum-visualizer">
+            <span style="--d: 0.1s; --h: 22px;"></span>
+            <span style="--d: 0.3s; --h: 32px;"></span>
+            <span style="--d: 0.5s; --h: 16px;"></span>
+            <span style="--d: 0.2s; --h: 28px;"></span>
+            <span style="--d: 0.4s; --h: 36px;"></span>
+            <span style="--d: 0.6s; --h: 20px;"></span>
+            <span style="--d: 0.15s; --h: 30px;"></span>
+            <span style="--d: 0.35s; --h: 18px;"></span>
+            <span style="--d: 0.55s; --h: 34px;"></span>
+            <span style="--d: 0.25s; --h: 24px;"></span>
+            <span style="--d: 0.45s; --h: 36px;"></span>
+            <span style="--d: 0.65s; --h: 18px;"></span>
+        </div>
 
         <div class="notice-box">
             <div class="notice-title">📌 공지사항</div>
             <div id="noticeDisplay" class="notice-content">불러오는 중...</div>
             <textarea id="noticeInput" class="notice-textarea" placeholder="공지사항 내용을 입력하세요..."></textarea>
             <button type="button" onclick="saveNoticeText()" class="notice-save-btn" id="noticeSaveBtn">공지사항 저장</button>
+        </div>
+    </div>
+
+    <!-- 💡 종합 이용 안내 & 사용 가이드 (상단 배치) -->
+    <div class="guide-box">
+        <div class="guide-header" onclick="toggleGuide()">
+            <div class="guide-header-title">
+                <span>💡</span>
+                <span>콘테스트 이용 안내 & 기능 종합 가이드</span>
+            </div>
+            <span class="guide-toggle-icon" id="guideToggleIcon">펼치기 ▼</span>
+        </div>
+        <div class="guide-body" id="guideBody">
+            <div class="guide-grid">
+                <div class="guide-item">
+                    <div class="guide-item-title">🎵 1. 나만의 출품곡 등록하기</div>
+                    <div class="guide-item-desc">
+                        • 참가자 별명, 노래 제목, Suno 단축 링크(<code>https://suno.com/s/...</code>)를 입력하고 제출합니다.<br>
+                        • 등록 즉시 고유 음원 주소로 변환되어 실시간 출품곡 목록에 자동 등록됩니다.
+                    </div>
+                </div>
+                <div class="guide-item">
+                    <div class="guide-item-title">🎧 2. 고음질 노래 듣기 & 공식 플레이어</div>
+                    <div class="guide-item-desc">
+                        • <b>[노래 듣기]</b>: 공식 CDN 고음질 오디오가 끊김 없이 즉시 스트리밍 재생됩니다.<br>
+                        • <b>[Suno 공식 플레이어로 전환]</b>: Suno 공식 파형, 가사, 상세 컨트롤이 지원되는 임베드 플레이어로 원클릭 전환할 수 있습니다.
+                    </div>
+                </div>
+                <div class="guide-item">
+                    <div class="guide-item-title">🗳️ 3. 1인 1표 공정 투표 시스템</div>
+                    <div class="guide-item-desc">
+                        • 가장 마음에 드는 곡에 <b>[투표하기]</b>를 클릭합니다 (1인당 1회 투표 가능).<br>
+                        • 공정한 심사를 위해 투표 진행 중에는 실시간 득표수가 비공개되며, 관리자가 투표 종료 후 최종 결과를 확인하고 발표합니다.
+                    </div>
+                </div>
+                <div class="guide-item">
+                    <div class="guide-item-title">🔒 4. 관리자 모드 전용 기능 (운영자)</div>
+                    <div class="guide-item-desc">
+                        • <b>[관리자 모드]</b>: 비밀번호(<code>as1234</code>) 인증 후 활성화.<br>
+                        • <b>[📊 투표 결과]</b>: 최종 순위, 득표수, 득표율 통계 확인 및 일반 공개 스위치 제어.<br>
+                        • <b>[곡 상세정보 / 제작자 ON/OFF]</b>: 앨범 커버 및 제작자 정보 실시간 숨김 제어.<br>
+                        • <b>[📥 엑셀 백업 & 🗑️ 초기화]</b>: 실시간 데이터 백업 및 리셋.
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -232,8 +954,56 @@
         </div>
     </div>
 
+    <!-- 🏆 3D 메타피지컬 투표 결과 모달 콘솔 -->
+    <div class="modal-overlay" id="voteResultsModal" onclick="handleModalBackdropClick(event)">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span>🏆</span>
+                    <span>Suno 콘테스트 최종 투표 결과</span>
+                </div>
+                <button type="button" onclick="closeVoteResultsModal()" class="modal-close-btn">✕</button>
+            </div>
+
+            <div class="modal-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">총 투표수</div>
+                    <div class="stat-val" id="totalVotesCount">0표</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">총 출품곡</div>
+                    <div class="stat-val" id="totalSongsCount">0곡</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">1위 득표수</div>
+                    <div class="stat-val" id="topVotesCount">0표</div>
+                </div>
+            </div>
+
+            <!-- 관리자용 일반 공개 제어 바 -->
+            <div class="public-toggle-bar">
+                <div>
+                    <span style="font-weight: 700; color: #f1f5f9; font-size: 13px;">📢 일반 사용자 결과 공개 여부:</span>
+                    <span id="publicStatusText" style="font-size: 13px; font-weight: 800; color: #ef4444; margin-left: 6px;">현재 관리자 전용 비공개</span>
+                </div>
+                <button type="button" onclick="toggleResultPublic()" class="public-toggle-btn" id="publicToggleBtn">
+                    일반 공개로 전환
+                </button>
+            </div>
+
+            <div class="modal-results-list" id="modalResultsList">
+                <!-- 동적으로 렌더링됨 -->
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" onclick="downloadExcel()" class="modal-btn-backup">📥 엑셀로 백업</button>
+                <button type="button" onclick="closeVoteResultsModal()" class="modal-btn-close">닫기</button>
+            </div>
+        </div>
+    </div>
+
     <div class="footer">
-        <p>Suno 연구소: <span onclick="alert('Suno 연구소 유튜브 채널입니다.')">https://www.youtube.com/@NinjaSubak</span></p>
+        <p class="footer-credit">made by NinjaSubak</p>
     </div>
 
     <script>
@@ -243,6 +1013,7 @@
         let isAdmin = localStorage.getItem('sunoAdminMode') === 'true';
         let showAuthor = localStorage.getItem('sunoShowAuthor') !== 'false';
         let showPlayerInfo = localStorage.getItem('sunoShowPlayerInfo') !== 'false';
+        let isResultPublic = localStorage.getItem('sunoResultPublic') === 'true';
 
         // 🎨 제작자 및 플레이어 정보 표시 여부를 CSS 클래스로 즉시 제어
         function applyDisplayPreferences() {
@@ -386,6 +1157,11 @@
                 infoBtn.style.color = "white";
             }
             
+            const resultsBtn = document.getElementById('resultsBtn');
+            if (resultsBtn) {
+                resultsBtn.style.display = isAdmin ? "inline-block" : "none";
+            }
+
             document.getElementById('downloadBtn').style.display = isAdmin ? "inline-block" : "none";
             document.getElementById('resetBtn').style.display = isAdmin ? "inline-block" : "none";
 
@@ -393,6 +1169,100 @@
             document.getElementById('noticeInput').style.display = isAdmin ? "block" : "none";
             document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
         }
+
+        // 🏆 관리자 모드 전용 투표 결과 모달 열기
+        window.openVoteResultsModal = function() {
+            const modal = document.getElementById('voteResultsModal');
+            if (!modal) return;
+
+            const sortedSongs = [...songs].sort((a, b) => Number(b.votes) - Number(a.votes));
+            const totalVotes = sortedSongs.reduce((sum, s) => sum + Number(s.votes || 0), 0);
+            const topVotes = sortedSongs.length > 0 ? Number(sortedSongs[0].votes || 0) : 0;
+
+            document.getElementById('totalVotesCount').innerText = totalVotes + '표';
+            document.getElementById('totalSongsCount').innerText = sortedSongs.length + '곡';
+            document.getElementById('topVotesCount').innerText = topVotes + '표';
+
+            const statusText = document.getElementById('publicStatusText');
+            const toggleBtn = document.getElementById('publicToggleBtn');
+            if (statusText && toggleBtn) {
+                statusText.innerText = isResultPublic ? "현재 일반 공개 중" : "현재 관리자 전용 비공개";
+                statusText.style.color = isResultPublic ? "#34d399" : "#ef4444";
+                toggleBtn.innerText = isResultPublic ? "비공개로 전환" : "일반 공개로 전환";
+            }
+
+            const listEl = document.getElementById('modalResultsList');
+            listEl.innerHTML = '';
+
+            if (sortedSongs.length === 0) {
+                listEl.innerHTML = `<p style="text-align:center; color:#94a3b8; padding:20px;">출품된 곡이 없습니다.</p>`;
+            } else {
+                sortedSongs.forEach((song, index) => {
+                    const votes = Number(song.votes || 0);
+                    const percent = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
+                    
+                    let medal = `<span style="font-weight:900; color:#94a3b8; min-width:28px;">#${index+1}</span>`;
+                    if (index === 0) medal = '<span style="font-size:18px;">🥇</span>';
+                    else if (index === 1) medal = '<span style="font-size:18px;">🥈</span>';
+                    else if (index === 2) medal = '<span style="font-size:18px;">🥉</span>';
+
+                    const row = document.createElement('div');
+                    row.className = 'result-row';
+                    row.innerHTML = `
+                        <div class="result-row-top">
+                            <div class="result-info-box">
+                                ${medal}
+                                <div>
+                                    <div class="result-song-title">${song.title}</div>
+                                    <div style="font-size:12px; color:#94a3b8;">제작자: <b style="color:#cbd5e1;">${song.author || '참가자'}</b></div>
+                                </div>
+                            </div>
+                            <div class="result-votes">
+                                ❤️ ${votes}표 <span style="font-size:12px; color:#94a3b8; font-weight:400;">(${percent}%)</span>
+                            </div>
+                        </div>
+                        <div class="result-bar-bg">
+                            <div class="result-bar-fill" style="width: ${percent}%;"></div>
+                        </div>
+                    `;
+                    listEl.appendChild(row);
+                });
+            }
+
+            modal.style.display = 'flex';
+        };
+
+        window.closeVoteResultsModal = function() {
+            const modal = document.getElementById('voteResultsModal');
+            if (modal) modal.style.display = 'none';
+        };
+
+        window.handleModalBackdropClick = function(e) {
+            if (e.target.id === 'voteResultsModal') {
+                closeVoteResultsModal();
+            }
+        };
+
+        window.toggleResultPublic = function() {
+            isResultPublic = !isResultPublic;
+            localStorage.setItem('sunoResultPublic', isResultPublic);
+            alert(isResultPublic ? "투표 결과가 일반 사용자 화면에도 공개되었습니다!" : "투표 결과가 비공개(관리자 전용)로 전환되었습니다.");
+            openVoteResultsModal();
+            renderList();
+        };
+
+        window.toggleGuide = function() {
+            const body = document.getElementById('guideBody');
+            const icon = document.getElementById('guideToggleIcon');
+            if (!body || !icon) return;
+            if (body.style.display === 'block') {
+                body.style.display = 'none';
+                icon.innerText = '펼치기 ▼';
+            } else {
+                body.style.display = 'block';
+                icon.innerText = '접기 ▲';
+            }
+        };
 
         // 🔍 수노 짧은 링크(단축 URL)를 실제 재생 주소로 변환하는 다계층 리졸버 함수
         async function resolveSunoTrack(sunoUrl) {
@@ -666,22 +1536,49 @@
                 return;
             }
 
-            songs.sort((a, b) => Number(b.votes) - Number(a.votes));
+            // 결과 공개 상태이거나 관리자 모드일 때만 득표순 정렬, 아니면 등록순(id순) 정렬
+            const canSeeResults = isResultPublic || isAdmin;
+
+            if (canSeeResults) {
+                songs.sort((a, b) => Number(b.votes) - Number(a.votes));
+            } else {
+                songs.sort((a, b) => Number(a.id) - Number(b.id));
+            }
 
             listEl.innerHTML = '';
             songs.forEach((song, index) => {
                 const isThisMyVote = (myVotedId !== null && String(myVotedId) === String(song.id));
                 const safeUrl = (song.url || '').replace(/'/g, "\\'");
                 const safeTitle = (song.title || '').replace(/'/g, "\\'");
-                const safeAuthor = (song.author || '').replace(/'/g, "\\'");
+                
+                let rankBadge = '';
+                if (canSeeResults) {
+                    if (index === 0) {
+                        rankBadge = '<span style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #000; font-size: 11px; font-weight: 900; padding: 2px 7px; border-radius: 6px; margin-right: 6px; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);">🥇 1위</span>';
+                    } else if (index === 1) {
+                        rankBadge = '<span style="background: linear-gradient(135deg, #94a3b8, #e2e8f0); color: #000; font-size: 11px; font-weight: 900; padding: 2px 7px; border-radius: 6px; margin-right: 6px; box-shadow: 0 0 10px rgba(148, 163, 184, 0.4);">🥈 2위</span>';
+                    } else if (index === 2) {
+                        rankBadge = '<span style="background: linear-gradient(135deg, #b45309, #d97706); color: #fff; font-size: 11px; font-weight: 900; padding: 2px 7px; border-radius: 6px; margin-right: 6px; box-shadow: 0 0 10px rgba(180, 83, 9, 0.4);">🥉 3위</span>';
+                    } else {
+                        rankBadge = `<span style="background: rgba(255, 255, 255, 0.08); color: #94a3b8; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 6px; margin-right: 6px;">#${index + 1}</span>`;
+                    }
+                } else {
+                    rankBadge = `<span style="background: rgba(255, 255, 255, 0.08); color: #38bdf8; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 6px; margin-right: 6px;">No.${index + 1}</span>`;
+                }
+
+                const myVoteBadge = isThisMyVote ? '<span style="font-size:11px; color:#a855f7; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.35); padding:2px 8px; border-radius:999px; margin-left:6px; font-weight:800; box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);">내 투표작</span>' : '';
+
+                const voteCountHtml = canSeeResults 
+                    ? `<span class="vote-count">❤️ ${song.votes}표</span>` 
+                    : ``;
 
                 const item = document.createElement('div');
                 item.className = 'song-card';
                 item.innerHTML = `
                     <div class="song-row">
                         <div class="song-info">
-                            <div class="song-title">${index + 1}. ${song.title} ${isThisMyVote ? '<span style="font-size:12px; color:#4f46e5; background:#e0e7ff; padding:2px 6px; border-radius:4px;">내 투표작</span>' : ''}</div>
-                            <div class="song-author" style="display: ${showAuthor ? 'block' : 'none'};">제작자: <b>${song.author}</b></div>
+                            <div class="song-title">${rankBadge}${song.title} ${myVoteBadge}</div>
+                            <div class="song-author" style="display: ${showAuthor ? 'block' : 'none'};">제작자: <b style="color:#e2e8f0;">${song.author}</b></div>
                         </div>
                         <div class="action-group">
                             <button type="button" id="btn_${song.id}" onclick="toggleInlinePlayer('${song.id}', '${safeUrl}', '${safeTitle}', '${safeAuthor}')" class="listen-btn">노래 듣기</button>
@@ -690,7 +1587,7 @@
                             </button>
                             <button type="button" onclick="editSong('${song.id}')" class="edit-btn" style="display: ${isAdmin ? 'inline-block' : 'none'};">수정</button>
                             <button type="button" onclick="deleteSong('${song.id}')" class="delete-btn" style="display: ${isAdmin ? 'inline-block' : 'none'};">삭제</button>
-                            <span class="vote-count">❤️ ${song.votes}표</span>
+                            ${voteCountHtml}
                         </div>
                     </div>
                     <div id="player_${song.id}" class="player-container"></div>
