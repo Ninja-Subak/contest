@@ -1637,6 +1637,356 @@
 
         .footer { text-align: center; margin-top: 40px; padding: 25px 0; border-top: 1px solid rgba(255, 255, 255, 0.08); }
         .footer-credit { font-size: 11px; color: #64748b; margin: 0; letter-spacing: 0.05em; font-family: monospace; }
+    
+        /* 👑 슈퍼 관리자 모달 스타일 */
+        .super-modal-box {
+            max-width: 980px !important;
+            max-height: 90vh;
+            border-color: rgba(236, 72, 153, 0.5) !important;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85), 0 0 50px rgba(236, 72, 153, 0.35) !important;
+        }
+        .super-tenant-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: left;
+        }
+        .super-tenant-table th {
+            background: rgba(255, 255, 255, 0.05);
+            color: #cbd5e1;
+            padding: 10px 12px;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .super-tenant-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            color: #f1f5f9;
+            vertical-align: middle;
+        }
+        .super-tenant-table tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .super-badge-active { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
+        .super-badge-transferred { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
+        .super-badge-paused { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
+        .super-badge-expired { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
+        .super-action-btn {
+            padding: 5px 9px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            margin-right: 4px;
+            transition: all 0.2s;
+        }
+        .super-action-btn:hover {
+            transform: translateY(-1px);
+        }
+        .super-btn-jump { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+        .super-btn-edit { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+        .super-btn-pause { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .super-btn-del { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    
+        /* ========================================================
+           📱 스마트폰 모바일 화면 완벽 최적화 (Mobile Responsive)
+           ======================================================== */
+        @media (max-width: 640px) {
+            /* 1. Body & Container 여백 최적화 */
+            body {
+                padding: 12px 10px 50px 10px !important;
+            }
+            body::before {
+                width: 100% !important;
+                height: 250px !important;
+                top: -100px !important;
+            }
+            .card {
+                padding: 18px 14px !important;
+                border-radius: 16px !important;
+                margin-bottom: 16px !important;
+            }
+
+            /* 2. 헤더 및 타이틀 줄바꿈 방지 */
+            .header-box {
+                margin-bottom: 18px !important;
+            }
+            .metaphysical-badge {
+                padding: 4px 12px !important;
+                font-size: 10px !important;
+                margin-bottom: 10px !important;
+                letter-spacing: 0.06em !important;
+            }
+            .title-glow {
+                font-size: 22px !important;
+                word-break: keep-all !important;
+                letter-spacing: -0.5px !important;
+                line-height: 1.35 !important;
+            }
+            .subtitle-cyber {
+                font-size: 12px !important;
+                line-height: 1.45 !important;
+                padding: 0 4px !important;
+                word-break: keep-all !important;
+                margin-top: 6px !important;
+            }
+            .spectrum-visualizer {
+                margin: 12px auto 0 auto !important;
+            }
+
+            /* 3. 관리자 모드 바 */
+            .admin-bar {
+                justify-content: center !important;
+                gap: 5px !important;
+                margin-bottom: 14px !important;
+            }
+            .admin-bar button {
+                padding: 5px 9px !important;
+                font-size: 11px !important;
+                border-radius: 7px !important;
+            }
+
+            /* 4. 공지사항 및 이용안내 박스 */
+            .notice-box {
+                padding: 14px 14px !important;
+                border-radius: 14px !important;
+                margin-top: 14px !important;
+            }
+            .notice-title {
+                font-size: 13px !important;
+            }
+            .notice-content {
+                font-size: 13px !important;
+            }
+            .guide-box {
+                border-radius: 14px !important;
+                margin-top: 12px !important;
+                margin-bottom: 18px !important;
+            }
+            .guide-header {
+                padding: 10px 14px !important;
+            }
+            .guide-header-title {
+                font-size: 13px !important;
+                gap: 6px !important;
+            }
+            .guide-toggle-icon {
+                font-size: 11px !important;
+                padding: 2px 8px !important;
+            }
+            .guide-body {
+                padding: 14px 12px !important;
+            }
+            .guide-grid {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+
+            /* 5. 사이버 사운드 플레이어 마스터 콘솔 */
+            .master-player-card {
+                padding: 16px 12px !important;
+                border-radius: 16px !important;
+                margin-bottom: 18px !important;
+            }
+            .master-player-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 8px !important;
+                margin-bottom: 10px !important;
+                padding-bottom: 10px !important;
+            }
+            .master-player-title-box {
+                justify-content: flex-start !important;
+                flex-wrap: wrap !important;
+                gap: 6px !important;
+            }
+            .master-card-badge {
+                font-size: 10px !important;
+                padding: 2px 6px !important;
+            }
+            .master-track-indicator {
+                font-size: 12px !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                max-width: 100% !important;
+            }
+            .master-player-header > div:last-child {
+                width: 100% !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+            }
+            .lyrics-view-btn {
+                padding: 4px 10px !important;
+                font-size: 11px !important;
+            }
+            .master-embed-wrapper {
+                min-height: 150px !important;
+                margin: 10px 0 12px 0 !important;
+            }
+            .master-controls-bar {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+                gap: 6px !important;
+            }
+            .master-ctrl-btn {
+                padding: 8px 10px !important;
+                font-size: 11px !important;
+            }
+            .master-volume-box {
+                padding: 6px 10px !important;
+                gap: 8px !important;
+            }
+            .master-volume-bars {
+                gap: 3px !important;
+                height: 20px !important;
+            }
+            .master-vol-bar {
+                width: 3.5px !important;
+            }
+
+            /* 6. 입력 폼 & 버튼 */
+            h3 {
+                font-size: 16px !important;
+                padding-bottom: 10px !important;
+                margin-bottom: 12px !important;
+                word-break: keep-all !important;
+            }
+            input, textarea {
+                padding: 11px 14px !important;
+                font-size: 14px !important;
+                border-radius: 10px !important;
+            }
+            .submit-btn {
+                padding: 13px 18px !important;
+                font-size: 15px !important;
+            }
+
+            /* 7. 검색 및 태그 필터 영역 */
+            .search-box-card {
+                padding: 12px 10px !important;
+            }
+            .search-input-row {
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+            .search-type-wrapper {
+                width: 100% !important;
+            }
+            .quick-genre-tags {
+                gap: 4px !important;
+            }
+            .genre-chip {
+                padding: 2px 7px !important;
+                font-size: 10.5px !important;
+            }
+            .contest-list-header h3 {
+                font-size: 15.5px !important;
+                letter-spacing: -0.5px !important;
+                word-break: keep-all !important;
+            }
+
+            /* 8. 🎵 노래 카드 모바일 대개편: 제목/작성자 전체 너비 확보 & 버튼 하단 배치 */
+            .song-card {
+                padding: 14px 14px !important;
+                border-radius: 14px !important;
+                margin-bottom: 12px !important;
+            }
+            .song-row {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px !important;
+            }
+            .song-info {
+                width: 100% !important;
+            }
+            .song-title {
+                font-size: 16px !important;
+                line-height: 1.35 !important;
+                word-break: break-word !important;
+                margin-bottom: 4px !important;
+            }
+            .song-author {
+                font-size: 12px !important;
+                display: flex !important;
+                flex-wrap: wrap !important;
+                align-items: center !important;
+                gap: 4px !important;
+            }
+            .action-group {
+                width: 100% !important;
+                display: flex !important;
+                justify-content: stretch !important;
+                gap: 6px !important;
+                flex-wrap: nowrap !important;
+            }
+            .action-group button,
+            .action-group .listen-btn,
+            .action-group .vote-btn {
+                flex: 1 !important;
+                padding: 9px 6px !important;
+                font-size: 12.5px !important;
+                justify-content: center !important;
+                text-align: center !important;
+                white-space: nowrap !important;
+                min-width: 0 !important;
+                border-radius: 8px !important;
+            }
+            .action-group .edit-btn,
+            .action-group .delete-btn {
+                flex: 0 0 auto !important;
+                padding: 9px 10px !important;
+                font-size: 11.5px !important;
+                border-radius: 8px !important;
+            }
+
+            /* 9. 모달 팝업 모바일 크기 최적화 */
+            .modal-overlay {
+                padding: 10px !important;
+            }
+            .modal-box {
+                max-height: 94vh !important;
+                padding: 18px 14px 14px 14px !important;
+                border-radius: 18px !important;
+            }
+            .modal-title {
+                font-size: 15.5px !important;
+                word-break: keep-all !important;
+            }
+            .modal-stats-grid {
+                gap: 6px !important;
+                margin-bottom: 10px !important;
+            }
+            .stat-card {
+                padding: 8px 5px !important;
+                border-radius: 10px !important;
+            }
+            .stat-label {
+                font-size: 10px !important;
+            }
+            .stat-val {
+                font-size: 15px !important;
+            }
+            
+            /* 슈퍼 관리자 모달 모바일 폼 */
+            #superAdminModal .modal-stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            #superModalBody > div:first-child > div:nth-child(2) {
+                grid-template-columns: 1fr !important;
+                gap: 8px !important;
+            }
+            #superModalBody > div:first-child > div:nth-child(3) {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -1650,12 +2000,13 @@
             <button type="button" onclick="toggleAuthorDisplay()" class="author-toggle" id="authorToggleBtn">아티스트: ON</button>
             <button type="button" onclick="togglePlayerInfoDisplay()" class="info-toggle" id="playerInfoToggleBtn">곡 상세정보: ON</button>
             <button type="button" onclick="toggleEditDeleteDisplay()" class="edit-delete-toggle" id="editDeleteToggleBtn">수정/삭제: ON</button>
+            <button type="button" onclick="openSuperAdminModal()" class="super-toggle-btn" id="superAdminBtn" style="display: none; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; box-shadow: 0 0 15px rgba(236, 72, 153, 0.4); border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 800; cursor: pointer;">👑 슈퍼 마스터 콘솔</button>
             <button type="button" onclick="toggleAdminMode()" class="admin-toggle" id="adminToggleBtn">관리자 모드</button>
         </div>
-        <div class="metaphysical-badge">
+        <div class="metaphysical-badge" id="tenantBadge">
             <span class="pulse-dot"></span>
-            <span>SUNO STREAMING PLAYER</span>
-            <span class="sig-code">// NinjaSubak</span>
+            <span id="tenantBadgeTitle">SUNO STREAMING PLAYER</span>
+            <span class="sig-code" id="tenantBadgeSlug">// DEFAULT</span>
         </div>
         <h2 class="title-glow">🎧 Suno 스트리밍 플레이어</h2>
         <p class="subtitle-cyber">좋아하는 Suno 음악을 등록하고, 고음질 스트리밍과 실시간 플레이리스트를 자유롭게 감상해 보세요!</p>
@@ -1895,6 +2246,110 @@
         </div>
     </div>
 
+    
+    <!-- 👑 슈퍼 관리자 마스터 콘솔 모달 -->
+    <div class="modal-overlay" id="superAdminModal" onclick="handleSuperModalBackdropClick(event)">
+        <div class="modal-box super-modal-box">
+            <div class="modal-top-fixed">
+                <div class="modal-header">
+                    <div class="modal-title" style="background: linear-gradient(135deg, #f472b6, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <span>👑</span>
+                        <span>슈퍼 관리자 마스터 콘솔 (다중 관리자 배포 & 대여 시스템)</span>
+                    </div>
+                    <button type="button" onclick="closeSuperAdminModal()" class="modal-close-btn">✕</button>
+                </div>
+
+                <div class="modal-stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="stat-card">
+                        <div class="stat-label">총 발급 채널</div>
+                        <div class="stat-val" id="superTotalTenants">0개</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">활성 대여 중</div>
+                        <div class="stat-val" id="superActiveRentals" style="color: #34d399;">0개</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">영구 이관 채널</div>
+                        <div class="stat-val" id="superTransferred" style="color: #c084fc;">0개</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">전체 등록 곡</div>
+                        <div class="stat-val" id="superTotalSongs">0곡</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-results-list" id="superModalBody" style="padding-top: 10px;">
+                <!-- ➕ 신규 관리자 발급 / 대여 등록 패널 -->
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 14px; padding: 18px; margin-bottom: 22px;">
+                    <div style="font-size: 15px; font-weight: 800; color: #f472b6; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                        <span>➕</span> <b>새로운 관리자(채널) 프로그램 발급 및 대여 등록</b>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1.2fr 1.5fr 1.2fr 1.3fr; gap: 10px; margin-bottom: 10px;">
+                        <div>
+                            <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">채널 ID (영문/숫자/슬러그)</label>
+                            <input type="text" id="newTenantId" placeholder="예: user_a, cafe1" style="width: 100%; padding: 8px 10px; font-size: 13px;" />
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">관리자 이름 / 칭호</label>
+                            <input type="text" id="newTenantName" placeholder="예: 홍길동 전용 채널" style="width: 100%; padding: 8px 10px; font-size: 13px;" />
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">관리자 비밀번호</label>
+                            <input type="text" id="newTenantPassword" value="as0000" style="width: 100%; padding: 8px 10px; font-size: 13px;" />
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">이관 / 대여 구분</label>
+                            <select id="newTenantRental" style="width: 100%; padding: 8px 10px; font-size: 13px; background: rgba(14, 22, 44, 0.85); color: #f8fafc; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px;">
+                                <option value="transferred">🟣 영구 이관 (무제한)</option>
+                                <option value="1m">🟢 1개월 대여</option>
+                                <option value="3m">🟢 3개월 대여</option>
+                                <option value="6m">🟢 6개월 대여</option>
+                                <option value="custom">📅 만료일 직접 지정</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="newTenantNote" placeholder="메모 / 참고사항 (예: 2026-09 대여 발급)" style="flex: 1; padding: 8px 10px; font-size: 13px;" />
+                        <button type="button" onclick="createTenantAction()" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; padding: 9px 20px; font-size: 13px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; white-space: nowrap; box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);">
+                            🚀 전용 독립 플레이어 발급
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 📋 전체 발급된 관리자 및 대여 목록 -->
+                <div>
+                    <div style="font-size: 15px; font-weight: 800; color: #e2e8f0; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>📋 전체 관리자(테넌트) 목록 및 운영 제어</span>
+                        <button type="button" onclick="loadSuperTenantsList()" style="background: rgba(255,255,255,0.08); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); border-radius: 6px; padding: 4px 12px; font-size: 11px; cursor: pointer; font-weight: 700;">🔄 새로고침</button>
+                    </div>
+                    <div style="overflow-x: auto; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;">
+                        <table class="super-tenant-table" id="superTenantsTable">
+                            <thead>
+                                <tr>
+                                    <th>채널 ID / 이름</th>
+                                    <th>배포 링크</th>
+                                    <th>비밀번호</th>
+                                    <th>곡 수</th>
+                                    <th>대여 상태</th>
+                                    <th>만료일</th>
+                                    <th>관리 제어</th>
+                                </tr>
+                            </thead>
+                            <tbody id="superTenantsTbody">
+                                <tr><td colspan="7" style="text-align:center; padding: 25px; color: #94a3b8;">목록을 불러오는 중...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" onclick="closeSuperAdminModal()" class="modal-btn-close">닫기</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 🏆 3D 메타피지컬 인기 차트 모달 콘솔 -->
     <div class="modal-overlay" id="voteResultsModal" onclick="handleModalBackdropClick(event)">
         <div class="modal-box">
@@ -1949,7 +2404,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbyommr2U49epBrdKlaRqEGje3rIfESn5-sAofsoPmUZ9PveQ-J5awojA9Najf30TiTK/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwt8Uwi4d0aJvmIYL5fSg057bFA7skJFau1BVbTkz16L0VjDiFxfmZhSk-uWuaQ8eHf/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -1965,6 +2420,18 @@
         let showPlayerInfo = localStorage.getItem('sunoShowPlayerInfo') !== 'false';
         let showEditDelete = localStorage.getItem('sunoShowEditDelete') !== 'false';
         let isResultPublic = localStorage.getItem('sunoResultPublic') === 'true';
+
+        // 🌐 멀티 테넌트 식별 파라미터 감지 (예: ?t=user_a)
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentTenant = (urlParams.get('t') || urlParams.get('tenant') || urlParams.get('c') || 'default').trim().toLowerCase();
+        let isSuperAdmin = localStorage.getItem('sunoSuperAdminMode') === 'true';
+        let superPassword = localStorage.getItem('sunoSuperPassword') || '';
+        let currentTenantInfo = null;
+
+        if (currentTenant !== 'default') {
+            const bSlug = document.getElementById('tenantBadgeSlug');
+            if (bSlug) bSlug.innerText = `// ${currentTenant.toUpperCase()}`;
+        }
 
         // 🎵 사용자 본인 등록 노래 추적 관리 함수
         function getMyRegisteredSongIds() {
@@ -2044,9 +2511,32 @@
         async function fetchAppData() {
             const token = getClientToken();
             try {
-                const res = await fetch(`${API_URL}?action=getAppData&token=${token}`);
+                const res = await fetch(`${API_URL}?action=getAppData&token=${token}&tenant=${encodeURIComponent(currentTenant)}`);
                 if (!res.ok) throw new Error("서버 응답 오류 (HTTP " + res.status + ")");
                 const data = await res.json();
+
+                if (data.status === "blocked") {
+                    const listEl = document.getElementById('contestList');
+                    if (listEl) {
+                        listEl.innerHTML = `
+                            <div style="text-align:center; padding: 50px 20px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 16px; margin: 20px 0;">
+                                <div style="font-size: 46px; margin-bottom: 12px;">🔒</div>
+                                <div style="font-size: 18px; font-weight: 800; color: #fca5a5; margin-bottom: 8px;">채널 이용이 일시 정지되었거나 대여 만료되었습니다</div>
+                                <div style="font-size: 14px; color: #cbd5e1; margin-bottom: 20px;">${escapeHtml(data.message)}</div>
+                                <a href="${window.location.origin + window.location.pathname}" style="display: inline-block; background: rgba(255,255,255,0.12); color: #ffffff; padding: 8px 18px; border-radius: 999px; text-decoration: none; font-size: 13px; font-weight: 700; border: 1px solid rgba(255,255,255,0.2);">🏠 기본 메인 채널로 이동</a>
+                            </div>
+                        `;
+                    }
+                    return;
+                }
+
+                currentTenantInfo = data.tenant || null;
+                if (currentTenantInfo && currentTenantInfo.tenant_name) {
+                    const bTitle = document.getElementById('tenantBadgeTitle');
+                    const bSlug = document.getElementById('tenantBadgeSlug');
+                    if (bTitle) bTitle.innerText = currentTenantInfo.tenant_name.toUpperCase();
+                    if (bSlug) bSlug.innerText = `// ${currentTenant.toUpperCase()}`;
+                }
 
                 songs = data.songs || [];
                 if (songs.length > 0) {
@@ -2072,25 +2562,81 @@
             }
         }
 
-        window.toggleAdminMode = function() {
+        window.toggleAdminMode = async function() {
             if (!isAdmin) {
-                const pwd = prompt("관리자 비밀번호를 입력하세요:");
-                if (pwd === "as0000") {
+                const pwd = prompt("관리자 비밀번호를 입력하세요:\n(슈퍼 관리자는 슈퍼 관리자 비밀번호를 입력하세요)");
+                if (pwd === null) return;
+                
+                // 1. 슈퍼 관리자 비밀번호 검증 (super5125)
+                if (pwd === "super5125") {
                     isAdmin = true;
+                    isSuperAdmin = true;
+                    superPassword = pwd;
                     localStorage.setItem('sunoAdminMode', 'true');
-                    alert("관리자 모드가 활성화되었습니다.");
-                } else if (pwd !== null) {
-                    alert("비밀번호가 틀렸습니다.");
+                    localStorage.setItem('sunoSuperAdminMode', 'true');
+                    localStorage.setItem('sunoSuperPassword', pwd);
+                    alert("👑 슈퍼 관리자로 인증되었습니다!\n관리자 바의 [👑 슈퍼 마스터 콘솔]에서 전체 채널 발급 및 대여를 총괄 관리할 수 있습니다.");
+                    updateAdminUI();
+                    renderList();
                     return;
+                }
+
+                // 2. 서버 검증 (개별 테넌트 관리자 비밀번호)
+                try {
+                    const res = await fetch(`${API_URL}?action=verifyAdmin&tenant=${encodeURIComponent(currentTenant)}&password=${encodeURIComponent(pwd)}`);
+                    const result = await res.json();
+                    if (result.status === "success") {
+                        isAdmin = true;
+                        if (result.role === "super") {
+                            isSuperAdmin = true;
+                            superPassword = pwd;
+                            localStorage.setItem('sunoSuperAdminMode', 'true');
+                            localStorage.setItem('sunoSuperPassword', pwd);
+                            alert("👑 슈퍼 관리자로 인증되었습니다!");
+                        } else {
+                            isSuperAdmin = false;
+                            localStorage.removeItem('sunoSuperAdminMode');
+                            alert(`✅ [${result.tenant ? result.tenant.tenant_name : currentTenant}] 관리자 모드가 활성화되었습니다.`);
+                        }
+                        localStorage.setItem('sunoAdminMode', 'true');
+                        updateAdminUI();
+                        renderList();
+                    } else {
+                        // 로컬 폴백 (as0000)
+                        if (pwd === "as0000") {
+                            isAdmin = true;
+                            isSuperAdmin = false;
+                            localStorage.setItem('sunoAdminMode', 'true');
+                            localStorage.removeItem('sunoSuperAdminMode');
+                            alert("관리자 모드가 활성화되었습니다.");
+                            updateAdminUI();
+                            renderList();
+                        } else {
+                            alert(result.message || "비밀번호가 일치하지 않습니다.");
+                        }
+                    }
+                } catch(e) {
+                    if (pwd === "as0000") {
+                        isAdmin = true;
+                        localStorage.setItem('sunoAdminMode', 'true');
+                        alert("관리자 모드가 활성화되었습니다.");
+                        updateAdminUI();
+                        renderList();
+                    } else {
+                        alert("비밀번호가 틀렸습니다.");
+                    }
                 }
             } else {
                 isAdmin = false;
+                isSuperAdmin = false;
+                superPassword = '';
                 localStorage.removeItem('sunoAdminMode');
+                localStorage.removeItem('sunoSuperAdminMode');
+                localStorage.removeItem('sunoSuperPassword');
                 alert("관리자 모드가 해제되었습니다.");
+                updateAdminUI();
+                renderList();
             }
-            renderList();
-            applyDisplayPreferences();
-            updateAdminUI();
         };
 
         window.toggleAuthorDisplay = function() {
@@ -2237,6 +2783,11 @@
             document.getElementById('adminToggleBtn').innerText = isAdmin ? "관리자 모드 ON (해제하기)" : "관리자 모드";
             document.getElementById('adminToggleBtn').style.background = isAdmin ? "#4f46e5" : "#e2e8f0";
             document.getElementById('adminToggleBtn').style.color = isAdmin ? "white" : "#475569";
+
+            const superBtn = document.getElementById('superAdminBtn');
+            if (superBtn) {
+                superBtn.style.display = (isAdmin && isSuperAdmin) ? "inline-block" : "none";
+            }
 
             const authorBtn = document.getElementById('authorToggleBtn');
             if (authorBtn) {
