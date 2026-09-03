@@ -1649,6 +1649,7 @@
             <button type="button" onclick="openVoteResultsModal()" class="results-btn" id="resultsBtn">📊 인기 차트</button>
             <button type="button" onclick="toggleAuthorDisplay()" class="author-toggle" id="authorToggleBtn">아티스트: ON</button>
             <button type="button" onclick="togglePlayerInfoDisplay()" class="info-toggle" id="playerInfoToggleBtn">곡 상세정보: ON</button>
+            <button type="button" onclick="toggleEditDeleteDisplay()" class="edit-delete-toggle" id="editDeleteToggleBtn">수정/삭제: ON</button>
             <button type="button" onclick="toggleAdminMode()" class="admin-toggle" id="adminToggleBtn">관리자 모드</button>
         </div>
         <div class="metaphysical-badge">
@@ -1948,7 +1949,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbzKYU2nzC6sRJD94YEr1f5s4w35J3IkffFfU1kUnpCz6xW37f0aFHSCYiAolvGgrpzZ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbyommr2U49epBrdKlaRqEGje3rIfESn5-sAofsoPmUZ9PveQ-J5awojA9Najf30TiTK/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -1962,7 +1963,59 @@
         let isAdmin = localStorage.getItem('sunoAdminMode') === 'true';
         let showAuthor = localStorage.getItem('sunoShowAuthor') !== 'false';
         let showPlayerInfo = localStorage.getItem('sunoShowPlayerInfo') !== 'false';
+        let showEditDelete = localStorage.getItem('sunoShowEditDelete') !== 'false';
         let isResultPublic = localStorage.getItem('sunoResultPublic') === 'true';
+
+        // 🎵 사용자 본인 등록 노래 추적 관리 함수
+        function getMyRegisteredSongIds() {
+            try {
+                return JSON.parse(localStorage.getItem('sunoMyRegisteredSongs') || '[]');
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function addMyRegisteredSongId(id) {
+            if (!id) return;
+            const ids = getMyRegisteredSongIds().map(String);
+            if (!ids.includes(String(id))) {
+                ids.push(String(id));
+                localStorage.setItem('sunoMyRegisteredSongs', JSON.stringify(ids));
+            }
+        }
+
+        function removeMyRegisteredSongId(id) {
+            if (!id) return;
+            const ids = getMyRegisteredSongIds().map(String).filter(i => i !== String(id));
+            localStorage.setItem('sunoMyRegisteredSongs', JSON.stringify(ids));
+        }
+
+        function addMyRegisteredSongUrl(url) {
+            if (!url) return;
+            try {
+                const urls = JSON.parse(localStorage.getItem('sunoMyRegisteredUrls') || '[]');
+                if (!urls.includes(url.trim())) {
+                    urls.push(url.trim());
+                    localStorage.setItem('sunoMyRegisteredUrls', JSON.stringify(urls));
+                }
+            } catch(e) {}
+        }
+
+        function isMySong(song) {
+            if (!song) return false;
+            if (song.isMine) return true;
+            const ids = getMyRegisteredSongIds().map(String);
+            if (ids.includes(String(song.id))) return true;
+            try {
+                const urls = JSON.parse(localStorage.getItem('sunoMyRegisteredUrls') || '[]');
+                if (song.url && urls.some(u => u.toLowerCase() === song.url.trim().toLowerCase())) return true;
+            } catch(e) {}
+            const savedAuthor = localStorage.getItem('sunoSavedAuthor');
+            if (savedAuthor && song.author && savedAuthor.trim().toLowerCase() === song.author.trim().toLowerCase()) {
+                return true;
+            }
+            return false;
+        }
 
         // 🎨 제작자 및 플레이어 정보 표시 여부를 CSS 클래스로 즉시 제어
         function applyDisplayPreferences() {
@@ -2052,6 +2105,14 @@
             localStorage.setItem('sunoShowPlayerInfo', showPlayerInfo);
             applyDisplayPreferences();
             updateAdminUI();
+        };
+
+        window.toggleEditDeleteDisplay = function() {
+            showEditDelete = !showEditDelete;
+            localStorage.setItem('sunoShowEditDelete', showEditDelete);
+            alert(showEditDelete ? "수정/삭제 버튼이 활성화(ON)되었습니다.\n(사용자는 본인이 등록한 곡에 한해 수정/삭제가 가능합니다.)" : "수정/삭제 버튼이 비활성화(OFF)되었습니다.");
+            updateAdminUI();
+            renderList();
         };
 
         window.saveNoticeText = function() {
@@ -2192,6 +2253,14 @@
                 infoBtn.style.background = showPlayerInfo ? "#10b981" : "#ef4444";
                 infoBtn.style.color = "white";
             }
+
+            const editDeleteBtn = document.getElementById('editDeleteToggleBtn');
+            if (editDeleteBtn) {
+                editDeleteBtn.style.display = isAdmin ? "inline-block" : "none";
+                editDeleteBtn.innerText = showEditDelete ? "수정/삭제: ON" : "수정/삭제: OFF";
+                editDeleteBtn.style.background = showEditDelete ? "#10b981" : "#ef4444";
+                editDeleteBtn.style.color = "white";
+            }
             
             const resultsBtn = document.getElementById('resultsBtn');
             if (resultsBtn) {
@@ -2266,7 +2335,7 @@
                                 </div>
                             </div>
                             <div class="result-votes">
-                                ❤️ ${votes}회 추천 <span style="font-size:12px; color:#94a3b8; font-weight:400;">(${percent}%)</span>
+                                ❤️ ${votes} <span style="font-size:12px; color:#94a3b8; font-weight:400;">(${percent}%)</span>
                             </div>
                         </div>
                         <div class="result-bar-bg">
@@ -2784,9 +2853,17 @@
 
             alert('곡을 등록하고 있습니다. 잠시만 기다려주세요...');
 
-            fetch(`${API_URL}?action=addSong&title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&genre=${encodeURIComponent(genre)}&url=${encodeURIComponent(url)}`)
+            const token = getClientToken();
+            fetch(`${API_URL}?action=addSong&title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&genre=${encodeURIComponent(genre)}&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}`)
                 .then(res => res.json())
-                .then(() => {
+                .then((resData) => {
+                    // 등록자 닉네임 및 등록 곡 ID/URL 로컬 기억
+                    localStorage.setItem('sunoSavedAuthor', author);
+                    addMyRegisteredSongUrl(url);
+                    if (resData && resData.id) {
+                        addMyRegisteredSongId(resData.id);
+                    }
+
                     document.getElementById('authorName').value = '';
                     document.getElementById('songTitle').value = '';
                     if (document.getElementById('songGenre')) document.getElementById('songGenre').value = '';
@@ -2823,16 +2900,34 @@
             const song = songs.find(s => String(s.id) === String(id));
             if (!song) return;
 
-            const newTitle = prompt("제목 수정:", song.title);
+            if (!isAdmin && !showEditDelete) {
+                alert("현재 관리자에 의해 수정/삭제 기능이 비활성화(OFF)되어 있습니다.");
+                return;
+            }
+            if (!isAdmin && !isMySong(song)) {
+                alert("본인이 등록한 곡만 수정할 수 있습니다.");
+                return;
+            }
+
+            const newTitle = prompt("노래 제목 수정:", song.title);
             if (newTitle === null) return;
-            const newAuthor = prompt("제작자 수정:", song.author);
+            const newAuthor = prompt("닉네임 / 아티스트 수정:", song.author);
             if (newAuthor === null) return;
             const newGenre = prompt("음악 장르 수정 (복수 입력 시 쉼표(,)로 구분 예: 발라드, R&B):", song.genre || '');
             if (newGenre === null) return;
-            const newUrl = prompt("링크 수정:", song.url);
+            const newUrl = prompt("Suno 링크 수정:", song.url);
             if (newUrl === null) return;
-            const newVotes = prompt("추천수 수정:", song.votes);
-            if (newVotes === null || isNaN(newVotes)) return;
+
+            // 추천수 수정은 관리자만 가능하며, 일반 사용자는 기존 값 유지
+            let newVotes = song.votes;
+            if (isAdmin) {
+                const promptVotes = prompt("추천수 수정 (관리자 전용):", song.votes);
+                if (promptVotes === null) return;
+                newVotes = isNaN(promptVotes) ? song.votes : promptVotes;
+            }
+
+            if (newAuthor) localStorage.setItem('sunoSavedAuthor', newAuthor.trim());
+            if (newUrl) addMyRegisteredSongUrl(newUrl.trim());
 
             fetch(`${API_URL}?action=updateSong&id=${id}&title=${encodeURIComponent(newTitle)}&author=${encodeURIComponent(newAuthor)}&genre=${encodeURIComponent(newGenre)}&url=${encodeURIComponent(newUrl)}&votes=${newVotes}`)
                 .then(res => res.json())
@@ -2840,13 +2935,29 @@
         };
 
         window.deleteSong = function(id) {
-            if (!confirm("정말 삭제하시겠습니까?")) return;
+            const song = songs.find(s => String(s.id) === String(id));
+            if (!song) return;
+
+            if (!isAdmin && !showEditDelete) {
+                alert("현재 관리자에 의해 수정/삭제 기능이 비활성화(OFF)되어 있습니다.");
+                return;
+            }
+            if (!isAdmin && !isMySong(song)) {
+                alert("본인이 등록한 곡만 삭제할 수 있습니다.");
+                return;
+            }
+
+            if (!confirm("정말 이 곡을 삭제하시겠습니까?")) return;
             if (songs && songs.length > 0) {
                 localStorage.setItem('sunoUndoBackup', JSON.stringify(songs));
             }
             fetch(`${API_URL}?action=deleteSong&id=${id}`)
                 .then(res => res.json())
-                .then(() => { alert("삭제되었습니다. (실수로 삭제한 경우 [복구하기] 또는 Ctrl+Z 로 복구 가능)"); fetchAppData(); });
+                .then(() => { 
+                    removeMyRegisteredSongId(id);
+                    alert("삭제되었습니다. (실수로 삭제한 경우 [복구하기] 또는 Ctrl+Z 로 복구 가능)"); 
+                    fetchAppData(); 
+                });
         };
 
         // ==========================================
@@ -3441,9 +3552,10 @@
                 }
 
                 const myVoteBadge = isThisMyVote ? '<span style="font-size:11px; color:#a855f7; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.35); padding:2px 8px; border-radius:999px; margin-left:6px; font-weight:800; box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);">내가 추천한 곡</span>' : '';
+                const mySongBadge = isMySong(song) ? '<span style="font-size:10px; color:#38bdf8; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.35); padding:1px 7px; border-radius:6px; margin-left:6px; font-weight:800;">내 등록곡</span>' : '';
 
                 const voteCountHtml = canSeeResults 
-                    ? `<span class="vote-count">❤️ ${song.votes} 추천</span>` 
+                    ? `<span class="vote-count">❤️ ${song.votes}</span>` 
                     : ``;
 
                 // 🏷️ 순수 음악 장르 개별 칩 생성 (최대 3~4개 엄선)
@@ -3456,12 +3568,21 @@
                     `</span>`;
                 }
 
+                // 관리자이거나, 관리자가 수정을 허용한 상태에서 사용자가 직접 등록한 곡인 경우에만 수정/삭제 버튼 노출
+                const canEditOrDelete = isAdmin || (showEditDelete && isMySong(song));
+                const editBtnHtml = canEditOrDelete 
+                    ? `<button type="button" onclick="editSong('${song.id}')" class="edit-btn" style="display:inline-block;">수정</button>` 
+                    : ``;
+                const deleteBtnHtml = canEditOrDelete 
+                    ? `<button type="button" onclick="deleteSong('${song.id}')" class="delete-btn" style="display:inline-block;">삭제</button>` 
+                    : ``;
+
                 const item = document.createElement('div');
                 item.className = 'song-card';
                 item.innerHTML = `
                     <div class="song-row">
                         <div class="song-info">
-                            <div class="song-title">${rankBadge}${song.title} ${genreBadgesHtml} ${myVoteBadge}</div>
+                            <div class="song-title">${rankBadge}${song.title} ${genreBadgesHtml} ${myVoteBadge} ${mySongBadge}</div>
                             <div class="song-author" style="display: ${showAuthor ? 'block' : 'none'};">아티스트: <b style="color:#e2e8f0;">${song.author}</b></div>
                         </div>
                         <div class="action-group">
@@ -3469,8 +3590,8 @@
                             <button type="button" onclick="voteSong('${song.id}')" class="vote-btn ${hasVoted ? 'voted' : ''}" ${hasVoted ? 'disabled' : ''}>
                                 ${isThisMyVote ? '추천 완료' : '추천하기'}
                             </button>
-                            <button type="button" onclick="editSong('${song.id}')" class="edit-btn" style="display: ${isAdmin ? 'inline-block' : 'none'};">수정</button>
-                            <button type="button" onclick="deleteSong('${song.id}')" class="delete-btn" style="display: ${isAdmin ? 'inline-block' : 'none'};">삭제</button>
+                            ${editBtnHtml}
+                            ${deleteBtnHtml}
                             ${voteCountHtml}
                         </div>
                     </div>
