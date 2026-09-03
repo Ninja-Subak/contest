@@ -1019,23 +1019,27 @@
         .search-svg-icon {
             position: absolute;
             left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
             color: #64748b;
             pointer-events: none;
             transition: color 0.2s;
+            z-index: 2;
         }
         .search-input-wrapper:focus-within .search-svg-icon {
             color: #00f2fe;
         }
         .search-input-field {
-            width: 100%;
-            padding: 10px 38px 10px 42px;
-            background: rgba(2, 6, 23, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 10px;
-            color: #ffffff;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.2s;
+            width: 100% !important;
+            padding: 10px 38px 10px 44px !important;
+            background: rgba(2, 6, 23, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 10px !important;
+            color: #ffffff !important;
+            font-size: 14px !important;
+            outline: none !important;
+            transition: all 0.2s !important;
+            box-sizing: border-box !important;
         }
         .search-input-field:focus {
             border-color: #00f2fe;
@@ -1893,7 +1897,7 @@
                 font-size: 15px !important;
             }
 
-            /* 7. 검색 및 태그 필터 영역 */
+                        /* 7. 검색 및 태그 필터 영역 */
             .search-box-card {
                 padding: 12px 10px !important;
             }
@@ -1903,6 +1907,15 @@
             }
             .search-type-wrapper {
                 width: 100% !important;
+            }
+            .search-input-field {
+                padding: 11px 38px 11px 44px !important;
+                font-size: 13.5px !important;
+            }
+            .search-svg-icon {
+                left: 14px !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
             }
             .quick-genre-tags {
                 gap: 4px !important;
@@ -2272,11 +2285,28 @@
         }
 
     
-        /* 🎮 6종 트랙 컨트롤러 순수 아이콘 버튼 바 */
+        /* 🎮 4종 트랙 컨트롤러 순수 아이콘 바 (크기 적정 확대 & 중앙 정렬) */
         .master-embed-wrapper {
             position: relative !important;
+            border-radius: 14px !important;
+            overflow: hidden !important;
+            border: 1px solid rgba(0, 242, 254, 0.4) !important;
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.15), inset 0 0 15px rgba(0, 0, 0, 0.5) !important;
+            margin: 14px 0 18px 0 !important;
+            background: #000000 !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            min-height: 160px !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
             z-index: 1 !important;
-            margin-bottom: 6px !important;
+        }
+        .master-embed-iframe {
+            width: 100% !important;
+            height: 160px !important;
+            border: none !important;
+            display: block !important;
+            border-radius: 12px !important;
         }
         .master-player-card {
             box-sizing: border-box !important;
@@ -2292,14 +2322,14 @@
             padding: 0 !important;
             position: relative !important;
             z-index: 10 !important;
-            gap: 10px !important;
+            gap: 16px !important;
             flex-wrap: nowrap !important;
             width: auto !important;
         }
         .master-ctrl-btn {
             background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            border-radius: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            border-radius: 14px !important;
             color: #cbd5e1 !important;
             display: flex !important;
             justify-content: center !important;
@@ -2314,14 +2344,14 @@
             box-sizing: border-box !important;
             padding: 0 !important;
             flex: 0 0 auto !important;
-            width: 44px !important;
-            height: 42px !important;
-            min-width: 44px !important;
-            max-width: 44px !important;
+            width: 58px !important;
+            height: 48px !important;
+            min-width: 58px !important;
+            max-width: 58px !important;
         }
         .master-ctrl-btn svg {
-            width: 20px !important;
-            height: 20px !important;
+            width: 24px !important;
+            height: 24px !important;
             flex-shrink: 0 !important;
         }
         .master-ctrl-btn:hover {
@@ -2342,108 +2372,42 @@
             box-shadow: 0 0 15px rgba(0, 242, 254, 0.35) !important;
         }
 
-        /* 📱 모바일 (스마트폰): 6개 아이콘 버튼이 한 줄에 쏙 들어가도록 간격 최적화 */
-        @media (max-width: 480px) {
+        /* 📱 모바일 (스마트폰): 4개 버튼 크기 적정 확대 및 편안한 터치감 */
+        @media (max-width: 640px) {
+            .master-embed-wrapper {
+                margin: 12px 0 14px 0 !important;
+            }
             .master-controls-bar {
-                gap: 6px !important;
-                margin-top: 14px !important;
+                gap: 12px !important;
+                margin-top: 16px !important;
+                width: 100% !important;
             }
             .master-ctrl-btn {
-                width: 38px !important;
-                height: 38px !important;
-                min-width: 38px !important;
-                max-width: 38px !important;
-                border-radius: 10px !important;
+                width: 52px !important;
+                height: 44px !important;
+                min-width: 52px !important;
+                max-width: 52px !important;
+                border-radius: 12px !important;
             }
             .master-ctrl-btn svg {
-                width: 17px !important;
-                height: 17px !important;
+                width: 22px !important;
+                height: 22px !important;
             }
         }
 
         @media (max-width: 360px) {
             .master-controls-bar {
-                gap: 4px !important;
+                gap: 10px !important;
             }
             .master-ctrl-btn {
-                width: 34px !important;
-                height: 36px !important;
-                min-width: 34px !important;
-                max-width: 34px !important;
+                width: 48px !important;
+                height: 42px !important;
+                min-width: 48px !important;
+                max-width: 48px !important;
             }
             .master-ctrl-btn svg {
-                width: 15px !important;
-                height: 15px !important;
-            }
-        }
-            .master-ctrl-btn {
-                height: 36px !important;
-                padding: 0 1px !important;
-                gap: 2px !important;
-            }
-            .master-ctrl-btn svg {
-                width: 14px !important;
-                height: 14px !important;
-            }
-            .master-ctrl-lbl {
-                font-size: 10px !important;
-                letter-spacing: -0.6px !important;
-            }
-        }
-
-    
-        /* 💡 마스터 플레이어 안내 배너 (플레이어 프레임과 버튼 사이 정중앙 위치) */
-        .master-guide-banner {
-            margin: 12px auto 12px auto !important;
-            background: rgba(15, 23, 42, 0.96) !important;
-            border: 1px solid rgba(0, 242, 254, 0.6) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 12px rgba(0, 242, 254, 0.3) !important;
-            color: #f1f5f9 !important;
-            padding: 6px 14px !important;
-            border-radius: 999px !important;
-            font-size: 11.5px !important;
-            font-weight: 700 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 6px !important;
-            width: fit-content !important;
-            max-width: 96% !important;
-            text-align: center !important;
-            word-break: keep-all !important;
-            line-height: 1.35 !important;
-            position: relative !important;
-            z-index: 30 !important;
-            box-sizing: border-box !important;
-            animation: fadeIn 0.2s ease-out !important;
-        }
-
-        /* 📱 모바일: 원본 임베드 규격(100% x 160px) 100% 완전 원상복구 */
-        @media (max-width: 480px) {
-            .master-embed-wrapper {
-                width: 100% !important;
-                height: 160px !important;
-                min-height: 160px !important;
-                border-radius: 14px !important;
-                margin: 12px 0 14px 0 !important;
-                overflow: hidden !important;
-                background: #000000 !important;
-            }
-            .master-embed-iframe {
-                width: 100% !important;
-                height: 160px !important;
-                transform: none !important;
-                border: none !important;
-                display: block !important;
-                border-radius: 12px !important;
-            }
-            .master-controls-bar {
-                margin-top: 12px !important;
-            }
-            .master-guide-banner {
-                font-size: 11px !important;
-                padding: 5px 10px !important;
-                margin: 10px auto 12px auto !important;
+                width: 20px !important;
+                height: 20px !important;
             }
         }
 
@@ -2595,53 +2559,33 @@
             </iframe>
         </div>
 
-        <!-- 💡 마스터 플레이어 실시간 피드백/가이드 배너 (플레이어와 컨트롤 사이 정중앙 위치) -->
-        <div class="master-guide-banner" id="masterGuideBanner" style="display: none;">
-            <span id="masterGuideIcon">💡</span>
-            <span id="masterGuideText"></span>
-        </div>
-
-                <!-- 🎮 6종 트랙 컨트롤러 순수 아이콘 바 (셔플, 이전 곡, 되감기, 빨리감기, 다음 곡, 반복) -->
+                <!-- 🎮 4종 트랙 컨트롤러 순수 아이콘 바 (셔플, 이전 곡, 다음 곡, 반복) -->
         <div class="master-controls-bar">
             <!-- 1. 셔플 (무작위 곡) -->
             <button type="button" class="master-ctrl-btn" id="masterShuffleBtn" onclick="playMasterShuffleTrack()" title="셔플 (무작위 재생)" aria-label="셔플">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M16 3h5v5M4 20l17-17M21 16v5h-5M15 15l6 6M4 4l5 5"/>
                 </svg>
             </button>
 
             <!-- 2. 이전 곡 -->
             <button type="button" class="master-ctrl-btn" id="masterPrevBtn" onclick="playMasterPrevTrack()" title="이전 곡 (Previous)" aria-label="이전 곡">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                     <path d="M6 6h2.5v12H6zm3.5 6l9 6.5V5.5z"/>
                 </svg>
             </button>
 
-            <!-- 3. 되감기 (10초 뒤로) -->
-            <button type="button" class="master-ctrl-btn" id="masterRewindBtn" onclick="seekMasterRewind()" title="되감기 (10초 뒤로)" aria-label="되감기">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                    <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/>
-                </svg>
-            </button>
-
-            <!-- 4. 빨리감기 (10초 앞으로) -->
-            <button type="button" class="master-ctrl-btn" id="masterForwardBtn" onclick="seekMasterForward()" title="빨리감기 (10초 앞으로)" aria-label="빨리감기">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                    <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/>
-                </svg>
-            </button>
-
-            <!-- 5. 다음 곡 -->
+            <!-- 3. 다음 곡 -->
             <button type="button" class="master-ctrl-btn" id="masterNextBtn" onclick="playMasterNextTrack()" title="다음 곡 (Next)" aria-label="다음 곡">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                     <path d="M5.5 18.5l9-6.5-9-6.5v13zM15.5 6H18v12h-2.5z"/>
                 </svg>
             </button>
 
-            <!-- 6. 반복 모드 (전체/1곡) -->
+            <!-- 4. 반복 모드 (전체/1곡) -->
             <button type="button" class="master-ctrl-btn active" id="masterRepeatBtn" onclick="toggleMasterRepeat()" title="반복 모드 (전체 반복 / 한곡 반복)" aria-label="반복 모드">
                 <span id="masterRepeatIconWrap">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
                         <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
                     </svg>
                 </span>
@@ -2885,7 +2829,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbzuV1HNp2cEig6nETRDn939-AHLh-V-n692tPLk547tUdmTe0RwG-6AyDBGG070v2l3/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxWZ6xQPghE4Qh5VzAyGTEY_PKiaZZMb4xLJiHWsubF028K09YvWkuLK9FkJP_qncuP/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -4224,75 +4168,6 @@
 
         // 🔁 반복 모드 토글 (전체 반복 <-> 1곡 반복)
         
-        // 💬 마스터 콘솔 내부 전용 실시간 가이드 배너 표시
-        window.showPlayerToast = function(msg, icon) {
-            const banner = document.getElementById('masterGuideBanner');
-            const textEl = document.getElementById('masterGuideText');
-            const iconEl = document.getElementById('masterGuideIcon');
-            if (banner && textEl && iconEl) {
-                iconEl.innerText = icon || '💡';
-                textEl.innerText = msg;
-                banner.style.display = 'flex';
-                if (window._playerToastTimer) clearTimeout(window._playerToastTimer);
-                window._playerToastTimer = setTimeout(function() {
-                    banner.style.display = 'none';
-                }, 3500);
-            }
-        };
-
-        // ⏪ 되감기 (10초 뒤로)
-        window.seekMasterRewind = function() {
-            let handled = false;
-            // 1. YouTube 탐색
-            if (ytPlayer && ytPlayer.getCurrentTime && ytPlayer.seekTo) {
-                try {
-                    const t = ytPlayer.getCurrentTime();
-                    ytPlayer.seekTo(Math.max(0, t - 10), true);
-                    showPlayerToast('10초 뒤로 탐색했습니다', '⏪');
-                    handled = true;
-                } catch(e) {}
-            }
-            // 2. SoundCloud 탐색
-            if (!handled && scWidget && scWidget.getPosition && scWidget.seekTo) {
-                try {
-                    scWidget.getPosition(function(pos) {
-                        scWidget.seekTo(Math.max(0, pos - 10000));
-                        showPlayerToast('10초 뒤로 탐색했습니다', '⏪');
-                    });
-                    handled = true;
-                } catch(e) {}
-            }
-            // 3. HTML5 오디오 탐색
-            if (!handled) {
-                document.querySelectorAll('audio').forEach(function(a) {
-                    try {
-                        a.currentTime = Math.max(0, a.currentTime - 10);
-                        handled = true;
-                    } catch(e) {}
-                });
-                if (handled) showPlayerToast('10초 뒤로 탐색했습니다', '⏪');
-            }
-            // 4. Suno 공식 임베드 안내
-            if (!handled) {
-                showPlayerToast('Suno는 화면의 진행 바(●)를 터치하여 앞뒤로 이동해 주세요', '💡');
-                const frameBox = document.getElementById('masterEmbedWrapper');
-                if (frameBox) {
-                    frameBox.style.boxShadow = '0 0 25px rgba(0, 242, 254, 0.7)';
-                    frameBox.style.borderColor = '#00f2fe';
-                    setTimeout(function() {
-                        frameBox.style.boxShadow = '';
-                        frameBox.style.borderColor = '';
-                    }, 1200);
-                }
-            }
-            // 햅틱 피드백
-            const btn = document.getElementById('masterRewindBtn');
-            if (btn) {
-                btn.style.transform = 'scale(0.88)';
-                setTimeout(function() { btn.style.transform = ''; }, 150);
-            }
-        };
-
         // ⏩ 빨리감기 (10초 앞으로)
         window.seekMasterForward = function() {
             let handled = false;
