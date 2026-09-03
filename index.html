@@ -877,22 +877,7 @@
         }
 
         /* 🔊 가로 직사각형 사운드 조절 볼륨 바 박스 */
-                #masterShuffleBtn {
-            min-width: 100px !important;
-            padding: 9px 18px !important;
-        }
-        #masterPrevBtn {
-            min-width: 95px !important;
-            padding: 9px 16px !important;
-        }
-        #masterNextBtn {
-            min-width: 95px !important;
-            padding: 9px 16px !important;
-        }
-        #masterRepeatBtn {
-            min-width: 115px !important;
-            padding: 9px 18px !important;
-        }
+                
         .master-volume-box {
             padding: 6px 10px !important;
             gap: 7px !important;
@@ -2256,6 +2241,190 @@
             }
         }
 
+    
+        /* ⚙️ 관리자 제어 패널 카드 */
+        .admin-panel-card {
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin: 0 0 20px 0;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 242, 254, 0.15);
+            backdrop-filter: blur(12px);
+            text-align: left;
+            animation: fadeInDown 0.25s ease-out;
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .admin-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+        .admin-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 800;
+            color: #38bdf8;
+        }
+        .admin-status-badge {
+            background: linear-gradient(135deg, #00f2fe, #a855f7);
+            color: #030712;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 999px;
+            letter-spacing: 0.08em;
+        }
+        .admin-panel-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            letter-spacing: -0.2px;
+        }
+        .admin-panel-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        @media (max-width: 600px) {
+            .admin-panel-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .admin-grid-btn {
+            padding: 10px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            color: #f1f5f9;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        .admin-grid-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.15);
+        }
+        .admin-grid-btn.btn-danger {
+            background: #ef4444 !important;
+            border-color: #dc2626 !important;
+            color: white !important;
+        }
+        .admin-grid-btn.btn-cyan {
+            background: #0284c7 !important;
+            border-color: #0369a1 !important;
+            color: white !important;
+        }
+        .admin-grid-btn.btn-blue {
+            background: #2563eb !important;
+            border-color: #1d4ed8 !important;
+            color: white !important;
+        }
+        .admin-grid-btn.btn-purple {
+            background: #8b5cf6 !important;
+            border-color: #7c3aed !important;
+            color: white !important;
+        }
+
+        /* 🎮 마스터 콘솔 트랙 컨트롤 바: 카드 내부 100% 핏 & 오버플로우 방지 */
+        .master-player-card {
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+        .master-controls-bar {
+            display: flex !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 6px !important;
+            margin-top: 12px !important;
+            flex-wrap: nowrap !important;
+            overflow: hidden !important;
+            padding: 0 !important;
+        }
+        .master-ctrl-btn {
+            flex: 1 1 0 !important;
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            padding: 8px 2px !important;
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 4px !important;
+            overflow: hidden !important;
+            white-space: nowrap !important;
+            box-sizing: border-box !important;
+        }
+        .master-ctrl-btn svg {
+            width: 16px !important;
+            height: 16px !important;
+            flex-shrink: 0 !important;
+        }
+        .master-ctrl-lbl {
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.5px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        @media (max-width: 400px) {
+            .master-controls-bar {
+                gap: 4px !important;
+            }
+            .master-ctrl-btn {
+                padding: 7px 1px !important;
+                gap: 2px !important;
+            }
+            .master-ctrl-btn svg {
+                width: 14px !important;
+                height: 14px !important;
+            }
+            .master-ctrl-lbl {
+                font-size: 10px !important;
+                letter-spacing: -0.6px !important;
+            }
+        }
+        @media (min-width: 641px) {
+            .master-controls-bar {
+                justify-content: center !important;
+                gap: 12px !important;
+            }
+            .master-ctrl-btn {
+                width: auto !important;
+                flex: 0 1 125px !important;
+                padding: 9px 16px !important;
+                gap: 6px !important;
+            }
+            .master-ctrl-btn svg {
+                width: 18px !important;
+                height: 18px !important;
+            }
+            .master-ctrl-lbl {
+                font-size: 12px !important;
+            }
+        }
+
     </style>
 <script src="https://www.youtube.com/iframe_api"></script>
     <script src="https://w.soundcloud.com/player/api.js"></script>
@@ -2263,7 +2432,7 @@
 <body>
 
     <div class="header-box">
-        <!-- 🧭 상단 네비게이션 행: 왼쪽 끝=채널 배지, 오른쪽 끝=관리자 모드 -->
+                <!-- 🧭 상단 네비게이션 행: 왼쪽 끝=채널 배지, 오른쪽 끝=슈퍼 콘솔 & 관리자 모드 -->
         <div class="top-nav-row">
             <div class="metaphysical-badge" id="tenantBadge">
                 <span class="pulse-dot"></span>
@@ -2271,15 +2440,36 @@
                 <span class="sig-code" id="tenantBadgeSlug">// DEFAULT</span>
             </div>
             <div class="admin-bar">
-                <button type="button" onclick="clearData()" class="reset-btn" id="resetBtn">🗑️ 데이터 초기화</button>
-                <button type="button" onclick="restoreLastBackup()" class="restore-btn" id="restoreBtn" title="초기화/삭제 이전 상태로 복구합니다 (Ctrl+Z)">↩️ 복구하기</button>
-                <button type="button" onclick="downloadExcel()" class="download-btn" id="downloadBtn">📥 엑셀 백업</button>
-                <button type="button" onclick="openVoteResultsModal()" class="results-btn" id="resultsBtn">📊 인기 차트</button>
-                <button type="button" onclick="toggleAuthorDisplay()" class="author-toggle" id="authorToggleBtn">아티스트: ON</button>
-                <button type="button" onclick="togglePlayerInfoDisplay()" class="info-toggle" id="playerInfoToggleBtn">곡 상세정보: ON</button>
-                <button type="button" onclick="toggleEditDeleteDisplay()" class="edit-delete-toggle" id="editDeleteToggleBtn" style="display: none;">수정/삭제: OFF</button>
                 <button type="button" onclick="openSuperAdminModal()" class="super-toggle-btn" id="superAdminBtn" style="display: none; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; box-shadow: 0 0 15px rgba(236, 72, 153, 0.4); border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 800; cursor: pointer;">👑 슈퍼 마스터 콘솔</button>
                 <button type="button" onclick="toggleAdminMode()" class="admin-toggle" id="adminToggleBtn">관리자 모드</button>
+            </div>
+        </div>
+
+        <!-- ⚙️ 관리자 제어 패널 (관리자 모드 ON 시 드롭다운/카드 형태로 정리) -->
+        <div class="admin-panel-card" id="adminPanelCard" style="display: none;">
+            <div class="admin-panel-header">
+                <div class="admin-panel-title">
+                    <span>⚙️</span>
+                    <span>관리자 제어 패널</span>
+                </div>
+                <span class="admin-status-badge">ADMIN ACTIVE</span>
+            </div>
+
+            <!-- 1. 데이터 관리 섹션 -->
+            <div class="admin-panel-section-title">📦 데이터 백업 & 관리</div>
+            <div class="admin-panel-grid">
+                <button type="button" onclick="clearData()" class="admin-grid-btn btn-danger" id="resetBtn">🗑️ 데이터 초기화</button>
+                <button type="button" onclick="restoreLastBackup()" class="admin-grid-btn btn-cyan" id="restoreBtn" title="초기화/삭제 이전 상태로 복구 (Ctrl+Z)">↩️ 복구하기</button>
+                <button type="button" onclick="downloadExcel()" class="admin-grid-btn btn-blue" id="downloadBtn">📥 엑셀 백업</button>
+                <button type="button" onclick="openVoteResultsModal()" class="admin-grid-btn btn-purple" id="resultsBtn">📊 인기 차트</button>
+            </div>
+
+            <!-- 2. 화면 표시 설정 섹션 -->
+            <div class="admin-panel-section-title" style="margin-top: 12px;">👁️ 화면 표시 설정</div>
+            <div class="admin-panel-grid">
+                <button type="button" onclick="toggleAuthorDisplay()" class="admin-grid-btn" id="authorToggleBtn">아티스트: ON</button>
+                <button type="button" onclick="togglePlayerInfoDisplay()" class="admin-grid-btn" id="playerInfoToggleBtn">곡 상세정보: ON</button>
+                <button type="button" onclick="toggleEditDeleteDisplay()" class="admin-grid-btn" id="editDeleteToggleBtn">수정/삭제: OFF</button>
             </div>
         </div>
         <h2 class="title-glow">🎧 스트리밍 플레이어</h2>
@@ -2658,7 +2848,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbxFYkVewekGCjndipD8UwkK9ZNSKuVHvj5oA0Xl38XuTWLtHb5PtvlCjhiephazOGNm/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwoAzBOq-X9PFnmRGEfWjT6vUEV20WDoL4E9srWVSocw2M1jjKIo1kWEM2xIhJr7v6O/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -3038,10 +3228,18 @@
                 });
         };
 
-        function updateAdminUI() {
-            document.getElementById('adminToggleBtn').innerText = isAdmin ? "관리자 모드 ON (해제하기)" : "관리자 모드";
-            document.getElementById('adminToggleBtn').style.background = isAdmin ? "#4f46e5" : "#e2e8f0";
-            document.getElementById('adminToggleBtn').style.color = isAdmin ? "white" : "#475569";
+                function updateAdminUI() {
+            const adminBtn = document.getElementById('adminToggleBtn');
+            if (adminBtn) {
+                adminBtn.innerText = isAdmin ? "관리자 모드 ON (해제하기)" : "관리자 모드";
+                adminBtn.style.background = isAdmin ? "#4f46e5" : "#e2e8f0";
+                adminBtn.style.color = isAdmin ? "white" : "#475569";
+            }
+
+            const adminPanel = document.getElementById('adminPanelCard');
+            if (adminPanel) {
+                adminPanel.style.display = isAdmin ? "block" : "none";
+            }
 
             const superBtn = document.getElementById('superAdminBtn');
             if (superBtn) {
@@ -3050,7 +3248,6 @@
 
             const authorBtn = document.getElementById('authorToggleBtn');
             if (authorBtn) {
-                authorBtn.style.display = isAdmin ? "inline-block" : "none";
                 authorBtn.innerText = showAuthor ? "아티스트: ON" : "아티스트: OFF";
                 authorBtn.style.background = showAuthor ? "#10b981" : "#ef4444";
                 authorBtn.style.color = "white";
@@ -3058,7 +3255,6 @@
 
             const infoBtn = document.getElementById('playerInfoToggleBtn');
             if (infoBtn) {
-                infoBtn.style.display = isAdmin ? "inline-block" : "none";
                 infoBtn.innerText = showPlayerInfo ? "곡 상세정보: ON" : "곡 상세정보: OFF";
                 infoBtn.style.background = showPlayerInfo ? "#10b981" : "#ef4444";
                 infoBtn.style.color = "white";
@@ -3066,28 +3262,17 @@
 
             const editDeleteBtn = document.getElementById('editDeleteToggleBtn');
             if (editDeleteBtn) {
-                editDeleteBtn.style.display = isAdmin ? "inline-block" : "none";
                 editDeleteBtn.innerText = showEditDelete ? "수정/삭제: ON" : "수정/삭제: OFF";
                 editDeleteBtn.style.background = showEditDelete ? "#10b981" : "#ef4444";
                 editDeleteBtn.style.color = "white";
             }
-            
-            const resultsBtn = document.getElementById('resultsBtn');
-            if (resultsBtn) {
-                resultsBtn.style.display = isAdmin ? "inline-block" : "none";
-            }
 
-            const restoreBtn = document.getElementById('restoreBtn');
-            if (restoreBtn) {
-                restoreBtn.style.display = isAdmin ? "inline-block" : "none";
-            }
-
-            document.getElementById('downloadBtn').style.display = isAdmin ? "inline-block" : "none";
-            document.getElementById('resetBtn').style.display = isAdmin ? "inline-block" : "none";
-
-            document.getElementById('noticeDisplay').style.display = isAdmin ? "none" : "block";
-            document.getElementById('noticeInput').style.display = isAdmin ? "block" : "none";
-            document.getElementById('noticeSaveBtn').style.display = isAdmin ? "inline-block" : "none";
+            const noticeDisplay = document.getElementById('noticeDisplay');
+            if (noticeDisplay) noticeDisplay.style.display = isAdmin ? "none" : "block";
+            const noticeInput = document.getElementById('noticeInput');
+            if (noticeInput) noticeInput.style.display = isAdmin ? "block" : "none";
+            const noticeSaveBtn = document.getElementById('noticeSaveBtn');
+            if (noticeSaveBtn) noticeSaveBtn.style.display = isAdmin ? "inline-block" : "none";
         }
 
         // 🏆 관리자 모드 전용 인기 차트 모달 열기
