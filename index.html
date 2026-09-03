@@ -2391,6 +2391,61 @@
             }
         }
 
+    
+        /* 💡 마스터 플레이어 안내 배너 (플레이어 프레임과 버튼 사이 정중앙 위치) */
+        .master-guide-banner {
+            margin: 10px auto 4px auto !important;
+            background: rgba(15, 23, 42, 0.96) !important;
+            border: 1px solid rgba(0, 242, 254, 0.6) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 12px rgba(0, 242, 254, 0.3) !important;
+            color: #f1f5f9 !important;
+            padding: 6px 14px !important;
+            border-radius: 999px !important;
+            font-size: 11.5px !important;
+            font-weight: 700 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            width: fit-content !important;
+            max-width: 96% !important;
+            text-align: center !important;
+            word-break: keep-all !important;
+            line-height: 1.35 !important;
+            position: relative !important;
+            z-index: 30 !important;
+            box-sizing: border-box !important;
+            animation: fadeIn 0.2s ease-out !important;
+        }
+
+        /* 📱 모바일: Suno 진행바(탐색바)를 3배 이상 길게 확장하여 손쉬운 터치 지원 */
+        @media (max-width: 480px) {
+            .master-player-card {
+                padding: 16px 12px 20px 12px !important;
+            }
+            .master-embed-wrapper {
+                overflow: hidden !important;
+                height: 156px !important;
+                border-radius: 12px !important;
+                background: #000000 !important;
+            }
+            .master-embed-iframe {
+                width: 122% !important;
+                height: 190px !important;
+                transform: scale(0.82) !important;
+                transform-origin: top left !important;
+                display: block !important;
+            }
+            .master-controls-bar {
+                margin-top: 12px !important;
+            }
+            .master-guide-banner {
+                font-size: 11px !important;
+                padding: 5px 10px !important;
+                margin-top: 8px !important;
+            }
+        }
+
     </style>
 <script src="https://www.youtube.com/iframe_api"></script>
     <script src="https://w.soundcloud.com/player/api.js"></script>
@@ -2537,6 +2592,12 @@
                     allow="autoplay; encrypted-media; fullscreen"
                     loading="lazy">
             </iframe>
+        </div>
+
+        <!-- 💡 마스터 플레이어 실시간 피드백/가이드 배너 (플레이어와 컨트롤 사이 정중앙 위치) -->
+        <div class="master-guide-banner" id="masterGuideBanner" style="display: none;">
+            <span id="masterGuideIcon">💡</span>
+            <span id="masterGuideText"></span>
         </div>
 
                 <!-- 🎮 6종 트랙 컨트롤러 순수 아이콘 바 (셔플, 이전 곡, 되감기, 빨리감기, 다음 곡, 반복) -->
@@ -2823,7 +2884,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbxeRXxYjCubmaX9bDKaYCFEXBTNau9ueg2D6OfHN6oLe-GvQRP0l2OnRC4JGuo05Qfn/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbx8UPhCHgPYJUpwakdM0PS8nGnhcJD6kwZedDQhWuUV_YG9ZT30_60xW08m0pk9_7kj/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -4162,23 +4223,20 @@
 
         // 🔁 반복 모드 토글 (전체 반복 <-> 1곡 반복)
         
-        // 💬 플로팅 안내 토스트 메시지
+        // 💬 마스터 콘솔 내부 전용 실시간 가이드 배너 표시
         window.showPlayerToast = function(msg, icon) {
-            let toast = document.getElementById('playerFloatingToast');
-            if (!toast) {
-                toast = document.createElement('div');
-                toast.id = 'playerFloatingToast';
-                toast.style.cssText = 'position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:rgba(15,23,42,0.96); border:1px solid rgba(0,242,254,0.6); box-shadow:0 10px 30px rgba(0,0,0,0.7), 0 0 20px rgba(0,242,254,0.3); color:#f1f5f9; padding:10px 20px; border-radius:999px; font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; z-index:99999; opacity:0; transition:all 0.25s cubic-bezier(0.16,1,0.3,1); pointer-events:none; white-space:nowrap; max-width:92vw;';
-                document.body.appendChild(toast);
+            const banner = document.getElementById('masterGuideBanner');
+            const textEl = document.getElementById('masterGuideText');
+            const iconEl = document.getElementById('masterGuideIcon');
+            if (banner && textEl && iconEl) {
+                iconEl.innerText = icon || '💡';
+                textEl.innerText = msg;
+                banner.style.display = 'flex';
+                if (window._playerToastTimer) clearTimeout(window._playerToastTimer);
+                window._playerToastTimer = setTimeout(function() {
+                    banner.style.display = 'none';
+                }, 3500);
             }
-            toast.innerHTML = '<span>' + (icon || 'ℹ️') + '</span> <span>' + msg + '</span>';
-            toast.style.opacity = '1';
-            toast.style.transform = 'translateX(-50%) translateY(0)';
-            if (window._playerToastTimer) clearTimeout(window._playerToastTimer);
-            window._playerToastTimer = setTimeout(function() {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(-50%) translateY(20px)';
-            }, 3000);
         };
 
         // ⏪ 되감기 (10초 뒤로)
@@ -4215,7 +4273,7 @@
             }
             // 4. Suno 공식 임베드 안내
             if (!handled) {
-                showPlayerToast('Suno는 플레이어 화면의 진행 바(●)를 터치하여 앞뒤로 이동해 주세요!', '💡');
+                showPlayerToast('Suno는 화면의 진행 바(●)를 터치하여 앞뒤로 이동해 주세요', '💡');
                 const frameBox = document.getElementById('masterEmbedWrapper');
                 if (frameBox) {
                     frameBox.style.boxShadow = '0 0 25px rgba(0, 242, 254, 0.7)';
@@ -4268,7 +4326,7 @@
             }
             // 4. Suno 공식 임베드 안내
             if (!handled) {
-                showPlayerToast('Suno는 플레이어 화면의 진행 바(●)를 터치하여 앞뒤로 이동해 주세요!', '💡');
+                showPlayerToast('Suno는 화면의 진행 바(●)를 터치하여 앞뒤로 이동해 주세요', '💡');
                 const frameBox = document.getElementById('masterEmbedWrapper');
                 if (frameBox) {
                     frameBox.style.boxShadow = '0 0 25px rgba(0, 242, 254, 0.7)';
@@ -4283,41 +4341,6 @@
             const btn = document.getElementById('masterForwardBtn');
             if (btn) {
                 btn.style.transform = 'scale(0.88)';
-                setTimeout(function() { btn.style.transform = ''; }, 150);
-            }
-        };
-
-        // ⏩ 빨리감기 (10초 앞으로)
-        window.seekMasterForward = function() {
-            let handled = false;
-            // 1. YouTube 탐색
-            if (ytPlayer && ytPlayer.getCurrentTime && ytPlayer.seekTo) {
-                try {
-                    const t = ytPlayer.getCurrentTime();
-                    ytPlayer.seekTo(t + 10, true);
-                    handled = true;
-                } catch(e) {}
-            }
-            // 2. SoundCloud 탐색
-            if (scWidget && scWidget.getPosition && scWidget.seekTo) {
-                try {
-                    scWidget.getPosition(function(pos) {
-                        scWidget.seekTo(pos + 10000);
-                    });
-                    handled = true;
-                } catch(e) {}
-            }
-            // 3. HTML5 오디오 탐색
-            document.querySelectorAll('audio').forEach(function(a) {
-                try {
-                    a.currentTime = a.currentTime + 10;
-                    handled = true;
-                } catch(e) {}
-            });
-            // 일시적인 햅틱/클릭 피드백
-            const btn = document.getElementById('masterForwardBtn');
-            if (btn) {
-                btn.style.transform = 'scale(0.9)';
                 setTimeout(function() { btn.style.transform = ''; }, 150);
             }
         };
