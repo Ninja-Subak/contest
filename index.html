@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Suno 스트리밍 플레이어</title>
+    <title>스트리밍 플레이어</title>
     <style>
         :root {
             --void-bg: #0d1527;
@@ -2140,6 +2140,8 @@
         }
 
     </style>
+<script src="https://www.youtube.com/iframe_api"></script>
+    <script src="https://w.soundcloud.com/player/api.js"></script>
 </head>
 <body>
 
@@ -2157,11 +2159,11 @@
         </div>
         <div class="metaphysical-badge" id="tenantBadge">
             <span class="pulse-dot"></span>
-            <span id="tenantBadgeTitle">SUNO STREAMING PLAYER</span>
+            <span id="tenantBadgeTitle">STREAMING PLAYER</span>
             <span class="sig-code" id="tenantBadgeSlug">// DEFAULT</span>
         </div>
-        <h2 class="title-glow">🎧 Suno 스트리밍 플레이어</h2>
-        <p class="subtitle-cyber">좋아하는 Suno 음악을 등록하고, 고음질 스트리밍과 실시간 플레이리스트를 자유롭게 감상해 보세요!</p>
+        <h2 class="title-glow">🎧 스트리밍 플레이어</h2>
+        <p class="subtitle-cyber">좋아하는 음악을 등록하고, 고음질 스트리밍과 실시간 플레이리스트를 자유롭게 감상해 보세요!</p>
 
         <div class="spectrum-visualizer">
             <span style="--d: 0.1s; --h: 22px;"></span>
@@ -2191,7 +2193,7 @@
         <div class="guide-header" onclick="toggleGuide()">
             <div class="guide-header-title">
                 <span>💡</span>
-                <span>Suno 스트리밍 플레이어 이용 가이드</span>
+                <span>스트리밍 플레이어 이용 가이드</span>
             </div>
             <span class="guide-toggle-icon" id="guideToggleIcon">펼치기 ▼</span>
         </div>
@@ -2200,14 +2202,14 @@
                 <div class="guide-item">
                     <div class="guide-item-title">🎵 1. 새로운 음악 / 트랙 등록하기</div>
                     <div class="guide-item-desc">
-                        • 닉네임(아티스트), 노래 제목, Suno 링크(<code>https://suno.com/s/...</code>)를 입력하고 등록합니다.<br>
+                        • 닉네임(아티스트), 노래 제목, 스트리밍 링크(Suno, 유튜브/유튜브뮤직, 사운드클라우드)를 입력하고 등록합니다.<br>
                         • 등록 즉시 고유 음원으로 변환되어 실시간 스트리밍 플레이리스트에 자동 등록됩니다.
                     </div>
                 </div>
                 <div class="guide-item">
                     <div class="guide-item-title">🎧 2. 공식 플레이어 & 실시간 가사</div>
                     <div class="guide-item-desc">
-                        • <b>[노래 듣기]</b>: Suno 공식 플레이어가 열려 파형 비주얼라이저와 함께 안정적으로 스트리밍 재생됩니다.<br>
+                        • <b>[노래 듣기]</b>: 공식 스트리밍 플레이어가 열려 파형 비주얼라이저와 함께 안정적으로 스트리밍 재생됩니다.<br>
                         • <b>[가사 보기]</b>: 플레이어 오른쪽 상단의 [가사 보기]를 누르면 노래 카드 밑에 가사 창이 펼쳐집니다.
                     </div>
                 </div>
@@ -2251,41 +2253,13 @@
             </div>
         </div>
 
-        <!-- 🎵 수노 고음질 공식 스트리밍 플레이어 임베드 프레임 -->
+        <!-- 🎵 공식 고음질 스트리밍 플레이어 프레임 (Suno / YouTube / SoundCloud) -->
         <div class="master-embed-wrapper" id="masterEmbedWrapper">
-            <!-- 🔊 네이티브 고음질 오디오 스트리밍 엔진 -->
-            <audio id="masterAudio" preload="auto" playsinline></audio>
-
-            <!-- 🎛️ 마스터 인앱 비주얼 플레이어 -->
-            <div class="master-inapp-player" id="masterInAppPlayer">
-                <div class="master-art-wrap" onclick="toggleMasterAudioPlay()" title="재생 / 일시정지">
-                    <img id="masterCoverImg" src="https://suno.com/favicon.ico" class="master-cover-art" alt="커버">
-                    <button type="button" class="master-play-circle-btn" id="masterMainPlayBtn" onclick="event.stopPropagation(); toggleMasterAudioPlay();" title="재생 / 일시정지">
-                        <span id="masterPlayIcon" style="margin-left: 2px;">▶</span>
-                    </button>
-                </div>
-                <div class="master-track-details">
-                    <div class="master-track-name" id="masterTrackTitle">스트리밍 곡을 선택하세요</div>
-                    <div class="master-track-sub" id="masterTrackArtist">아티스트: 준비 중</div>
-                    <div class="master-progress-row">
-                        <span class="master-time" id="masterCurrentTime">0:00</span>
-                        <div class="master-progress-bar-wrap" id="masterProgressWrap" onclick="seekMasterAudio(event)" title="재생 위치 이동">
-                            <div class="master-progress-fill" id="masterProgressFill"></div>
-                        </div>
-                        <span class="master-time" id="masterDuration">0:00</span>
-                    </div>
-                    <button type="button" class="master-mode-switch-btn" id="masterModeSwitchBtn" onclick="toggleMasterPlayerViewMode()">
-                        📻 Suno 공식 임베드 플레이어로 보기
-                    </button>
-                </div>
-            </div>
-
-            <!-- 📻 Suno 공식 iframe (토글 시 표시) -->
             <iframe id="masterPlayerIframe" 
                     class="master-embed-iframe" 
                     src="" 
                     allow="autoplay; encrypted-media; fullscreen"
-                    style="display: none;">
+                    loading="lazy">
             </iframe>
         </div>
 
@@ -2366,7 +2340,7 @@
             <input type="text" id="authorName" placeholder="닉네임 / 아티스트 (예: 닌자수박)" maxlength="20">
             <input type="text" id="songTitle" placeholder="노래 제목 (예: 우주를 건너서)" maxlength="30">
             <input type="text" id="songGenre" placeholder="음악 장르 (복수 입력 시 쉼표로 구분 예: 발라드, R&B)" maxlength="50">
-            <input type="text" id="sunoUrl" placeholder="수노 링크 (예: https://suno.com/s/...)">
+            <input type="text" id="sunoUrl" placeholder="스트리밍 링크 (Suno, 유튜브/유튜브뮤직, 사운드클라우드)">
         </div>
         <button type="button" onclick="registerSong()" class="submit-btn">스트리밍 트랙 등록하기</button>
     </div>
@@ -2539,7 +2513,7 @@
                 <div class="modal-header">
                     <div class="modal-title">
                         <span>🏆</span>
-                        <span>Suno 실시간 인기 트랙 & 추천 통계</span>
+                        <span>실시간 인기 트랙 & 추천 통계</span>
                     </div>
                     <button type="button" onclick="closeVoteResultsModal()" class="modal-close-btn">✕</button>
                 </div>
@@ -2585,7 +2559,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycbzY15DCFjMpfW0S5f8bE8JVeL_jfjcNYm_hGoydqcYL61wuNIrROu4A98yCucEwbtfB/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbz3LrYpJRJzPsN9BMKADPC-yN5zkzC6aIGEIHEu6f_RWkOt5EXefRFKr-29MzAe41HB/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
@@ -2734,6 +2708,11 @@
                 applyDisplayPreferences();
                 updateAdminUI();
                 renderList();
+
+                // 페이지 첫 로드 시 1번째 곡(Suno 등)을 마스터 콘솔에 즉시 공식 플레이어로 표시
+                if (currentMasterSongIndex === -1 && songs.length > 0) {
+                    loadMasterSong(0);
+                }
             } catch (err) {
                 console.error("fetchAppData 오류:", err);
                 const listEl = document.getElementById('contestList');
@@ -3226,8 +3205,33 @@
                 b.innerText = '노래 듣기';
             });
 
-            if (!sunoUrl || !sunoUrl.includes('suno.com')) {
-                alert("올바른 수노 링크가 아닙니다.");
+            const pInfo = detectStreamingPlatform(sunoUrl);
+            if (pInfo.platform === 'unknown') {
+                alert("올바른 스트리밍 링크(Suno, YouTube, SoundCloud)가 아닙니다.");
+                return;
+            }
+
+            if (pInfo.platform === 'youtube') {
+                btn.classList.add('active');
+                btn.innerText = '플레이어 닫기';
+                playerContainer.style.display = 'block';
+                playerContainer.innerHTML = `
+                    <div style="width:100%; height:200px; border-radius:10px; overflow:hidden; margin-top:8px;">
+                        <iframe src="${pInfo.embedUrl}" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media; fullscreen"></iframe>
+                    </div>
+                `;
+                return;
+            }
+
+            if (pInfo.platform === 'soundcloud') {
+                btn.classList.add('active');
+                btn.innerText = '플레이어 닫기';
+                playerContainer.style.display = 'block';
+                playerContainer.innerHTML = `
+                    <div style="width:100%; height:166px; border-radius:10px; overflow:hidden; margin-top:8px;">
+                        <iframe src="${pInfo.embedUrl}" style="width:100%; height:100%; border:none;" allow="autoplay"></iframe>
+                    </div>
+                `;
                 return;
             }
 
@@ -3574,8 +3578,9 @@
                 return;
             }
 
-            if (!url.includes('suno.com')) {
-                alert('올바른 수노 링크가 아닙니다. (예: https://suno.com/s/...)');
+            const pInfo = detectStreamingPlatform(url);
+            if (pInfo.platform === 'unknown') {
+                alert('지원되는 스트리밍 링크(Suno, YouTube, YouTube Music, SoundCloud)를 입력해 주세요.');
                 return;
             }
 
@@ -3647,7 +3652,7 @@
             if (newAuthor === null) return;
             const newGenre = prompt("음악 장르 수정 (복수 입력 시 쉼표(,)로 구분 예: 발라드, R&B):", song.genre || '');
             if (newGenre === null) return;
-            const newUrl = prompt("Suno 링크 수정:", song.url);
+            const newUrl = prompt("스트리밍 링크 수정:", song.url);
             if (newUrl === null) return;
 
             // 추천수 수정은 관리자만 가능하며, 일반 사용자는 기존 값 유지
@@ -3692,13 +3697,61 @@
                 });
         };
 
+        
         // ==========================================
-        // 🎛️ 사이버 사운드 플레이어 마스터 컨트롤러
+        // 🌐 멀티 플랫폼 스트리밍 엔진 (Suno, YouTube, SoundCloud)
+        // ==========================================
+        function detectStreamingPlatform(url) {
+            if (!url) return { platform: 'unknown', id: '', embedUrl: '', badge: '', color: '#94a3b8' };
+            const str = String(url).trim();
+
+            // 1. YouTube & YouTube Music (합법 공식 임베드)
+            const ytMatch = str.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|music\.youtube\.com\/watch\?v=)([^"&?\/\s]{11})/i);
+            if (ytMatch && ytMatch[1]) {
+                const vid = ytMatch[1];
+                return {
+                    platform: 'youtube',
+                    id: vid,
+                    embedUrl: `https://www.youtube-nocookie.com/embed/${vid}?autoplay=1&enablejsapi=1`,
+                    badge: 'YouTube',
+                    color: '#ef4444'
+                };
+            }
+
+            // 2. SoundCloud (합법 공식 위젯 임베드)
+            if (/soundcloud\.com/i.test(str)) {
+                return {
+                    platform: 'soundcloud',
+                    id: str,
+                    embedUrl: `https://w.soundcloud.com/player/?url=${encodeURIComponent(str)}&color=%2300f2fe&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`,
+                    badge: 'SoundCloud',
+                    color: '#f97316'
+                };
+            }
+
+            // 3. Suno (공식 임베드 플레이어)
+            let songId = '';
+            const uuidMatch = str.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+            if (uuidMatch) songId = uuidMatch[1];
+            return {
+                platform: 'suno',
+                id: songId,
+                embedUrl: songId ? `https://suno.com/embed/${songId}` : '',
+                badge: 'Suno',
+                color: '#00f2fe'
+            };
+        }
+
+        // ==========================================
+        // 🎛️ 마스터 사운드 콘솔 플레이어 제어
         // ==========================================
         let currentMasterSongIndex = -1;
         let isMasterShuffle = false;
         let masterRepeatMode = 'all'; // 'all' | 'one'
         let isMasterAudioPlaying = false;
+        let currentActivePlatform = 'suno';
+        let ytPlayer = null;
+        let scWidget = null;
 
         // 🎵 마스터 콘솔 라이브 인디케이터 점멸/블러 제어 함수
         window.setMasterDotPlaying = function(isPlaying) {
@@ -3744,122 +3797,16 @@
             }
         }, true);
 
-        let masterPlayerViewMode = 'inapp'; // 'inapp' | 'embed'
-
-        window.toggleMasterPlayerViewMode = function() {
-            const inApp = document.getElementById('masterInAppPlayer');
-            const iframe = document.getElementById('masterPlayerIframe');
-            const btn = document.getElementById('masterModeSwitchBtn');
-            const audio = document.getElementById('masterAudio');
-
-            if (masterPlayerViewMode === 'inapp') {
-                masterPlayerViewMode = 'embed';
-                if (audio) audio.pause();
-                if (inApp) inApp.style.display = 'none';
-                if (iframe) iframe.style.display = 'block';
-                if (btn) btn.innerText = '🎧 고음질 스트리밍 플레이어로 복귀';
-            } else {
-                masterPlayerViewMode = 'inapp';
-                if (inApp) inApp.style.display = 'flex';
-                if (iframe) iframe.style.display = 'none';
-                if (btn) btn.innerText = '📻 Suno 공식 임베드 플레이어로 보기';
-            }
-        };
-
-        window.toggleMasterAudioPlay = function() {
-            const audio = document.getElementById('masterAudio');
-            if (!audio || !audio.src) {
-                if (songs && songs.length > 0) {
-                    loadMasterSong(0, true);
-                }
-                return;
-            }
-            if (audio.paused) {
-                audio.play().then(() => {
-                    setMasterDotPlaying(true);
-                    updateMasterPlayBtnIcon(true);
-                }).catch(e => {
-                    console.log('Audio play deferred:', e);
-                });
-            } else {
-                audio.pause();
-                setMasterDotPlaying(false);
-                updateMasterPlayBtnIcon(false);
-            }
-        };
-
-        function updateMasterPlayBtnIcon(isPlaying) {
-            const icon = document.getElementById('masterPlayIcon');
-            if (icon) {
-                icon.innerText = isPlaying ? '❚❚' : '▶';
-                icon.style.marginLeft = isPlaying ? '0px' : '2px';
-            }
-        }
-
-        window.seekMasterAudio = function(e) {
-            const audio = document.getElementById('masterAudio');
-            const wrap = document.getElementById('masterProgressWrap');
-            if (!audio || !wrap || !audio.duration) return;
-            const rect = wrap.getBoundingClientRect();
-            const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-            audio.currentTime = pos * audio.duration;
-        };
-
-        function formatTimeSec(sec) {
-            if (isNaN(sec) || sec < 0) return '0:00';
-            const m = Math.floor(sec / 60);
-            const s = Math.floor(sec % 60);
-            return `${m}:${s < 10 ? '0' : ''}${s}`;
-        }
-
-        function initMasterAudioEvents() {
-            const audio = document.getElementById('masterAudio');
-            if (!audio) return;
-
-            audio.addEventListener('play', () => {
-                setMasterDotPlaying(true);
-                updateMasterPlayBtnIcon(true);
-            });
-            audio.addEventListener('pause', () => {
-                setMasterDotPlaying(false);
-                updateMasterPlayBtnIcon(false);
-            });
-            audio.addEventListener('ended', () => {
-                setMasterDotPlaying(false);
-                updateMasterPlayBtnIcon(false);
-                if (masterRepeatMode === 'one') {
-                    audio.currentTime = 0;
-                    audio.play().catch(e => {});
-                } else {
-                    playMasterNextTrack(true);
-                }
-            });
-            audio.addEventListener('timeupdate', () => {
-                const fill = document.getElementById('masterProgressFill');
-                const cur = document.getElementById('masterCurrentTime');
-                const dur = document.getElementById('masterDuration');
-                if (audio.duration) {
-                    const pct = (audio.currentTime / audio.duration) * 100;
-                    if (fill) fill.style.width = `${pct}%`;
-                    if (cur) cur.innerText = formatTimeSec(audio.currentTime);
-                    if (dur) dur.innerText = formatTimeSec(audio.duration);
-                }
-            });
-        }
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initMasterAudioEvents);
-        } else {
-            initMasterAudioEvents();
-        }
-
-        // 🎵 마스터 플레이어 특정 곡 로드 (수노 공식 고음질 스트리밍 연동)
-        window.loadMasterSong = async function(index, autoPlay = false) {
+        // 🎵 특정 곡 마스터 콘솔에 로드
+        window.loadMasterSong = async function(index) {
             if (!songs || songs.length === 0) return;
             if (index < 0) index = songs.length - 1;
             if (index >= songs.length) index = 0;
 
             currentMasterSongIndex = index;
             const song = songs[index];
+            const info = detectStreamingPlatform(song.url || '');
+            currentActivePlatform = info.platform;
 
             // 상단 인디케이터 및 카운터 갱신
             const indicator = document.getElementById('masterTrackIndicator');
@@ -3871,50 +3818,40 @@
                 counter.innerText = `${index + 1} / ${songs.length}`;
             }
 
-            // 인앱 플레이어 텍스트 갱신
-            const titleEl = document.getElementById('masterTrackTitle');
-            const artistEl = document.getElementById('masterTrackArtist');
-            const coverEl = document.getElementById('masterCoverImg');
-            if (titleEl) titleEl.innerText = song.title || '제목 없음';
-            if (artistEl) artistEl.innerText = song.author ? `아티스트: ${song.author}` : '';
+            // 곡 로드 시 초기에는 점멸 끄기
+            setMasterDotPlaying(false);
 
-            // 수노 공식 iframe src
-            let songId = song.songId;
-            if (!songId && song.url) {
-                const uuidMatch = song.url.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-                if (uuidMatch) songId = uuidMatch[1];
-            }
             const iframe = document.getElementById('masterPlayerIframe');
-            if (iframe && songId) {
-                iframe.src = `https://suno.com/embed/${songId}`;
-            }
+            if (!iframe) return;
 
-            // 고음질 실시간 스트리밍 음원 로드
-            const streamUrl = `https://contest-omega-pink.vercel.app/api/resolve?url=${encodeURIComponent(song.url)}&stream=1`;
-            const audio = document.getElementById('masterAudio');
-            if (audio) {
-                audio.src = streamUrl;
-                audio.volume = currentMasterVolume;
-                if (autoPlay) {
-                    audio.play().then(() => {
-                        setMasterDotPlaying(true);
-                        updateMasterPlayBtnIcon(true);
-                    }).catch(e => {
-                        console.log('Autoplay waiting for click');
-                    });
-                } else {
-                    setMasterDotPlaying(false);
-                    updateMasterPlayBtnIcon(false);
-                }
-            }
-
-            // 커버 아트 비동기 로드
-            if (coverEl && song.url) {
-                resolveSunoTrack(song.url).then(meta => {
-                    if (meta && meta.coverUrl) {
-                        coverEl.src = meta.coverUrl;
+            // 1. Suno 사이트 주소인 경우 -> 처음부터 Suno 공식 플레이어로 화면 표시
+            if (info.platform === 'suno') {
+                let songId = song.songId || info.id;
+                if (songId) {
+                    const embedSrc = `https://suno.com/embed/${songId}`;
+                    if (iframe.src !== embedSrc) iframe.src = embedSrc;
+                } else if (song.url) {
+                    try {
+                        const data = await resolveSunoTrack(song.url);
+                        if (data && data.songId) {
+                            song.songId = data.songId;
+                            const embedSrc = `https://suno.com/embed/${data.songId}`;
+                            if (iframe.src !== embedSrc) iframe.src = embedSrc;
+                        }
+                    } catch (e) {
+                        console.error("Master Song Resolve Error:", e);
                     }
-                }).catch(() => {});
+                }
+            } 
+            // 2. YouTube / YouTube Music 주소인 경우 -> YouTube 공식 임베드 표시
+            else if (info.platform === 'youtube') {
+                iframe.src = info.embedUrl;
+                setupYouTubeApi(iframe);
+            }
+            // 3. SoundCloud 주소인 경우 -> SoundCloud 공식 위젯 표시
+            else if (info.platform === 'soundcloud') {
+                iframe.src = info.embedUrl;
+                setupSoundCloudWidget(iframe);
             }
 
             // 가사 보기 창이 열려있다면 지금 재생 곡의 가사로 실시간 즉시 갱신
@@ -3924,11 +3861,68 @@
             }
         };
 
+        // YouTube Iframe API 바인딩
+        function setupYouTubeApi(iframe) {
+            if (window.YT && window.YT.Player) {
+                try {
+                    ytPlayer = new YT.Player('masterPlayerIframe', {
+                        events: {
+                            'onReady': function(e) {
+                                e.target.setVolume(currentMasterVolume * 100);
+                            },
+                            'onStateChange': function(e) {
+                                if (e.data === 1) { // 재생 중
+                                    setMasterDotPlaying(true);
+                                } else if (e.data === 0) { // 종료
+                                    setMasterDotPlaying(false);
+                                    if (masterRepeatMode === 'one') {
+                                        e.target.seekTo(0);
+                                        e.target.playVideo();
+                                    } else {
+                                        playMasterNextTrack();
+                                    }
+                                } else {
+                                    setMasterDotPlaying(false);
+                                }
+                            }
+                        }
+                    });
+                } catch(e) {}
+            }
+        }
+
+        // SoundCloud Widget API 바인딩
+        function setupSoundCloudWidget(iframe) {
+            if (window.SC && window.SC.Widget) {
+                try {
+                    scWidget = SC.Widget(iframe);
+                    scWidget.bind(SC.Widget.Events.READY, function() {
+                        scWidget.setVolume(currentMasterVolume * 100);
+                    });
+                    scWidget.bind(SC.Widget.Events.PLAY, function() {
+                        setMasterDotPlaying(true);
+                    });
+                    scWidget.bind(SC.Widget.Events.PAUSE, function() {
+                        setMasterDotPlaying(false);
+                    });
+                    scWidget.bind(SC.Widget.Events.FINISH, function() {
+                        setMasterDotPlaying(false);
+                        if (masterRepeatMode === 'one') {
+                            scWidget.seekTo(0);
+                            scWidget.play();
+                        } else {
+                            playMasterNextTrack();
+                        }
+                    });
+                } catch(e) {}
+            }
+        }
+
         // ⏭ 다음 곡 재생
-        window.playMasterNextTrack = function(autoPlay = true) {
+        window.playMasterNextTrack = function() {
             if (!songs || songs.length === 0) return;
             if (masterRepeatMode === 'one' && currentMasterSongIndex >= 0) {
-                loadMasterSong(currentMasterSongIndex, autoPlay);
+                loadMasterSong(currentMasterSongIndex);
                 return;
             }
             if (isMasterShuffle && songs.length > 1) {
@@ -3936,32 +3930,32 @@
                 do {
                     nextIdx = Math.floor(Math.random() * songs.length);
                 } while (nextIdx === currentMasterSongIndex);
-                loadMasterSong(nextIdx, autoPlay);
+                loadMasterSong(nextIdx);
                 return;
             }
             const nextIdx = (currentMasterSongIndex + 1) % songs.length;
-            loadMasterSong(nextIdx, autoPlay);
+            loadMasterSong(nextIdx);
         };
 
         // ⏮ 이전 곡 재생
         window.playMasterPrevTrack = function() {
             if (!songs || songs.length === 0) return;
             const prevIdx = (currentMasterSongIndex - 1 + songs.length) % songs.length;
-            loadMasterSong(prevIdx, true);
+            loadMasterSong(prevIdx);
         };
 
         // 🔀 셔플 (무작위 곡 이동)
         window.playMasterShuffleTrack = function() {
             if (!songs || songs.length === 0) return;
             if (songs.length === 1) {
-                loadMasterSong(0, true);
+                loadMasterSong(0);
                 return;
             }
             let nextIdx;
             do {
                 nextIdx = Math.floor(Math.random() * songs.length);
             } while (nextIdx === currentMasterSongIndex);
-            loadMasterSong(nextIdx, true);
+            loadMasterSong(nextIdx);
         };
 
         // 🔁 반복 모드 토글 (전체 반복 <-> 1곡 반복)
@@ -3996,65 +3990,6 @@
             }
         };
 
-        function updateMasterLyricsDisplay(song) {
-            const box = document.getElementById('masterLyricsBox');
-            const titleEl = document.getElementById('masterLyricsTitle');
-            const content = document.getElementById('masterLyricsContent');
-            if (!box || !content || !song) return;
-
-            if (titleEl) titleEl.innerText = `${song.title || '현재 트랙'} - 지금 재생 가사`;
-            content.innerHTML = `<div style="padding:15px; text-align:center; color:var(--text-sub);">⏳ 가사를 불러오는 중입니다...</div>`;
-
-            if (sunoCache.has(song.url) && sunoCache.get(song.url).lyrics) {
-                displayLyricsContent(content, sunoCache.get(song.url).lyrics);
-            } else if (song.lyrics) {
-                displayLyricsContent(content, song.lyrics);
-            } else {
-                resolveSunoTrack(song.url).then(data => {
-                    if (data && data.lyrics) {
-                        displayLyricsContent(content, data.lyrics);
-                    } else {
-                        content.innerHTML = `<div style="padding:15px; text-align:center; color:#94a3b8;">ℹ️ 등록된 가사가 없거나 연주곡(Instrumental)입니다.</div>`;
-                    }
-                }).catch(err => {
-                    content.innerHTML = `<div style="padding:15px; text-align:center; color:#ef4444;">⚠️ 가사를 불러오지 못했습니다.</div>`;
-                });
-            }
-        }
-
-        window.toggleMasterLyrics = function() {
-            const box = document.getElementById('masterLyricsBox');
-            const btn = document.getElementById('masterLyricsBtn');
-            if (!box) return;
-
-            if (box.style.display === 'block') {
-                box.style.display = 'none';
-                if (btn) {
-                    btn.classList.remove('active');
-                    btn.innerHTML = '📜 가사 보기';
-                }
-                return;
-            }
-
-            if (currentMasterSongIndex === -1 || !songs[currentMasterSongIndex]) {
-                if (songs && songs.length > 0) {
-                    currentMasterSongIndex = 0;
-                } else {
-                    alert("현재 재생 가능한 곡이 없습니다.");
-                    return;
-                }
-            }
-
-            box.style.display = 'block';
-            if (btn) {
-                btn.classList.add('active');
-                btn.innerHTML = '📜 가사 닫기';
-            }
-
-            const song = songs[currentMasterSongIndex];
-            updateMasterLyricsDisplay(song);
-        };
-
         // ==========================================
         // 🔊 사운드 볼륨 컨트롤러 (드래그 & 세로 막대 이퀄라이저)
         // ==========================================
@@ -4067,7 +4002,20 @@
             if (vol > 0) lastNonZeroVolume = vol;
             try { localStorage.setItem('sunoMasterVolume', vol.toString()); } catch(e) {}
 
-            // 1. 세로 막대 10개 활성화 상태 갱신 (왼쪽 낮음 -> 오른쪽 높음)
+            // YouTube 볼륨 실시간 조절
+            if (ytPlayer && ytPlayer.setVolume) {
+                try { ytPlayer.setVolume(vol * 100); } catch(e) {}
+            }
+            // SoundCloud 볼륨 실시간 조절
+            if (scWidget && scWidget.setVolume) {
+                try { scWidget.setVolume(vol * 100); } catch(e) {}
+            }
+            // 모든 HTML5 오디오 볼륨 조절
+            document.querySelectorAll('audio').forEach(a => {
+                a.volume = vol;
+            });
+
+            // 세로 막대 활성화 상태 갱신
             const bars = document.querySelectorAll('.master-vol-bar');
             const totalBars = bars.length || 10;
             const activeCount = Math.round(vol * totalBars);
@@ -4080,13 +4028,13 @@
                 }
             });
 
-            // 2. 수치 텍스트 갱신 (예: 80%)
+            // 수치 텍스트 갱신 (예: 80%)
             const valEl = document.getElementById('masterVolVal');
             if (valEl) {
                 valEl.innerText = Math.round(vol * 100) + '%';
             }
 
-            // 3. 스피커 아이콘 갱신 (음소거 / 낮은 볼륨 / 높은 볼륨)
+            // 스피커 아이콘 갱신
             const iconSvg = document.getElementById('masterVolIcon');
             if (iconSvg) {
                 if (vol === 0) {
@@ -4097,11 +4045,6 @@
                     iconSvg.innerHTML = `<path d="M3 9v6h4l5 5V4L9 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>`;
                 }
             }
-
-            // 4. 페이지 내 모든 오디오 태그 볼륨 즉시 반영
-            document.querySelectorAll('audio').forEach(a => {
-                a.volume = vol;
-            });
         };
 
         // 🔇 음소거 토글
@@ -4151,7 +4094,15 @@
             volBox.addEventListener('pointerup', stopDrag);
             volBox.addEventListener('pointercancel', stopDrag);
 
-            // 초기 저장된 볼륨 적용
+            // 점멸 테스트 클릭 리스너
+            const dotEl = document.getElementById('masterLiveDot');
+            if (dotEl) {
+                dotEl.addEventListener('click', () => {
+                    setMasterDotPlaying(!isMasterAudioPlaying);
+                });
+            }
+
+            // 초기 볼륨 적용
             setMasterVolume(currentMasterVolume);
         }
 
@@ -4265,6 +4216,19 @@
                 }
             }
             return unique.slice(0, 4);
+        }
+
+        
+        function getPlatformBadgeHtml(url) {
+            const info = detectStreamingPlatform(url || '');
+            if (info.platform === 'youtube') {
+                return '<span style="font-size:10px; color:#ef4444; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); padding:1px 6px; border-radius:5px; margin-right:4px; font-weight:800; vertical-align:middle;">YouTube</span>';
+            } else if (info.platform === 'soundcloud') {
+                return '<span style="font-size:10px; color:#f97316; background:rgba(249,115,22,0.15); border:1px solid rgba(249,115,22,0.35); padding:1px 6px; border-radius:5px; margin-right:4px; font-weight:800; vertical-align:middle;">SoundCloud</span>';
+            } else if (info.platform === 'suno') {
+                return '<span style="font-size:10px; color:#00f2fe; background:rgba(0,242,254,0.15); border:1px solid rgba(0,242,254,0.35); padding:1px 6px; border-radius:5px; margin-right:4px; font-weight:800; vertical-align:middle;">Suno</span>';
+            }
+            return '';
         }
 
         function renderList() {
