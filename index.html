@@ -2156,6 +2156,106 @@
             color: #00f2fe;
         }
 
+    
+        /* 🧭 상단 네비게이션 행: 왼쪽 끝(채널 배지) & 오른쪽 끝(관리자 모드) 양 끝 배치 */
+        .top-nav-row {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            width: 100% !important;
+            margin-bottom: 16px !important;
+            gap: 10px !important;
+        }
+        .top-nav-row .metaphysical-badge {
+            margin: 0 !important;
+            flex-shrink: 0 !important;
+        }
+        .top-nav-row .admin-bar {
+            margin: 0 0 0 auto !important;
+            justify-content: flex-end !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            flex-wrap: wrap !important;
+        }
+
+        /* 🎮 마스터 콘솔 트랙 컨트롤 바 (모바일/PC 무조건 1줄 정렬) */
+        .master-controls-bar {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin-top: 10px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            flex-wrap: nowrap !important;
+        }
+        .master-ctrl-btn {
+            flex: 1 1 0 !important;
+            min-width: 0 !important;
+            padding: 8px 6px !important;
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 5px !important;
+            white-space: nowrap !important;
+            box-sizing: border-box !important;
+        }
+        .master-ctrl-btn svg {
+            width: 18px !important;
+            height: 18px !important;
+            flex-shrink: 0 !important;
+        }
+        .master-ctrl-lbl {
+            font-size: 11.5px !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.4px !important;
+            white-space: nowrap !important;
+        }
+        #masterRepeatBtn {
+            flex: 1.15 1 0 !important;
+        }
+
+        @media (max-width: 420px) {
+            .top-nav-row {
+                margin-bottom: 10px !important;
+            }
+            .master-controls-bar {
+                gap: 5px !important;
+            }
+            .master-ctrl-btn {
+                padding: 7px 3px !important;
+                gap: 3px !important;
+            }
+            .master-ctrl-btn svg {
+                width: 16px !important;
+                height: 16px !important;
+            }
+            .master-ctrl-lbl {
+                font-size: 10.5px !important;
+                letter-spacing: -0.6px !important;
+            }
+        }
+        @media (min-width: 641px) {
+            .master-controls-bar {
+                justify-content: center !important;
+                gap: 12px !important;
+            }
+            .master-ctrl-btn {
+                max-width: 130px !important;
+                padding: 9px 16px !important;
+                gap: 6px !important;
+            }
+            .master-ctrl-btn svg {
+                width: 20px !important;
+                height: 20px !important;
+            }
+            .master-ctrl-lbl {
+                font-size: 12.5px !important;
+            }
+        }
+
     </style>
 <script src="https://www.youtube.com/iframe_api"></script>
     <script src="https://w.soundcloud.com/player/api.js"></script>
@@ -2163,21 +2263,24 @@
 <body>
 
     <div class="header-box">
-        <div class="admin-bar">
-            <button type="button" onclick="clearData()" class="reset-btn" id="resetBtn">🗑️ 데이터 초기화</button>
-            <button type="button" onclick="restoreLastBackup()" class="restore-btn" id="restoreBtn" title="초기화/삭제 이전 상태로 복구합니다 (Ctrl+Z)">↩️ 복구하기</button>
-            <button type="button" onclick="downloadExcel()" class="download-btn" id="downloadBtn">📥 엑셀 백업</button>
-            <button type="button" onclick="openVoteResultsModal()" class="results-btn" id="resultsBtn">📊 인기 차트</button>
-            <button type="button" onclick="toggleAuthorDisplay()" class="author-toggle" id="authorToggleBtn">아티스트: ON</button>
-            <button type="button" onclick="togglePlayerInfoDisplay()" class="info-toggle" id="playerInfoToggleBtn">곡 상세정보: ON</button>
-            <button type="button" onclick="toggleEditDeleteDisplay()" class="edit-delete-toggle" id="editDeleteToggleBtn" style="display: none;">수정/삭제: OFF</button>
-            <button type="button" onclick="openSuperAdminModal()" class="super-toggle-btn" id="superAdminBtn" style="display: none; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; box-shadow: 0 0 15px rgba(236, 72, 153, 0.4); border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 800; cursor: pointer;">👑 슈퍼 마스터 콘솔</button>
-            <button type="button" onclick="toggleAdminMode()" class="admin-toggle" id="adminToggleBtn">관리자 모드</button>
-        </div>
-        <div class="metaphysical-badge" id="tenantBadge">
-            <span class="pulse-dot"></span>
-            <span id="tenantBadgeTitle">STREAMING PLAYER</span>
-            <span class="sig-code" id="tenantBadgeSlug">// DEFAULT</span>
+        <!-- 🧭 상단 네비게이션 행: 왼쪽 끝=채널 배지, 오른쪽 끝=관리자 모드 -->
+        <div class="top-nav-row">
+            <div class="metaphysical-badge" id="tenantBadge">
+                <span class="pulse-dot"></span>
+                <span id="tenantBadgeTitle">STREAMING PLAYER</span>
+                <span class="sig-code" id="tenantBadgeSlug">// DEFAULT</span>
+            </div>
+            <div class="admin-bar">
+                <button type="button" onclick="clearData()" class="reset-btn" id="resetBtn">🗑️ 데이터 초기화</button>
+                <button type="button" onclick="restoreLastBackup()" class="restore-btn" id="restoreBtn" title="초기화/삭제 이전 상태로 복구합니다 (Ctrl+Z)">↩️ 복구하기</button>
+                <button type="button" onclick="downloadExcel()" class="download-btn" id="downloadBtn">📥 엑셀 백업</button>
+                <button type="button" onclick="openVoteResultsModal()" class="results-btn" id="resultsBtn">📊 인기 차트</button>
+                <button type="button" onclick="toggleAuthorDisplay()" class="author-toggle" id="authorToggleBtn">아티스트: ON</button>
+                <button type="button" onclick="togglePlayerInfoDisplay()" class="info-toggle" id="playerInfoToggleBtn">곡 상세정보: ON</button>
+                <button type="button" onclick="toggleEditDeleteDisplay()" class="edit-delete-toggle" id="editDeleteToggleBtn" style="display: none;">수정/삭제: OFF</button>
+                <button type="button" onclick="openSuperAdminModal()" class="super-toggle-btn" id="superAdminBtn" style="display: none; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; box-shadow: 0 0 15px rgba(236, 72, 153, 0.4); border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 800; cursor: pointer;">👑 슈퍼 마스터 콘솔</button>
+                <button type="button" onclick="toggleAdminMode()" class="admin-toggle" id="adminToggleBtn">관리자 모드</button>
+            </div>
         </div>
         <h2 class="title-glow">🎧 스트리밍 플레이어</h2>
         <p class="subtitle-cyber">좋아하는 음악을 등록하고, 고음질 스트리밍과 실시간 플레이리스트를 자유롭게 감상해 보세요!</p>
@@ -2555,7 +2658,7 @@
 
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
-        const API_URL = "https://script.google.com/macros/s/AKfycby6KOz6QzoU8ghCcVNRQfe2B9-jSIWAUhUC3zzBPmiKu-vFTwhFwQAA9dVVv4GlxgbW/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxFYkVewekGCjndipD8UwkK9ZNSKuVHvj5oA0Xl38XuTWLtHb5PtvlCjhiephazOGNm/exec";
         
         // ⚙️ Vercel 음원 주소 변환 API 주소 (로컬 file:// 실행 시에도 완벽 연동)
         const VERCEL_RESOLVE_API = "https://contest-omega-pink.vercel.app/api/resolve";
