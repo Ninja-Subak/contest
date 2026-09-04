@@ -739,20 +739,27 @@
             box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
         }
         
-        /* 💎 에메랄드 크리스탈 [Like] 버튼 */
+        /* 💖 노래 콘테스트 [투표 하기] 버튼 */
         .vote-btn { 
-            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%); 
+            background: linear-gradient(135deg, #e11d48 0%, #f43f5e 50%, #fb7185 100%); 
             color: white; 
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.35), inset 0 1px 1px rgba(255,255,255,0.3);
+            box-shadow: 0 0 16px rgba(244, 63, 94, 0.4), inset 0 1px 1px rgba(255,255,255,0.3);
+            font-weight: 700;
+            padding: 8px 14px;
+            font-size: 13px;
+            border-radius: 9px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s ease;
         }
         .vote-btn:hover { 
             transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.65), 0 6px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 0 25px rgba(244, 63, 94, 0.7), 0 6px 20px rgba(0,0,0,0.4);
         }
         .vote-btn.voted { 
-            background: rgba(148, 163, 184, 0.15); 
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            color: #94a3b8; 
+            background: rgba(244, 63, 94, 0.12); 
+            border: 1px solid rgba(244, 63, 94, 0.35);
+            color: #fda4af; 
             cursor: not-allowed; 
             box-shadow: none;
             transform: none;
@@ -801,12 +808,15 @@
 
         .vote-count { 
             font-weight: 800; 
-            color: #34d399; 
+            color: #ef4444; 
             margin-left: 8px; 
-            font-size: 16px; 
-            min-width: 48px; 
+            font-size: 15px; 
+            min-width: 44px; 
             text-align: right; 
-            text-shadow: 0 0 12px rgba(52, 211, 153, 0.45);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            text-shadow: 0 0 12px rgba(239, 68, 68, 0.45);
         }
         
         /* 🚫 제작자 숨김 및 곡 상세정보 숨김 강제 제어 */
@@ -4000,8 +4010,12 @@
             pathTenant = rawPath.split('/')[1] || '';
         } else if (rawPath.startsWith('contest/')) {
             pathTenant = rawPath.split('/')[1] || '';
+        } else if (rawPath === 'contest') {
+            pathTenant = 'contest';
         }
-        const currentTenant = (urlParams.get('t') || urlParams.get('tenant') || urlParams.get('c') || pathTenant || 'default').trim().toLowerCase();
+        const explicitTenant = (urlParams.get('t') || urlParams.get('tenant') || urlParams.get('c') || pathTenant || '').trim().toLowerCase();
+        let defaultTenantByMode = (urlParams.get('mode') === 'contest' || rawPath === 'contest') ? 'contest' : 'default';
+        const currentTenant = explicitTenant || defaultTenantByMode;
         let isSuperAdmin = localStorage.getItem('sunoSuperAdminMode') === 'true';
         let superPassword = localStorage.getItem('sunoSuperPassword') || '';
         let currentTenantInfo = null;
@@ -4035,6 +4049,7 @@
             if (pathName === 'contest' || pathName.startsWith('contest/') || pathName.startsWith('c/')) return true;
             if (urlParams.get('mode') === 'contest') return true;
             if (urlParams.get('mode') === 'player') return false;
+            if (currentTenant === 'contest') return true;
             if (currentTenantInfo) {
                 return getTenantModeFromData(currentTenantInfo) === 'contest';
             }
@@ -4064,7 +4079,7 @@
             }
             const voteModalTitle = document.getElementById('voteModalTitleText');
             if (voteModalTitle) {
-                voteModalTitle.innerText = isContest ? "Suno 노래 콘테스트 실시간 랭킹 차트" : "실시간 트랙 관리 & 데이터 현황";
+                voteModalTitle.innerText = isContest ? "🏆 Suno 노래 콘테스트 투표 결과 확인" : "실시간 트랙 관리 & 데이터 현황";
             }
             const playlistTitle = document.getElementById('playlistSectionTitle');
             if (playlistTitle) {
@@ -4076,7 +4091,7 @@
             }
             const resultsBtn = document.getElementById('resultsBtn');
             if (resultsBtn) {
-                resultsBtn.innerText = isContest ? "🏆 투표 랭킹 & 현황" : "📊 트랙 현황";
+                resultsBtn.innerText = isContest ? "🏆 결과 확인" : "📊 트랙 현황";
             }
         }
 
@@ -4479,7 +4494,7 @@
 
         window.saveNoticeText = function() {
             const newText = document.getElementById('noticeInput').value;
-            fetch(`${API_URL}?action=saveNotice&notice=${encodeURIComponent(newText)}`)
+            fetch(`${API_URL}?action=saveNotice&notice=${encodeURIComponent(newText)}&tenant=${encodeURIComponent(currentTenant)}`)
                 .then(res => res.json())
                 .then(() => {
                     document.getElementById('noticeDisplay').innerText = newText;
@@ -4492,7 +4507,7 @@
             if (songs && songs.length > 0) {
                 localStorage.setItem('sunoUndoBackup', JSON.stringify(songs));
             }
-            fetch(`${API_URL}?action=clearData`)
+            fetch(`${API_URL}?action=clearData&tenant=${encodeURIComponent(currentTenant)}`)
                 .then(res => res.json())
                 .then(() => {
                     alert("초기화되었습니다.\n(실수로 초기화하셨다면 언제든 [복구하기] 버튼이나 'Ctrl+Z' 로 복구할 수 있습니다.)");
@@ -4576,7 +4591,7 @@
         });
 
         window.downloadExcel = function() {
-            fetch(`${API_URL}?action=getDataForDownload`)
+            fetch(`${API_URL}?action=getDataForDownload&tenant=${encodeURIComponent(currentTenant)}`)
                 .then(res => res.json())
                 .then(rows => {
                     let csvContent = "\uFEFF";
@@ -4633,6 +4648,12 @@
                 editDeleteBtn.innerText = showEditDelete ? "수정/삭제: ON" : "수정/삭제: OFF";
                 editDeleteBtn.style.background = showEditDelete ? "#10b981" : "#ef4444";
                 editDeleteBtn.style.color = "white";
+            }
+
+            const isContest = isContestModeActive();
+            const resultsBtn = document.getElementById('resultsBtn');
+            if (resultsBtn) {
+                resultsBtn.innerText = isContest ? "🏆 결과 확인" : "📊 트랙 현황";
             }
 
             const noticeDisplay = document.getElementById('noticeDisplay');
@@ -5615,7 +5636,7 @@
             alert('곡을 등록하고 있습니다. 잠시만 기다려주세요...');
 
             const token = getClientToken();
-            fetch(`${API_URL}?action=addSong&title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&genre=${encodeURIComponent(genre)}&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}`)
+            fetch(`${API_URL}?action=addSong&title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&genre=${encodeURIComponent(genre)}&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}&tenant=${encodeURIComponent(currentTenant)}`)
                 .then(res => res.json())
                 .then((resData) => {
                     if (resData && resData.status === 'duplicate') {
@@ -5648,7 +5669,7 @@
                 });
         };
 
-        // ❤️ 노래 콘테스트 모드 전용 Like 투표 함수
+        // 🗳️ 노래 콘테스트 모드 전용 1인 1회 투표 함수
         window.voteSong = async function(id) {
             if (!isContestModeActive()) {
                 alert("이 채널은 일반 스트리밍 플레이어로 운영 중입니다.");
@@ -5656,22 +5677,22 @@
             }
 
             const targetSong = songs.find(s => String(s.id) === String(id));
-            const songTitle = targetSong ? targetSong.title : '이 곡';
+            const songTitle = targetSong ? targetSong.title : '선택한 곡';
 
             if (hasVoted) {
                 if (myVotedId && String(myVotedId) === String(id)) {
-                    alert(`이미 [${songTitle}]에 Like 투표를 완료하셨습니다! ❤️`);
+                    alert(`이미 [${songTitle}]에 투표를 완료하셨습니다! (1인당 1회만 투표할 수 있습니다)`);
                 } else {
-                    alert("이미 다른 곡에 투표하셨습니다. (1인 1회 투표 가능)");
+                    alert("이미 다른 곡에 투표하셨습니다. (1인당 1회만 투표할 수 있습니다)");
                 }
                 return;
             }
 
-            if (!confirm(`[${songTitle}]\n이 곡에 Like 투표하시겠습니까?`)) return;
+            if (!confirm(`[${songTitle}]\n이 곡에 투표하시겠습니까?\n(1인당 1회만 투표할 수 있습니다)`)) return;
 
             const token = getClientToken();
             try {
-                // UI 즉각 반영 (낙관적 갱신)
+                // UI 즉각 반영 (낙관적 갱신: 붉은색 하트 옆 숫자 증가 및 버튼 상태 투표 완료로 변경)
                 hasVoted = true;
                 myVotedId = String(id);
                 localStorage.setItem(`suno_voted_${currentTenant}_${id}`, 'true');
@@ -5680,14 +5701,14 @@
                 }
                 renderList();
                 if (typeof showPlayerToast === 'function') {
-                    showPlayerToast(`[${songTitle}] Like 투표가 완료되었습니다! ❤️`, '❤️');
+                    showPlayerToast(`[${songTitle}] 투표가 완료되었습니다! ❤️`, '❤️');
                 }
 
                 const res = await fetch(`${API_URL}?action=voteSong&id=${encodeURIComponent(id)}&token=${encodeURIComponent(token)}&tenant=${encodeURIComponent(currentTenant)}`);
                 const data = await res.json();
 
                 if (data.status === "already_voted") {
-                    alert("이미 투표에 참여하셨습니다.");
+                    alert("이미 투표에 참여하셨습니다. (1인 1회만 투표 가능)");
                     fetchAppData();
                 } else if (data.status === "disabled") {
                     alert(data.message || "투표 기능이 비활성화되어 있습니다.");
@@ -5743,7 +5764,7 @@
             if (newAuthor) localStorage.setItem('sunoSavedAuthor', newAuthor.trim());
             if (newUrl) addMyRegisteredSongUrl(newUrl.trim());
 
-            fetch(`${API_URL}?action=updateSong&id=${id}&title=${encodeURIComponent(newTitle)}&author=${encodeURIComponent(newAuthor)}&genre=${encodeURIComponent(newGenre)}&url=${encodeURIComponent(newUrl)}`)
+            fetch(`${API_URL}?action=updateSong&id=${id}&title=${encodeURIComponent(newTitle)}&author=${encodeURIComponent(newAuthor)}&genre=${encodeURIComponent(newGenre)}&url=${encodeURIComponent(newUrl)}&tenant=${encodeURIComponent(currentTenant)}`)
                 .then(res => res.json())
                 .then(() => { alert("수정되었습니다."); fetchAppData(); });
         };
@@ -5781,7 +5802,7 @@
             };
             saveDeletedSong(deletedItem);
 
-            fetch(`${API_URL}?action=deleteSong&id=${id}`)
+            fetch(`${API_URL}?action=deleteSong&id=${id}&tenant=${encodeURIComponent(currentTenant)}`)
                 .then(res => res.json())
                 .then(() => { 
                     removeMyRegisteredSongId(id);
@@ -5828,12 +5849,12 @@
 
             try {
                 const token = getClientToken();
-                const restoreUrl = `${API_URL}?action=restoreSong&id=${encodeURIComponent(targetSong.id)}&title=${encodeURIComponent(targetSong.title)}&author=${encodeURIComponent(targetSong.author)}&genre=${encodeURIComponent(targetSong.genre || '')}&url=${encodeURIComponent(targetSong.url)}&votes=${encodeURIComponent(targetSong.votes || 0)}&token=${encodeURIComponent(token)}`;
+                const restoreUrl = `${API_URL}?action=restoreSong&id=${encodeURIComponent(targetSong.id)}&title=${encodeURIComponent(targetSong.title)}&author=${encodeURIComponent(targetSong.author)}&genre=${encodeURIComponent(targetSong.genre || '')}&url=${encodeURIComponent(targetSong.url)}&votes=${encodeURIComponent(targetSong.votes || 0)}&token=${encodeURIComponent(token)}&tenant=${encodeURIComponent(currentTenant)}`;
                 let res = await fetch(restoreUrl);
                 let data = await res.json();
 
                 if (data && data.status === 'error' && data.message === 'Invalid action') {
-                    const fallbackUrl = `${API_URL}?action=addSong&title=${encodeURIComponent(targetSong.title)}&author=${encodeURIComponent(targetSong.author)}&genre=${encodeURIComponent(targetSong.genre || '')}&url=${encodeURIComponent(targetSong.url)}&votes=${encodeURIComponent(targetSong.votes || 0)}&token=${encodeURIComponent(token)}`;
+                    const fallbackUrl = `${API_URL}?action=addSong&title=${encodeURIComponent(targetSong.title)}&author=${encodeURIComponent(targetSong.author)}&genre=${encodeURIComponent(targetSong.genre || '')}&url=${encodeURIComponent(targetSong.url)}&votes=${encodeURIComponent(targetSong.votes || 0)}&token=${encodeURIComponent(token)}&tenant=${encodeURIComponent(currentTenant)}`;
                     res = await fetch(fallbackUrl);
                     data = await res.json();
                 }
@@ -6421,9 +6442,6 @@
                     attempts++;
                 } while (nextIdx === currentMasterSongIndex && attempts < 10);
                 loadMasterSong(nextIdx, true);
-                if (!isAutoFromEnd && list[nextIdx]) {
-                    showPlayerToast(`🔀 셔플 다음 곡: ${list[nextIdx].title}`, '🔀');
-                }
                 return;
             }
 
@@ -6431,9 +6449,6 @@
             let nextIdx = (currentMasterSongIndex + 1) % list.length;
             if (nextIdx < 0) nextIdx = 0;
             loadMasterSong(nextIdx, true);
-            if (!isAutoFromEnd && list[nextIdx]) {
-                showPlayerToast(`⏭ 다음 곡 재생: ${list[nextIdx].title}`, '⏭');
-            }
         };
 
         // ⏮ 이전 곡 재생
@@ -6444,9 +6459,6 @@
             let prevIdx = (currentMasterSongIndex - 1 + list.length) % list.length;
             if (prevIdx < 0) prevIdx = 0;
             loadMasterSong(prevIdx, true);
-            if (list[prevIdx]) {
-                showPlayerToast(`⏮ 이전 곡 재생: ${list[prevIdx].title}`, '⏮');
-            }
         };
 
         // 🔀 셔플 (무작위 재생) ON / OFF 순수 토글 함수
@@ -6461,12 +6473,6 @@
                 btn.setAttribute('title', isMasterShuffle ? '셔플 (무작위 재생) 켜짐 - 클릭하여 끄기' : '셔플 (무작위 재생) 꺼짐 - 클릭하여 켜기');
                 try { btn.blur(); } catch(e) {}
             }
-
-            if (isMasterShuffle) {
-                showPlayerToast('🔀 셔플 무작위 재생이 켜졌습니다 (ON)', '🔀');
-            } else {
-                showPlayerToast('🔁 순차 연속 재생 모드로 복귀했습니다 (셔플 OFF)', '🔁');
-            }
         };
 
         // 🔁 반복 모드 토글 (전체 반복 <-> 1곡 반복)
@@ -6479,7 +6485,6 @@
                 try {
                     const t = ytPlayer.getCurrentTime();
                     ytPlayer.seekTo(t + 10, true);
-                    showPlayerToast('10초 앞으로 탐색했습니다', '⏩');
                     handled = true;
                 } catch(e) {}
             }
@@ -6488,7 +6493,6 @@
                 try {
                     scWidget.getPosition(function(pos) {
                         scWidget.seekTo(pos + 10000);
-                        showPlayerToast('10초 앞으로 탐색했습니다', '⏩');
                     });
                     handled = true;
                 } catch(e) {}
@@ -6501,11 +6505,9 @@
                         handled = true;
                     } catch(e) {}
                 });
-                if (handled) showPlayerToast('10초 앞으로 탐색했습니다', '⏩');
             }
             // 4. Suno 공식 임베드 안내
             if (!handled) {
-                showPlayerToast('Suno는 화면의 진행 바(●)를 터치하여 앞뒤로 이동해 주세요', '💡');
                 const frameBox = document.getElementById('masterEmbedWrapper');
                 if (frameBox) {
                     frameBox.style.boxShadow = '0 0 25px rgba(0, 242, 254, 0.7)';
@@ -6545,7 +6547,6 @@
                     repeatBtn.classList.add('active');
                     try { repeatBtn.blur(); } catch(e) {}
                 }
-                showPlayerToast('노래 자동 이어 듣기가 켜졌습니다 (ON)', '🔁');
             } else {
                 masterRepeatMode = 'off';
                 if (badge) {
@@ -6559,7 +6560,6 @@
                     repeatBtn.classList.remove('active');
                     try { repeatBtn.blur(); } catch(e) {}
                 }
-                showPlayerToast('노래 자동 이어 듣기가 꺼졌습니다 (OFF)', '⏹');
             }
         };
 
@@ -7325,10 +7325,12 @@
                 if (isContest) {
                     const isThisMyVote = (myVotedId && String(song.id) === String(myVotedId)) || (localStorage.getItem(`suno_voted_${currentTenant}_${song.id}`) === 'true');
                     const votedClass = (hasVoted || isThisMyVote) ? 'voted' : '';
-                    const btnTitle = isThisMyVote ? '이미 Like 투표를 완료한 곡입니다' : (hasVoted ? '이미 다른 곡에 투표하셨습니다' : '이 곡에 Like 투표하기');
-                    const btnText = isThisMyVote ? '❤️ Like 완료' : '❤️ Like';
+                    const btnTitle = isThisMyVote 
+                        ? '내가 투표 완료한 곡입니다' 
+                        : (hasVoted ? '이미 다른 곡에 투표하셨습니다 (1인 1회 제한)' : '이 곡에 투표하기 (1인 1회 제한)');
+                    const btnText = isThisMyVote ? '❤️ 투표 완료' : '투표 하기';
                     voteBtnHtml = `<button type="button" onclick="voteSong('${song.id}')" class="vote-btn ${votedClass}" title="${btnTitle}">${btnText}</button>`;
-                    voteCountHtml = `<span class="vote-count" title="현재 총 Like 투표수">❤️ ${song.votes || 0}표</span>`;
+                    voteCountHtml = `<span class="vote-count" title="현재 득표수"><span style="color:#ef4444; filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));">❤️</span> <span class="vote-num" style="color: #f87171; font-weight: 800;">${song.votes || 0}</span></span>`;
                 }
 
                 const item = document.createElement('div');
