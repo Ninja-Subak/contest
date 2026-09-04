@@ -2979,10 +2979,6 @@
             flex-wrap: wrap !important;
         }
 
-        
-        }
-
-    
         /* ⚙️ 관리자 제어 패널 카드 */
         .admin-panel-card {
             background: rgba(15, 23, 42, 0.96);
@@ -3545,28 +3541,61 @@
         <div class="admin-panel-card" id="adminPanelCard" style="display: none;">
             <div class="admin-panel-header">
                 <div class="admin-panel-title">
-                    <span>⚙️</span>
-                    <span>관리자 제어 패널</span>
+                    <span id="adminPanelIcon">⚙️</span>
+                    <span id="adminPanelTitleText">관리자 제어 패널</span>
                 </div>
-                <span class="admin-status-badge">ADMIN ACTIVE</span>
+                <span class="admin-status-badge" id="adminStatusBadge">ADMIN ACTIVE</span>
             </div>
 
-            <!-- 1. 데이터 관리 섹션 -->
-            <div class="admin-panel-section-title">📦 데이터 백업 & 관리</div>
-            <div class="admin-panel-grid">
-                <button type="button" onclick="clearData()" class="admin-grid-btn btn-danger" id="resetBtn">🗑️ 데이터 초기화</button>
-                <button type="button" onclick="restoreLastBackup()" class="admin-grid-btn btn-cyan" id="restoreBtn" title="초기화/삭제 이전 상태로 복구 (Ctrl+Z)">↩️ 복구하기</button>
-                <button type="button" onclick="downloadExcel()" class="admin-grid-btn btn-blue" id="downloadBtn">📥 엑셀 백업</button>
-                <button type="button" onclick="openVoteResultsModal()" class="admin-grid-btn btn-purple" id="resultsBtn">📊 트랙 현황</button>
+            <!-- 👑 슈퍼 마스터 콘솔 메뉴 (슈퍼 관리자로 로그인 시 상단에 표시) -->
+            <div id="superAdminMenuSection" style="display: none; background: rgba(236, 72, 153, 0.08); border: 1px solid rgba(236, 72, 153, 0.35); border-radius: 14px; padding: 14px 16px; margin-bottom: 18px; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.12);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(236, 72, 153, 0.2); padding-bottom: 8px;">
+                    <div style="font-size: 13px; font-weight: 800; color: #f472b6; display: flex; align-items: center; gap: 6px;">
+                        <span>👑</span>
+                        <span>슈퍼 마스터 콘솔 메뉴</span>
+                        <span style="font-size: 11px; font-weight: 500; color: #cbd5e1;">(전체 채널 발급 & 대여 총괄)</span>
+                    </div>
+                    <span style="font-size: 10px; font-weight: 800; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; padding: 3px 9px; border-radius: 12px; box-shadow: 0 0 10px rgba(236, 72, 153, 0.4);">MASTER ACCESS</span>
+                </div>
+                <div class="admin-panel-grid" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px;">
+                    <button type="button" onclick="openSuperAdminModal()" class="admin-grid-btn" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; font-weight: 800; border: none; box-shadow: 0 0 14px rgba(236, 72, 153, 0.4); cursor: pointer;">
+                        👑 슈퍼 마스터 콘솔 열기
+                    </button>
+                    <button type="button" onclick="openSuperAdminNewChannel()" class="admin-grid-btn" style="background: rgba(236, 72, 153, 0.15); border: 1px solid #ec4899; color: #f472b6; font-weight: 700; cursor: pointer;">
+                        ➕ 새 관리자 채널 발급
+                    </button>
+                    <button type="button" onclick="openSuperAdminModal('list')" class="admin-grid-btn" style="background: rgba(139, 92, 246, 0.15); border: 1px solid #8b5cf6; color: #c084fc; font-weight: 700; cursor: pointer;">
+                        📋 전체 채널 목록 & 관리
+                    </button>
+                    <button type="button" onclick="toggleCurrentChannelModeQuick()" class="admin-grid-btn" id="superQuickModeBtn" style="background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8; font-weight: 700; cursor: pointer;">
+                        🔄 채널 모드 전환
+                    </button>
+                </div>
             </div>
 
-            <!-- 2. 화면 표시 설정 섹션 -->
-            <div class="admin-panel-section-title" style="margin-top: 12px;">👁️ 화면 표시 설정</div>
-            <div class="admin-panel-grid">
-                <button type="button" onclick="toggleAuthorDisplay()" class="admin-grid-btn" id="authorToggleBtn">아티스트: ON</button>
-                <button type="button" onclick="toggleGenreDisplay()" class="admin-grid-btn" id="genreToggleBtn">음악 장르: ON</button>
-                <button type="button" onclick="toggleVotesDisplay()" class="admin-grid-btn" id="votesToggleBtn">하트/숫자: ON</button>
-                <button type="button" onclick="toggleEditDeleteDisplay()" class="admin-grid-btn" id="editDeleteToggleBtn">수정/삭제: OFF</button>
+            <!-- 🏆 Suno 노래 콘테스트 / 스트리밍 플레이어 관리자 메뉴 -->
+            <div id="contestAdminMenuSection">
+                <div class="admin-panel-section-title" id="contestAdminSectionTitle" style="display: flex; align-items: center; justify-content: space-between;">
+                    <span id="contestAdminSectionTitleText" style="color: #38bdf8; font-weight: 800; font-size: 13px;">🏆 Suno 노래 콘테스트 관리자 메뉴</span>
+                </div>
+
+                <!-- 1. 콘테스트 결과 및 화면 표시 제어 -->
+                <div class="admin-panel-section-title" id="adminSubSection1" style="margin-top: 10px; font-size: 11px; color: #94a3b8;">📊 실시간 랭킹 결과 & 화면 표시 설정</div>
+                <div class="admin-panel-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
+                    <button type="button" onclick="openVoteResultsModal()" class="admin-grid-btn btn-purple" id="resultsBtn" style="font-weight: 800; box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);">🏆 결과 보기</button>
+                    <button type="button" onclick="toggleVotesDisplay()" class="admin-grid-btn" id="votesToggleBtn">하트/숫자: ON</button>
+                    <button type="button" onclick="toggleEditDeleteDisplay()" class="admin-grid-btn" id="editDeleteToggleBtn">수정/삭제: OFF</button>
+                    <button type="button" onclick="toggleAuthorDisplay()" class="admin-grid-btn" id="authorToggleBtn">아티스트: ON</button>
+                    <button type="button" onclick="toggleGenreDisplay()" class="admin-grid-btn" id="genreToggleBtn">음악 장르: ON</button>
+                </div>
+
+                <!-- 2. 콘테스트 데이터 & 백업 관리 -->
+                <div class="admin-panel-section-title" id="adminSubSection2" style="margin-top: 14px; font-size: 11px; color: #94a3b8;">📦 콘테스트 데이터 & 백업 관리</div>
+                <div class="admin-panel-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
+                    <button type="button" onclick="downloadExcel()" class="admin-grid-btn btn-blue" id="downloadBtn">📥 엑셀 백업</button>
+                    <button type="button" onclick="restoreLastBackup()" class="admin-grid-btn btn-cyan" id="restoreBtn" title="초기화/삭제 이전 상태로 복구 (Ctrl+Z)">↩️ 복구하기</button>
+                    <button type="button" onclick="clearData()" class="admin-grid-btn btn-danger" id="resetBtn">🗑️ 데이터 초기화</button>
+                </div>
             </div>
         </div>
         <h2 class="title-glow" id="mainHeaderTitle">🎧 스트리밍 플레이어</h2>
@@ -4789,12 +4818,23 @@
                 });
         };
 
-                function updateAdminUI() {
+        function updateAdminUI() {
+            const isContest = isContestModeActive();
+            const isSuper = (isAdmin && isSuperAdmin);
+
             const adminBtn = document.getElementById('adminToggleBtn');
             if (adminBtn) {
-                adminBtn.innerText = isAdmin ? "관리자 모드 ON (해제하기)" : "관리자 모드";
-                adminBtn.style.background = isAdmin ? "#4f46e5" : "#e2e8f0";
-                adminBtn.style.color = isAdmin ? "white" : "#475569";
+                if (isAdmin) {
+                    adminBtn.innerText = isContest ? "🏆 콘테스트 관리자 ON (해제)" : "관리자 모드 ON (해제)";
+                    adminBtn.style.background = isSuper ? "linear-gradient(135deg, #ec4899, #8b5cf6)" : "#4f46e5";
+                    adminBtn.style.color = "white";
+                    adminBtn.style.boxShadow = isSuper ? "0 0 15px rgba(236, 72, 153, 0.4)" : "";
+                } else {
+                    adminBtn.innerText = "관리자 모드";
+                    adminBtn.style.background = "#e2e8f0";
+                    adminBtn.style.color = "#475569";
+                    adminBtn.style.boxShadow = "";
+                }
             }
 
             const adminPanel = document.getElementById('adminPanelCard');
@@ -4804,7 +4844,67 @@
 
             const superBtn = document.getElementById('superAdminBtn');
             if (superBtn) {
-                superBtn.style.display = (isAdmin && isSuperAdmin) ? "inline-block" : "none";
+                superBtn.style.display = isSuper ? "inline-block" : "none";
+            }
+
+            // 슈퍼 마스터 콘솔 메뉴 섹션 (패널 내부)
+            const superMenuSection = document.getElementById('superAdminMenuSection');
+            if (superMenuSection) {
+                superMenuSection.style.display = isSuper ? "block" : "none";
+            }
+
+            // 패널 헤더 타이틀 및 배지 텍스트
+            const panelIcon = document.getElementById('adminPanelIcon');
+            const panelTitle = document.getElementById('adminPanelTitleText');
+            const statusBadge = document.getElementById('adminStatusBadge');
+            const contestSectionTitle = document.getElementById('contestAdminSectionTitleText');
+            const subSection1 = document.getElementById('adminSubSection1');
+            const subSection2 = document.getElementById('adminSubSection2');
+
+            if (panelTitle) {
+                if (isSuper && isContest) {
+                    if (panelIcon) panelIcon.innerText = "🏆";
+                    panelTitle.innerText = "Suno 노래 콘테스트 관리자 메뉴 + 👑 슈퍼 마스터 콘솔";
+                } else if (isSuper && !isContest) {
+                    if (panelIcon) panelIcon.innerText = "🎧";
+                    panelTitle.innerText = "스트리밍 플레이어 관리자 메뉴 + 👑 슈퍼 마스터 콘솔";
+                } else if (!isSuper && isContest) {
+                    if (panelIcon) panelIcon.innerText = "🏆";
+                    panelTitle.innerText = "Suno 노래 콘테스트 관리자 메뉴";
+                } else {
+                    if (panelIcon) panelIcon.innerText = "⚙️";
+                    panelTitle.innerText = "스트리밍 플레이어 관리자 제어 패널";
+                }
+            }
+
+            if (statusBadge) {
+                if (isSuper) {
+                    statusBadge.innerText = "👑 SUPER ADMIN ACTIVE";
+                    statusBadge.style.background = "linear-gradient(135deg, #ec4899, #8b5cf6)";
+                    statusBadge.style.boxShadow = "0 0 12px rgba(236, 72, 153, 0.4)";
+                } else if (isContest) {
+                    statusBadge.innerText = "CONTEST ADMIN ACTIVE";
+                    statusBadge.style.background = "linear-gradient(135deg, #06b6d4, #3b82f6)";
+                    statusBadge.style.boxShadow = "0 0 12px rgba(6, 182, 212, 0.4)";
+                } else {
+                    statusBadge.innerText = "ADMIN ACTIVE";
+                    statusBadge.style.background = "linear-gradient(135deg, #06b6d4, #3b82f6)";
+                    statusBadge.style.boxShadow = "";
+                }
+            }
+
+            if (contestSectionTitle) {
+                contestSectionTitle.innerText = isContest ? "🏆 Suno 노래 콘테스트 관리자 메뉴" : "🎧 스트리밍 플레이어 관리자 메뉴";
+            }
+            const contestSectionWrapper = document.getElementById('contestAdminSectionTitle');
+            if (contestSectionWrapper) {
+                contestSectionWrapper.style.display = isSuper ? "flex" : "none";
+            }
+            if (subSection1) {
+                subSection1.innerText = isContest ? "📊 실시간 랭킹 결과 & 화면 표시 설정" : "👁️ 플레이어 화면 표시 설정";
+            }
+            if (subSection2) {
+                subSection2.innerText = isContest ? "📦 콘테스트 데이터 & 백업 관리" : "📦 트랙 데이터 백업 & 관리";
             }
 
             const authorBtn = document.getElementById('authorToggleBtn');
@@ -4826,6 +4926,7 @@
                 votesBtn.innerText = showVotes ? "하트/숫자: ON" : "하트/숫자: OFF";
                 votesBtn.style.background = showVotes ? "#10b981" : "#ef4444";
                 votesBtn.style.color = "white";
+                votesBtn.style.display = isContest ? "inline-block" : "none";
             }
 
             const editDeleteBtn = document.getElementById('editDeleteToggleBtn');
@@ -4835,10 +4936,14 @@
                 editDeleteBtn.style.color = "white";
             }
 
-            const isContest = isContestModeActive();
             const resultsBtn = document.getElementById('resultsBtn');
             if (resultsBtn) {
                 resultsBtn.innerText = isContest ? "🏆 결과 보기" : "📊 트랙 현황";
+            }
+
+            const superQuickModeBtn = document.getElementById('superQuickModeBtn');
+            if (superQuickModeBtn) {
+                superQuickModeBtn.innerText = isContest ? "🔄 스트리밍 모드로 전환" : "🔄 노래 콘테스트 모드로 전환";
             }
 
             const noticeDisplay = document.getElementById('noticeDisplay');
@@ -4848,6 +4953,27 @@
             const noticeSaveBtn = document.getElementById('noticeSaveBtn');
             if (noticeSaveBtn) noticeSaveBtn.style.display = isAdmin ? "inline-block" : "none";
         }
+
+        window.openSuperAdminNewChannel = function() {
+            openSuperAdminModal();
+            setTimeout(() => {
+                const form = document.getElementById('superTenantFormPanel');
+                if (form) {
+                    form.scrollIntoView({ behavior: 'smooth' });
+                    const input = document.getElementById('newTenantId');
+                    if (input) input.focus();
+                }
+            }, 300);
+        };
+
+        window.toggleCurrentChannelModeQuick = function() {
+            const isContest = isContestModeActive();
+            const nextMode = isContest ? 'player' : 'contest';
+            const nextModeName = nextMode === 'contest' ? '🏆 Suno 노래 콘테스트' : '🎧 일반 스트리밍 플레이어';
+            if (confirm(`현재 채널 [${currentTenant}]을(를) [${nextModeName}] 모드로 전환하시겠습니까?`)) {
+                changeTenantModeDirectly(currentTenant, nextMode);
+            }
+        };
 
         // 🏆 관리자 모드 전용 인기 차트 모달 열기
         window.openVoteResultsModal = async function() {
