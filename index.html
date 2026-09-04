@@ -765,6 +765,75 @@
             padding: 2px 7px;
             border-radius: 6px;
             border: 1px solid rgba(0, 242, 254, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            letter-spacing: 0.5px;
+            user-select: none;
+        }
+        .master-cur-num {
+            color: #facc15 !important;
+            font-weight: 900 !important;
+            text-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
+        }
+        .counter-slash {
+            color: rgba(255, 255, 255, 0.4);
+            margin: 0 1px;
+            font-weight: 600;
+        }
+
+        /* 🎛️ 사이버 하드웨어 조그 다이얼 (Jog Dial) */
+        .master-jog-dial-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            user-select: none;
+            touch-action: none;
+            cursor: grab;
+            padding: 2px;
+            border-radius: 50%;
+        }
+        .master-jog-dial-wrap:active {
+            cursor: grabbing;
+        }
+        .master-jog-dial {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #1e293b, #090d16 75%);
+            border: 2px solid rgba(0, 242, 254, 0.45);
+            box-shadow: 0 0 8px rgba(0, 242, 254, 0.25), inset 0 0 5px rgba(0, 0, 0, 0.85);
+            position: relative;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            will-change: transform;
+        }
+        .master-jog-dial-wrap:hover .master-jog-dial,
+        .master-jog-dial-wrap.active .master-jog-dial {
+            border-color: #facc15;
+            box-shadow: 0 0 12px rgba(250, 204, 21, 0.5), inset 0 0 4px rgba(250, 204, 21, 0.3);
+        }
+        .master-jog-indicator {
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #facc15;
+            box-shadow: 0 0 6px #facc15;
+        }
+        .master-jog-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 40%, #334155, #020617);
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         /* 🎛️ 사이버 마스터 플레이어 임베드 프레임 */
@@ -2868,7 +2937,17 @@
                 <button type="button" class="master-lyrics-bar-btn" id="masterLyricsBtn" onclick="toggleMasterLyrics()" title="현재 곡 가사 보기">
                     📜 가사 보기
                 </button>
-                <span class="master-playlist-counter" id="masterPlaylistCounter">0 / 0</span>
+                <div class="master-jog-counter-box" style="display: flex; align-items: center; gap: 8px;">
+                    <div class="master-jog-dial-wrap" id="masterJogDialWrap" title="조그 다이얼: 마우스 휠을 굴리거나 드래그하여 트랙 탐색">
+                        <div class="master-jog-dial" id="masterJogDial">
+                            <div class="master-jog-indicator"></div>
+                            <div class="master-jog-core"></div>
+                        </div>
+                    </div>
+                    <span class="master-playlist-counter" id="masterPlaylistCounter">
+                        <span class="master-cur-num" id="masterCurTrackNum">1</span><span class="counter-slash"> / </span><span id="masterTotalTrackNum">0</span>
+                    </span>
+                </div>
             </div>
         </div>
 
@@ -4779,10 +4858,7 @@
             if (indicator) {
                 indicator.innerText = `${index + 1}번 트랙 (${song.title || '제목 없음'})`;
             }
-            const counter = document.getElementById('masterPlaylistCounter');
-            if (counter) {
-                counter.innerText = `${index + 1} / ${songs.length}`;
-            }
+            updateMasterCounter(index, songs ? songs.length : 0);
 
             // 곡 로드 시 초기에는 점멸 끄기
             setMasterDotPlaying(false);
@@ -5286,6 +5362,163 @@
         }
 
         // ==========================================
+        // 🔢 마스터 콘솔 트랙 카운터 갱신 (1 자리 노란색 유지)
+        // ==========================================
+        window.updateMasterCounter = function(curIdx, total) {
+            const curEl = document.getElementById('masterCurTrackNum');
+            const totalEl = document.getElementById('masterTotalTrackNum');
+            const counter = document.getElementById('masterPlaylistCounter');
+            const num = (typeof curIdx === 'number' && curIdx >= 0) ? curIdx + 1 : 1;
+            const tot = (typeof total === 'number' && total >= 0) ? total : (songs ? songs.length : 0);
+            if (curEl && totalEl) {
+                curEl.innerText = num;
+                totalEl.innerText = tot;
+            } else if (counter) {
+                counter.innerHTML = `<span class="master-cur-num" id="masterCurTrackNum">${num}</span><span class="counter-slash"> / </span><span id="masterTotalTrackNum">${tot}</span>`;
+            }
+        };
+
+        // ==========================================
+        // 🎛️ 사이버 하드웨어 조그 다이얼 트랙 탐색기 (Jog Dial)
+        // ==========================================
+        function initMasterJogDial() {
+            const wrapEl = document.getElementById('masterJogDialWrap');
+            const dialEl = document.getElementById('masterJogDial');
+            if (!wrapEl || !dialEl) return;
+
+            let currentJogAngle = 0;
+            let accumulatedAngle = 0;
+            let isDragging = false;
+            let lastPointerAngle = 0;
+            let lastPointerY = 0;
+            let lastPointerX = 0;
+            let jogCenter = { x: 0, y: 0 };
+            let pendingTrackIndex = -1;
+            let debounceTimer = null;
+            const ANGLE_PER_TRACK = 18; // 18도 회전당 1트랙 이동
+
+            // 1. 마우스 휠 스크롤 (위로 굴리면 이전 곡, 아래로 굴리면 다음 곡)
+            wrapEl.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                if (!songs || songs.length === 0) return;
+
+                const dir = e.deltaY > 0 ? 1 : -1;
+                currentJogAngle += dir * 26;
+                dialEl.style.transform = `rotate(${currentJogAngle}deg)`;
+
+                if (pendingTrackIndex === -1) {
+                    pendingTrackIndex = (currentMasterSongIndex >= 0 ? currentMasterSongIndex : 0);
+                }
+                pendingTrackIndex = (pendingTrackIndex + dir + songs.length) % songs.length;
+
+                wrapEl.classList.add('active');
+                updateMasterCounter(pendingTrackIndex, songs.length);
+
+                const indicator = document.getElementById('masterTrackIndicator');
+                if (indicator && songs[pendingTrackIndex]) {
+                    indicator.innerText = `${pendingTrackIndex + 1}번 트랙 (${songs[pendingTrackIndex].title || '제목 없음'})`;
+                }
+
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    wrapEl.classList.remove('active');
+                    if (pendingTrackIndex >= 0 && pendingTrackIndex !== currentMasterSongIndex) {
+                        loadMasterSong(pendingTrackIndex);
+                    }
+                }, 160);
+            }, { passive: false });
+
+            // 2. 터치 및 마우스 포인터 드래그 회전
+            function onPointerDown(e) {
+                if (!songs || songs.length === 0) return;
+                isDragging = true;
+                wrapEl.classList.add('active');
+                try { wrapEl.setPointerCapture?.(e.pointerId); } catch(err) {}
+
+                const rect = dialEl.getBoundingClientRect();
+                jogCenter = {
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2
+                };
+                lastPointerAngle = Math.atan2(e.clientY - jogCenter.y, e.clientX - jogCenter.x) * (180 / Math.PI);
+                lastPointerY = e.clientY;
+                lastPointerX = e.clientX;
+                accumulatedAngle = 0;
+
+                pendingTrackIndex = (currentMasterSongIndex >= 0 ? currentMasterSongIndex : 0);
+            }
+
+            function onPointerMove(e) {
+                if (!isDragging || !songs || songs.length === 0) return;
+
+                // 중심점 기준 각도 변화 계산
+                const curAngle = Math.atan2(e.clientY - jogCenter.y, e.clientX - jogCenter.x) * (180 / Math.PI);
+                let deltaAngle = curAngle - lastPointerAngle;
+                if (deltaAngle > 180) deltaAngle -= 360;
+                if (deltaAngle < -180) deltaAngle += 360;
+                lastPointerAngle = curAngle;
+
+                // 터치 스와이프 등 직선 드래그 보정 (수평/수직 이동 보조)
+                const dx = e.clientX - lastPointerX;
+                const dy = e.clientY - lastPointerY;
+                if (Math.abs(deltaAngle) < 0.5 && (Math.abs(dx) > 2 || Math.abs(dy) > 2)) {
+                    deltaAngle = (dx + dy) * 2;
+                }
+                lastPointerX = e.clientX;
+                lastPointerY = e.clientY;
+
+                currentJogAngle += deltaAngle;
+                dialEl.style.transform = `rotate(${currentJogAngle}deg)`;
+                accumulatedAngle += deltaAngle;
+
+                let stepped = false;
+                while (accumulatedAngle >= ANGLE_PER_TRACK) {
+                    accumulatedAngle -= ANGLE_PER_TRACK;
+                    pendingTrackIndex = (pendingTrackIndex + 1) % songs.length;
+                    stepped = true;
+                }
+                while (accumulatedAngle <= -ANGLE_PER_TRACK) {
+                    accumulatedAngle += ANGLE_PER_TRACK;
+                    pendingTrackIndex = (pendingTrackIndex - 1 + songs.length) % songs.length;
+                    stepped = true;
+                }
+
+                if (stepped) {
+                    updateMasterCounter(pendingTrackIndex, songs.length);
+                    const indicator = document.getElementById('masterTrackIndicator');
+                    if (indicator && songs[pendingTrackIndex]) {
+                        indicator.innerText = `${pendingTrackIndex + 1}번 트랙 (${songs[pendingTrackIndex].title || '제목 없음'})`;
+                    }
+                    if (navigator.vibrate) {
+                        try { navigator.vibrate(8); } catch(err) {}
+                    }
+                }
+            }
+
+            function onPointerUp(e) {
+                if (!isDragging) return;
+                isDragging = false;
+                wrapEl.classList.remove('active');
+                try { wrapEl.releasePointerCapture?.(e.pointerId); } catch(err) {}
+
+                if (pendingTrackIndex >= 0 && pendingTrackIndex !== currentMasterSongIndex) {
+                    loadMasterSong(pendingTrackIndex);
+                }
+            }
+
+            wrapEl.addEventListener('pointerdown', onPointerDown);
+            window.addEventListener('pointermove', onPointerMove);
+            window.addEventListener('pointerup', onPointerUp);
+            window.addEventListener('pointercancel', onPointerUp);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initMasterJogDial);
+        } else {
+            initMasterJogDial();
+        }
+
+        // ==========================================
         // 🔍 실시간 검색 & 필터 (제작자, 제목, 음악 장르)
         // ==========================================
         let currentSearchType = 'all'; // 'all', 'author', 'title', 'genre'
@@ -5424,7 +5657,7 @@
             if (counter && currentMasterSongIndex === -1 && songs.length > 0) {
                 loadMasterSong(0);
             } else if (counter && currentMasterSongIndex >= 0) {
-                counter.innerText = `${currentMasterSongIndex + 1} / ${songs.length}`;
+                updateMasterCounter(currentMasterSongIndex, songs.length);
             }
 
             // 결과 공개 상태이거나 관리자 모드일 때만 득표순 정렬, 아니면 등록순(id순) 정렬
