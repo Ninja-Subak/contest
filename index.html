@@ -281,8 +281,29 @@
             border-color: transparent;
             box-shadow: 0 0 30px rgba(6, 182, 212, 0.6);
         }
+
+        /* 📜 보라빛 네온 [가사 보기] 버튼 (노래 목록 카드) */
+        .lyrics-card-btn {
+            background: rgba(168, 85, 247, 0.12);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        .lyrics-card-btn:hover {
+            background: rgba(168, 85, 247, 0.25);
+            border-color: #c084fc;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.45), 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+        .lyrics-card-btn.active {
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
+        }
         
-        /* 💎 에메랄드 크리스탈 [추천하기] 버튼 */
+        /* 💎 에메랄드 크리스탈 [Like] 버튼 */
         .vote-btn { 
             background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%); 
             color: white; 
@@ -1977,15 +1998,16 @@
                 width: 100% !important;
                 display: flex !important;
                 justify-content: stretch !important;
-                gap: 6px !important;
-                flex-wrap: nowrap !important;
+                gap: 5px !important;
+                flex-wrap: wrap !important;
             }
             .action-group button,
             .action-group .listen-btn,
+            .action-group .lyrics-card-btn,
             .action-group .vote-btn {
-                flex: 1 !important;
-                padding: 9px 6px !important;
-                font-size: 12.5px !important;
+                flex: 1 1 0% !important;
+                padding: 9px 4px !important;
+                font-size: 12px !important;
                 justify-content: center !important;
                 text-align: center !important;
                 white-space: nowrap !important;
@@ -1995,9 +2017,15 @@
             .action-group .edit-btn,
             .action-group .delete-btn {
                 flex: 0 0 auto !important;
-                padding: 9px 10px !important;
+                padding: 9px 8px !important;
                 font-size: 11.5px !important;
                 border-radius: 8px !important;
+            }
+            .action-group .vote-count {
+                flex: 0 0 auto !important;
+                min-width: unset !important;
+                margin-left: 4px !important;
+                font-size: 14px !important;
             }
 
             /* 9. 모달 팝업 모바일 크기 최적화 */
@@ -2804,13 +2832,13 @@
                     <div class="guide-item-title">🎧 2. 공식 플레이어 & 실시간 가사</div>
                     <div class="guide-item-desc">
                         • <b>[노래 듣기]</b>: 공식 스트리밍 플레이어가 열려 파형 비주얼라이저와 함께 안정적으로 스트리밍 재생됩니다.<br>
-                        • <b>[가사 보기]</b>: 플레이어 오른쪽 상단의 [가사 보기]를 누르면 노래 카드 밑에 가사 창이 펼쳐집니다.
+                        • <b>[가사 보기]</b>: 각 노래 카드의 [가사 보기]를 누르면 노래 카드 밑에 가사 창이 펼쳐집니다.
                     </div>
                 </div>
                 <div class="guide-item">
                     <div class="guide-item-title">❤️ 3. 실시간 인기 트랙 추천 시스템</div>
                     <div class="guide-item-desc">
-                        • 가장 마음에 드는 곡에 <b>[추천하기]</b>를 클릭하여 응원할 수 있습니다.<br>
+                        • 가장 마음에 드는 곡에 <b>[Like]</b>를 클릭하여 응원할 수 있습니다.<br>
                         • 회원들의 실시간 추천(좋아요)을 통해 인기 순위가 집계되며, 중복 방지 시스템이 적용되어 있습니다.
                     </div>
                 </div>
@@ -2834,7 +2862,7 @@
             <div class="master-player-title-box">
                 <span class="master-live-dot" id="masterLiveDot" title="재생 상태 표시 (클릭 시 점멸 테스트)"></span>
                 <span class="master-card-badge">MASTER CONSOLE</span>
-                <span class="master-track-indicator" id="masterTrackIndicator">스트리밍 1번째 트랙 준비 완료</span>
+                <span class="master-track-indicator" id="masterTrackIndicator">1번 트랙</span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <button type="button" class="master-lyrics-bar-btn" id="masterLyricsBtn" onclick="toggleMasterLyrics()" title="현재 곡 가사 보기">
@@ -3948,19 +3976,10 @@
                 const embedUrl = data.embedUrl || `https://suno.com/embed/${songId}`;
                 const authorText = author || (song ? song.author : '아티스트');
 
-                // 🎵 모바일/데스크톱 모두 항상 Suno 공식 플레이어로 화면 표시
+                // 🎵 모바일/데스크톱 모두 항상 Suno 공식 플레이어로 화면 표시 (SUNO OFFICIAL 및 중복 가사 버튼 제거)
                 playerContainer.innerHTML = `
-                    <div class="player-card" id="card_${id}">
-                        <div class="player-top-header">
-                            <span class="player-badge" style="background:#00f2fe; color:#030712; font-weight:800;">SUNO OFFICIAL</span>
-                            <button type="button" class="lyrics-btn" id="lyrics_btn_${id}" onclick="toggleLyricsPopup('${id}')">
-                                📜 가사 보기
-                            </button>
-                        </div>
-
-                        <div class="embed-frame-box" id="embed_box_${id}">
-                            <iframe src="${embedUrl}" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
-                        </div>
+                    <div class="embed-frame-box" id="embed_box_${id}" style="margin-top: 8px;">
+                        <iframe src="${embedUrl}" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
                     </div>
                 `;
 
@@ -3985,14 +4004,7 @@
             const authorText = decodeURIComponent(encAuthor || '');
 
             card.innerHTML = `
-                <div class="player-top-header">
-                    <span class="player-badge">SUNO OFFICIAL</span>
-                    <button type="button" class="lyrics-btn" id="lyrics_btn_${id}" onclick="toggleLyricsPopup('${id}')">
-                        📜 가사 보기
-                    </button>
-                </div>
-
-                <div class="embed-frame-box" id="embed_box_${id}">
+                <div class="embed-frame-box" id="embed_box_${id}" style="margin-top: 8px;">
                     <iframe src="${embedUrl}" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allow="autoplay; encrypted-media" loading="lazy"></iframe>
                 </div>
 
@@ -4022,9 +4034,6 @@
                             <div class="player-author" style="font-size:12px; color:var(--text-sub); display: ${showAuthor ? 'block' : 'none'};">아티스트: ${authorText}</div>
                         </div>
                     </div>
-                    <button type="button" class="lyrics-btn" id="lyrics_btn_${id}" onclick="toggleLyricsPopup('${id}')">
-                        📜 가사 보기
-                    </button>
                 </div>
 
                 <div class="audio-wrapper">
@@ -4064,7 +4073,7 @@
                 lyricsBox.style.display = 'none';
                 if (lyricsBtn) {
                     lyricsBtn.classList.remove('active');
-                    lyricsBtn.innerHTML = '📜 가사 보기';
+                    lyricsBtn.innerText = '가사 보기';
                 }
                 return;
             }
@@ -4073,7 +4082,7 @@
             lyricsBox.style.display = 'block';
             if (lyricsBtn) {
                 lyricsBtn.classList.add('active');
-                lyricsBtn.innerHTML = '📜 가사 닫기';
+                lyricsBtn.innerText = '가사 닫기';
             }
 
             const lyricsContent = document.getElementById('lyrics_text_' + id);
@@ -4131,8 +4140,17 @@
                         ⏳ 사운드클라우드 가사 정보를 확인하는 중입니다...
                     </div>
                 `;
+                let scUrl = song.url || pInfo.id || '';
+                if (/m\.soundcloud\.com/i.test(scUrl)) {
+                    scUrl = scUrl.replace(/^https?:\/\/m\.soundcloud\.com/i, 'https://soundcloud.com');
+                }
                 try {
-                    const res = await fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(pInfo.id)}`);
+                    const pu = new URL(scUrl);
+                    scUrl = pu.origin + pu.pathname;
+                } catch(e) {}
+
+                try {
+                    const res = await fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(scUrl)}`);
                     const oData = await res.json();
                     if (oData && oData.description && oData.description.trim().length > 15) {
                         const cleanDesc = oData.description.replace(/<br\s*[\/]?>/gi, '\n').replace(/<[^>]+>/g, '').trim();
@@ -4762,7 +4780,7 @@
             // 상단 인디케이터 및 카운터 갱신
             const indicator = document.getElementById('masterTrackIndicator');
             if (indicator) {
-                indicator.innerText = `스트리밍 ${index + 1}번째 트랙 (${song.title || '제목 없음'}) 준비 완료`;
+                indicator.innerText = `${index + 1}번 트랙 (${song.title || '제목 없음'})`;
             }
             const counter = document.getElementById('masterPlaylistCounter');
             if (counter) {
@@ -5536,8 +5554,9 @@
                         </div>
                         <div class="action-group">
                             <button type="button" id="btn_${song.id}" onclick="toggleInlinePlayer('${song.id}')" class="listen-btn">노래 듣기</button>
+                            <button type="button" id="lyrics_btn_${song.id}" onclick="toggleLyricsPopup('${song.id}')" class="lyrics-card-btn">가사 보기</button>
                             <button type="button" onclick="voteSong('${song.id}')" class="vote-btn ${hasVoted ? 'voted' : ''}" ${hasVoted ? 'disabled' : ''}>
-                                ${isThisMyVote ? '추천 완료' : '추천하기'}
+                                ${isThisMyVote ? 'Like 완료' : 'Like'}
                             </button>
                             ${editBtnHtml}
                             ${deleteBtnHtml}
