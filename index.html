@@ -683,19 +683,74 @@
             box-shadow: 0 0 15px #00f2fe;
         }
 
-        .song-row { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
-        .song-main-col { width: 100% !important; }
-            .song-info { flex: 1; overflow: hidden; }
+        .song-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            width: 100%;
+        }
+        .song-main-col {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1 1 260px;
+            min-width: 0;
+        }
+        .song-info {
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden;
+        }
         .song-title { 
             font-weight: 800; 
-            font-size: 18px; 
+            font-size: 17px; 
             color: #f8fafc; 
-            margin-bottom: 6px; 
+            margin-bottom: 4px; 
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
         }
-        .song-author { font-size: 13px; color: #94a3b8; }
-        
-        .action-group { display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+        .track-title-text {
+            font-size: 17px;
+            font-weight: 800;
+            color: #ffffff;
+            word-break: keep-all;
+            white-space: normal;
+            line-height: 1.35;
+            display: inline-block;
+        }
+        .song-meta-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 12.5px;
+            color: #94a3b8;
+        }
+        .song-author {
+            font-size: 12.5px;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+        .action-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            flex-wrap: nowrap;
+            justify-content: flex-end;
+        }
+        .action-group .vote-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            margin-right: 4px;
+            white-space: nowrap;
+            font-size: 13.5px;
+        }
         
         /* 🎧 사이버 시안 네온 [노래 듣기] 버튼 */
         .listen-btn { 
@@ -825,6 +880,9 @@
             display: none !important;
         }
         body.hide-genre .song-genres-wrap {
+            display: none !important;
+        }
+        body.hide-votes .vote-count {
             display: none !important;
         }
 
@@ -2372,6 +2430,73 @@
 
     
         /* ========================================================
+           📱 1060px 이하 태블릿 및 중간/창 분할 화면: 노래 카드 정보와 버튼 2단 분리 최적화 (글자 쪼개짐 완벽 방지)
+           ======================================================== */
+        @media (max-width: 1060px) {
+            .song-row {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px !important;
+            }
+            .song-main-col {
+                width: 100% !important;
+            }
+            .song-info {
+                width: 100% !important;
+                min-width: 0 !important;
+            }
+            .song-title {
+                font-size: 16px !important;
+                line-height: 1.35 !important;
+                word-break: keep-all !important;
+                margin-bottom: 4px !important;
+                flex-wrap: wrap !important;
+            }
+            .track-title-text {
+                word-break: keep-all !important;
+                overflow-wrap: break-word !important;
+            }
+            .song-meta-row {
+                display: flex !important;
+                align-items: center !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+            .action-group {
+                width: 100% !important;
+                display: flex !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                gap: 6px !important;
+                flex-wrap: wrap !important;
+            }
+            .action-group button,
+            .action-group .listen-btn,
+            .action-group .lyrics-card-btn,
+            .action-group .vote-btn {
+                flex: 1 1 auto !important;
+                min-width: 80px !important;
+                text-align: center !important;
+                padding: 9px 8px !important;
+                font-size: 12px !important;
+                border-radius: 8px !important;
+            }
+            .action-group .edit-btn,
+            .action-group .delete-btn {
+                flex: 0 0 auto !important;
+                padding: 9px 10px !important;
+                font-size: 11.5px !important;
+                border-radius: 8px !important;
+            }
+            .action-group .vote-count {
+                flex: 0 0 auto !important;
+                margin-left: 2px !important;
+                margin-right: 4px !important;
+                font-size: 14px !important;
+            }
+        }
+
+        /* ========================================================
            📱 스마트폰 모바일 화면 완벽 최적화 (Mobile Responsive)
            ======================================================== */
         @media (max-width: 640px) {
@@ -3436,6 +3561,7 @@
             <div class="admin-panel-grid">
                 <button type="button" onclick="toggleAuthorDisplay()" class="admin-grid-btn" id="authorToggleBtn">아티스트: ON</button>
                 <button type="button" onclick="toggleGenreDisplay()" class="admin-grid-btn" id="genreToggleBtn">음악 장르: ON</button>
+                <button type="button" onclick="toggleVotesDisplay()" class="admin-grid-btn" id="votesToggleBtn">하트/숫자: ON</button>
                 <button type="button" onclick="toggleEditDeleteDisplay()" class="admin-grid-btn" id="editDeleteToggleBtn">수정/삭제: OFF</button>
             </div>
         </div>
@@ -3605,7 +3731,7 @@
 
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 8px;">
-            <h3 style="margin: 0; padding: 0; border: none; font-size: 18px;">🎵 새로운 음악 / 트랙 등록하기</h3>
+            <h3 id="registerCardTitle" style="margin: 0; padding: 0; border: none; font-size: 18px;">🎵 새로운 음악 / 트랙 등록하기</h3>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <button type="button" class="form-restore-btn" id="formRestoreBtn" onclick="restoreRecentlyDeletedSong()" title="최근 삭제한 내 곡 복구하기" style="display: none;">↩️ 삭제 복구</button>
                 <button type="button" class="register-cancel-btn" id="registerCancelBtn" onclick="resetRegisterForm()" title="링크 주소 입력을 잘못했을 때 입력 내용 초기화 (취소)">✕ 취소</button>
@@ -4001,6 +4127,7 @@
         let isAdmin = localStorage.getItem('sunoAdminMode') === 'true';
         let showAuthor = localStorage.getItem('sunoShowAuthor') !== 'false';
         let showGenre = localStorage.getItem('sunoShowGenre') !== 'false';
+        let showVotes = localStorage.getItem('sunoShowVotes') !== 'false';
         let showEditDelete = localStorage.getItem('sunoShowEditDelete') === 'true';
         let isResultPublic = localStorage.getItem('sunoResultPublic') === 'true';
 
@@ -4087,13 +4214,17 @@
             if (playlistTitle) {
                 playlistTitle.innerHTML = isContest ? "🎶 콘테스트 참가 노래 목록" : "🎶 실시간 스트리밍 재생 목록";
             }
+            const regCardTitle = document.getElementById('registerCardTitle');
+            if (regCardTitle) {
+                regCardTitle.innerText = isContest ? "🏆 콘테스트 참가하기" : "🎵 새로운 음악 / 트랙 등록하기";
+            }
             const regSubmitBtn = document.getElementById('registerSubmitBtn');
             if (regSubmitBtn) {
-                regSubmitBtn.innerText = isContest ? "🏆 콘테스트 참가곡 등록하기" : "스트리밍 트랙 등록하기";
+                regSubmitBtn.innerText = isContest ? "콘테스트 참가하기" : "스트리밍 트랙 등록하기";
             }
             const resultsBtn = document.getElementById('resultsBtn');
             if (resultsBtn) {
-                resultsBtn.innerText = isContest ? "🏆 결과 확인" : "📊 트랙 현황";
+                resultsBtn.innerText = isContest ? "🏆 결과 보기" : "📊 트랙 현황";
             }
         }
 
@@ -4101,6 +4232,10 @@
             const bSlug = document.getElementById('tenantBadgeSlug');
             if (bSlug) bSlug.innerText = `// ${currentTenant.toUpperCase()}`;
         }
+        if (!showVotes) {
+            document.body.classList.add('hide-votes');
+        }
+        updateDynamicBrandTitles(isContestModeActive());
 
         // 🎵 사용자 본인 등록 노래 추적 관리 함수
         function getMyRegisteredSongIds() {
@@ -4348,8 +4483,11 @@
                     if (bSlug) bSlug.innerText = `// ${currentTenant.toUpperCase()}`;
                 }
 
-                hasVoted = Boolean(data.hasVoted);
-                myVotedId = data.myVotedId ? String(data.myVotedId) : null;
+                // 서버 투표 상태 또는 브라우저 로컬 1인 1투표 기록 동기화
+                const localVoted = localStorage.getItem(`suno_voted_${currentTenant}`) === 'true';
+                const localVotedId = localStorage.getItem(`suno_voted_id_${currentTenant}`);
+                hasVoted = Boolean(data.hasVoted) || localVoted;
+                myVotedId = (data.myVotedId ? String(data.myVotedId) : null) || localVotedId || null;
 
                 songs = (data.songs || []).map(s => ({
                     ...s,
@@ -4360,6 +4498,14 @@
                     genre: String(s.genre != null ? s.genre : ''),
                     votes: Number(s.votes) || 0
                 }));
+
+                // 로컬에서 1표를 행사했으나 서버가 구버전이라 미반영된 경우 보정
+                if (localVoted && localVotedId) {
+                    const votedTarget = songs.find(s => String(s.id) === String(localVotedId));
+                    if (votedTarget && (!data.hasVoted || String(data.myVotedId) !== String(localVotedId))) {
+                        votedTarget.votes = (Number(votedTarget.votes) || 0) + 1;
+                    }
+                }
                 if (songs.length > 0) {
                     localStorage.setItem('sunoAutoBackupSongs', JSON.stringify(songs));
                 }
@@ -4482,6 +4628,20 @@
             showPlayerToast(showGenre ? '음악 장르 표시가 켜졌습니다 (ON)' : '음악 장르 표시가 숨겨졌습니다 (OFF)', '🏷️');
         };
         window.togglePlayerInfoDisplay = window.toggleGenreDisplay;
+
+        // ❤️ 하트와 숫자(득표수) 표시 ON / OFF 토글 함수 (관리자 전용)
+        window.toggleVotesDisplay = function() {
+            showVotes = !showVotes;
+            localStorage.setItem('sunoShowVotes', showVotes);
+            if (!showVotes) {
+                document.body.classList.add('hide-votes');
+            } else {
+                document.body.classList.remove('hide-votes');
+            }
+            updateAdminUI();
+            renderList();
+            alert(showVotes ? "하트와 득표수 표시가 켜졌습니다 (ON).\n(화면에 하트와 투표 숫자가 표시됩니다.)" : "하트와 득표수 표시가 숨겨졌습니다 (OFF).\n(화면에서 하트와 투표 숫자가 감춰집니다.)");
+        };
 
         window.toggleEditDeleteDisplay = function() {
             showEditDelete = !showEditDelete;
@@ -4645,6 +4805,13 @@
                 genreBtn.style.color = "white";
             }
 
+            const votesBtn = document.getElementById('votesToggleBtn');
+            if (votesBtn) {
+                votesBtn.innerText = showVotes ? "하트/숫자: ON" : "하트/숫자: OFF";
+                votesBtn.style.background = showVotes ? "#10b981" : "#ef4444";
+                votesBtn.style.color = "white";
+            }
+
             const editDeleteBtn = document.getElementById('editDeleteToggleBtn');
             if (editDeleteBtn) {
                 editDeleteBtn.innerText = showEditDelete ? "수정/삭제: ON" : "수정/삭제: OFF";
@@ -4655,7 +4822,7 @@
             const isContest = isContestModeActive();
             const resultsBtn = document.getElementById('resultsBtn');
             if (resultsBtn) {
-                resultsBtn.innerText = isContest ? "🏆 결과 확인" : "📊 트랙 현황";
+                resultsBtn.innerText = isContest ? "🏆 결과 보기" : "📊 트랙 현황";
             }
 
             const noticeDisplay = document.getElementById('noticeDisplay');
@@ -4664,11 +4831,6 @@
             if (noticeInput) noticeInput.style.display = isAdmin ? "block" : "none";
             const noticeSaveBtn = document.getElementById('noticeSaveBtn');
             if (noticeSaveBtn) noticeSaveBtn.style.display = isAdmin ? "inline-block" : "none";
-
-            const resBtn = document.getElementById('resultsBtn');
-            if (resBtn) {
-                resBtn.innerText = isContestModeActive() ? "🏆 투표 랭킹 & 현황" : "📊 트랙 현황";
-            }
         }
 
         // 🏆 관리자 모드 전용 인기 차트 모달 열기
@@ -5681,7 +5843,8 @@
             const targetSong = songs.find(s => String(s.id) === String(id));
             const songTitle = targetSong ? targetSong.title : '선택한 곡';
 
-            if (hasVoted) {
+            const localVoted = localStorage.getItem(`suno_voted_${currentTenant}`) === 'true';
+            if (hasVoted || localVoted) {
                 if (myVotedId && String(myVotedId) === String(id)) {
                     alert(`이미 [${songTitle}]에 투표를 완료하셨습니다! (1인당 1회만 투표할 수 있습니다)`);
                 } else {
@@ -5697,6 +5860,8 @@
                 // UI 즉각 반영 (낙관적 갱신: 붉은색 하트 옆 숫자 증가 및 버튼 상태 투표 완료로 변경)
                 hasVoted = true;
                 myVotedId = String(id);
+                localStorage.setItem(`suno_voted_${currentTenant}`, 'true');
+                localStorage.setItem(`suno_voted_id_${currentTenant}`, String(id));
                 localStorage.setItem(`suno_voted_${currentTenant}_${id}`, 'true');
                 if (targetSong) {
                     targetSong.votes = (Number(targetSong.votes) || 0) + 1;
@@ -5710,23 +5875,20 @@
                 const data = await res.json();
 
                 if (data.status === "already_voted") {
-                    alert("이미 투표에 참여하셨습니다. (1인 1회만 투표 가능)");
-                    fetchAppData();
+                    alert("이미 투표에 참여하셨습니다. (1인당 1회만 투표할 수 있습니다)");
                 } else if (data.status === "disabled") {
-                    alert(data.message || "투표 기능이 비활성화되어 있습니다.");
-                    fetchAppData();
+                    // 구버전 서버 응답의 "추천 기능이 삭제되었습니다." 등 팝업 알림 일절 제거하고 로컬 1표 정상 유지
+                    console.log("서버 투표 상태:", data.message);
                 } else if (data.status === "success") {
                     if (data.votes !== undefined && targetSong) {
                         targetSong.votes = Number(data.votes);
                         renderList();
                     }
                 } else {
-                    alert(data.message || "투표 처리 중 오류가 발생했습니다.");
-                    fetchAppData();
+                    console.warn("투표 응답:", data);
                 }
             } catch (err) {
                 console.error("voteSong 오류:", err);
-                fetchAppData();
             }
         };
 
@@ -7274,7 +7436,7 @@
                             검색어 철자를 확인하시거나 다른 구분(제작자, 제목, 장르)을 선택해 보세요.
                         </div>
                         <button type="button" onclick="clearSearch()" style="background: rgba(0, 242, 254, 0.15); color: #00f2fe; border: 1px solid rgba(0, 242, 254, 0.4); padding: 7px 18px; border-radius: 999px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
-                            ✕ 전체 목록 보기
+                            ✕ 검색 결과
                         </button>
                     </div>
                 `;
@@ -7325,14 +7487,18 @@
                 let voteBtnHtml = '';
                 let voteCountHtml = '';
                 if (isContest) {
-                    const isThisMyVote = (myVotedId && String(song.id) === String(myVotedId)) || (localStorage.getItem(`suno_voted_${currentTenant}_${song.id}`) === 'true');
+                    const isThisMyVote = (myVotedId && String(song.id) === String(myVotedId)) || 
+                                         (localStorage.getItem(`suno_voted_${currentTenant}_${song.id}`) === 'true') || 
+                                         (localStorage.getItem(`suno_voted_id_${currentTenant}`) === String(song.id));
                     const votedClass = (hasVoted || isThisMyVote) ? 'voted' : '';
                     const btnTitle = isThisMyVote 
                         ? '내가 투표 완료한 곡입니다' 
                         : (hasVoted ? '이미 다른 곡에 투표하셨습니다 (1인 1회 제한)' : '이 곡에 투표하기 (1인 1회 제한)');
                     const btnText = isThisMyVote ? '❤️ 투표 완료' : '투표 하기';
                     voteBtnHtml = `<button type="button" onclick="voteSong('${song.id}')" class="vote-btn ${votedClass}" title="${btnTitle}">${btnText}</button>`;
-                    voteCountHtml = `<span class="vote-count" title="현재 득표수"><span style="color:#ef4444; filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));">❤️</span> <span class="vote-num" style="color: #f87171; font-weight: 800;">${song.votes || 0}</span></span>`;
+                    if (showVotes) {
+                        voteCountHtml = `<span class="vote-count" title="현재 득표수"><span style="color:#ef4444; filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));">❤️</span> <span class="vote-num" style="color: #f87171; font-weight: 800;">${song.votes || 0}</span></span>`;
+                    }
                 }
 
                 const item = document.createElement('div');
@@ -7349,18 +7515,20 @@
                                 <div class="song-title">
                                     <span class="track-num-badge">#${trackNum}</span>
                                     <span class="track-title-text">${song.title}</span>
+                                </div>
+                                <div class="song-meta-row">
+                                    <span class="song-author" style="display: ${showAuthor ? 'inline-flex' : 'none'}; align-items:center; gap:4px;">👤 <b style="color:#e2e8f0;">${song.author}</b></span>
                                     ${genreBadgesHtml}
                                 </div>
-                                <div class="song-author" style="display: ${showAuthor ? 'block' : 'none'};">아티스트: <b style="color:#e2e8f0;">${song.author}</b></div>
                             </div>
                         </div>
                         <div class="action-group">
                             ${voteBtnHtml}
+                            ${voteCountHtml}
                             <button type="button" id="btn_${song.id}" onclick="toggleInlinePlayer('${song.id}')" class="listen-btn">노래 듣기</button>
                             <button type="button" id="lyrics_btn_${song.id}" onclick="toggleLyricsPopup('${song.id}')" class="lyrics-card-btn">가사 보기</button>
                             ${editBtnHtml}
                             ${deleteBtnHtml}
-                            ${voteCountHtml}
                         </div>
                     </div>
                     <div id="player_${song.id}" class="player-container"></div>
