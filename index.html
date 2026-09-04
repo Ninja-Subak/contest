@@ -3181,7 +3181,7 @@
                 <span class="master-track-indicator" id="masterTrackIndicator">1번 트랙</span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <button type="button" class="master-continuous-badge" id="masterContinuousBadge" onclick="toggleMasterRepeat()" title="노래 자동 이어 듣기 (연속 듣기) - 클릭하여 켜기/끄기">
+                <button type="button" class="master-continuous-badge" id="masterContinuousBadge" onclick="toggleContinuousPlay()" title="노래 자동 이어 듣기 (연속 듣기) - 클릭하여 켜기/끄기">
                     🔁 자동 이어 듣기 ON
                 </button>
                 <button type="button" class="master-lyrics-bar-btn" id="masterLyricsBtn" onclick="toggleMasterLyrics()" title="현재 곡 가사 보기">
@@ -3243,7 +3243,7 @@
             </button>
 
             <!-- 4. 반복 모드 (전체/1곡) -->
-            <button type="button" class="master-ctrl-btn active" id="masterRepeatBtn" onclick="toggleMasterRepeat()" title="반복 모드 (전체 반복 / 한곡 반복)" aria-label="반복 모드">
+            <button type="button" class="master-ctrl-btn active" id="masterRepeatBtn" onclick="toggleContinuousPlay()" title="노래 자동 이어 듣기 (연속 듣기) - 클릭하여 켜기/끄기" aria-label="반복 모드">
                 <span id="masterRepeatIconWrap">
                     <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
                         <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
@@ -4221,11 +4221,8 @@
                 if (!author) author = song.author;
             }
 
-            // 마스터 사운드 콘솔과 실시간 동기화
-            const songIndex = songs.findIndex(s => String(s.id) === String(id));
-            if (songIndex !== -1) {
-                loadMasterSong(songIndex);
-            }
+            // 🔇 목록 인라인 플레이어: 마스터 콘솔 연속 재생 간섭 방지 및 독립 재생
+            isMasterConsoleActivePlayback = false;
 
             // 다른 곡 재생 중이면 모두 닫기
             document.querySelectorAll('.player-container').forEach(el => {
@@ -5103,24 +5100,33 @@
             }
         };
 
-        // 🎧 웹 오디오 및 인앱 플레이어 실제 사운드 재생/일시정지 실시간 연동
+        // 🎧 웹 오디오 실제 사운드 재생/일시정지 실시간 연동 (마스터 콘솔 전용)
         document.addEventListener('play', function(e) {
             if (e.target && e.target.tagName === 'AUDIO') {
-                setMasterDotPlaying(true);
+                const isMasterAudio = e.target.closest && e.target.closest('#masterPlayerCard');
+                if (isMasterAudio) {
+                    isMasterConsoleActivePlayback = true;
+                    setMasterDotPlaying(true);
+                }
             }
         }, true);
         document.addEventListener('pause', function(e) {
             if (e.target && e.target.tagName === 'AUDIO') {
-                const anyPlaying = Array.from(document.querySelectorAll('audio')).some(a => !a.paused && !a.ended);
-                if (!anyPlaying) setMasterDotPlaying(false);
+                const isMasterAudio = e.target.closest && e.target.closest('#masterPlayerCard');
+                if (isMasterAudio) {
+                    setMasterDotPlaying(false);
+                }
             }
         }, true);
         document.addEventListener('ended', function(e) {
             if (e.target && e.target.tagName === 'AUDIO') {
-                const anyPlaying = Array.from(document.querySelectorAll('audio')).some(a => !a.paused && !a.ended);
-                if (!anyPlaying) setMasterDotPlaying(false);
-                if (masterRepeatMode !== 'off') {
-                    playMasterNextTrack();
+                const isMasterAudio = e.target.closest && e.target.closest('#masterPlayerCard');
+                if (isMasterAudio) {
+                    setMasterDotPlaying(false);
+                    // 오직 마스터 콘솔 영역에서 재생된 경우에만 연속 재생 실행
+                    if (isMasterConsoleActivePlayback && isContinuousPlayEnabled && masterRepeatMode !== 'off') {
+                        playMasterNextTrack();
+                    }
                 }
             }
         }, true);
@@ -5182,6 +5188,7 @@
         }
 
         function toggleSoundCloudPlayback() {
+            isMasterConsoleActivePlayback = true;
             if (scWidget && typeof scWidget.toggle === 'function') {
                 scWidget.toggle();
             }
@@ -5215,7 +5222,12 @@
             });
         }
 
-        window.loadMasterSong = async function(index) {
+        let isMasterConsoleActivePlayback = false;
+
+        window.loadMasterSong = async function(index, fromMasterControl = false) {
+            if (fromMasterControl) {
+                isMasterConsoleActivePlayback = true;
+            }
             if (!songs || songs.length === 0) return;
             if (index < 0) index = songs.length - 1;
             if (index >= songs.length) index = 0;
@@ -5291,14 +5303,17 @@
                             },
                             'onStateChange': function(e) {
                                 if (e.data === 1) { // 재생 중
+                                    isMasterConsoleActivePlayback = true;
                                     setMasterDotPlaying(true);
                                 } else if (e.data === 0) { // 종료
                                     setMasterDotPlaying(false);
-                                    if (masterRepeatMode === 'one') {
-                                        e.target.seekTo(0);
-                                        e.target.playVideo();
-                                    } else {
-                                        playMasterNextTrack();
+                                    if (isMasterConsoleActivePlayback && isContinuousPlayEnabled && masterRepeatMode !== 'off') {
+                                        if (masterRepeatMode === 'one') {
+                                            e.target.seekTo(0);
+                                            e.target.playVideo();
+                                        } else {
+                                            playMasterNextTrack();
+                                        }
                                     }
                                 } else {
                                     setMasterDotPlaying(false);
@@ -5319,6 +5334,7 @@
                         scWidget.setVolume(currentMasterVolume * 100);
                     });
                     scWidget.bind(SC.Widget.Events.PLAY, function() {
+                        isMasterConsoleActivePlayback = true;
                         setMasterDotPlaying(true);
                     });
                     scWidget.bind(SC.Widget.Events.PAUSE, function() {
@@ -5326,11 +5342,13 @@
                     });
                     scWidget.bind(SC.Widget.Events.FINISH, function() {
                         setMasterDotPlaying(false);
-                        if (masterRepeatMode === 'one') {
-                            scWidget.seekTo(0);
-                            scWidget.play();
-                        } else {
-                            playMasterNextTrack();
+                        if (isMasterConsoleActivePlayback && isContinuousPlayEnabled && masterRepeatMode !== 'off') {
+                            if (masterRepeatMode === 'one') {
+                                scWidget.seekTo(0);
+                                scWidget.play();
+                            } else {
+                                playMasterNextTrack();
+                            }
                         }
                     });
                 } catch(e) {}
@@ -5465,11 +5483,16 @@
             `;
         };
 
-        // ⏭ 다음 곡 재생
+        // ⏭ 다음 곡 재생 (마스터 콘솔 재생 전용)
         window.playMasterNextTrack = function() {
             if (!songs || songs.length === 0) return;
+            if (!isContinuousPlayEnabled || masterRepeatMode === 'off') {
+                setMasterDotPlaying(false);
+                return;
+            }
+            isMasterConsoleActivePlayback = true;
             if (masterRepeatMode === 'one' && currentMasterSongIndex >= 0) {
-                loadMasterSong(currentMasterSongIndex);
+                loadMasterSong(currentMasterSongIndex, true);
                 return;
             }
             if (isMasterShuffle && songs.length > 1) {
@@ -5477,32 +5500,34 @@
                 do {
                     nextIdx = Math.floor(Math.random() * songs.length);
                 } while (nextIdx === currentMasterSongIndex);
-                loadMasterSong(nextIdx);
+                loadMasterSong(nextIdx, true);
                 return;
             }
             const nextIdx = (currentMasterSongIndex + 1) % songs.length;
-            loadMasterSong(nextIdx);
+            loadMasterSong(nextIdx, true);
         };
 
         // ⏮ 이전 곡 재생
         window.playMasterPrevTrack = function() {
             if (!songs || songs.length === 0) return;
+            isMasterConsoleActivePlayback = true;
             const prevIdx = (currentMasterSongIndex - 1 + songs.length) % songs.length;
-            loadMasterSong(prevIdx);
+            loadMasterSong(prevIdx, true);
         };
 
         // 🔀 셔플 (무작위 곡 이동)
         window.playMasterShuffleTrack = function() {
             if (!songs || songs.length === 0) return;
+            isMasterConsoleActivePlayback = true;
             if (songs.length === 1) {
-                loadMasterSong(0);
+                loadMasterSong(0, true);
                 return;
             }
             let nextIdx;
             do {
                 nextIdx = Math.floor(Math.random() * songs.length);
             } while (nextIdx === currentMasterSongIndex);
-            loadMasterSong(nextIdx);
+            loadMasterSong(nextIdx, true);
         };
 
         // 🔁 반복 모드 토글 (전체 반복 <-> 1곡 반복)
@@ -5560,35 +5585,39 @@
             }
         };
 
-        window.toggleMasterRepeat = function() {
-            const btn = document.getElementById('masterRepeatBtn');
-            const lbl = document.getElementById('masterRepeatText');
-            const iconWrap = document.getElementById('masterRepeatIconWrap');
+        // 🔁 자동 이어 듣기 (연속 듣기) ON / OFF 토글 함수
+        let isContinuousPlayEnabled = true;
 
-            if (masterRepeatMode === 'all') {
-                masterRepeatMode = 'one';
-                
-                if (btn) btn.classList.add('active');
-                if (iconWrap) {
-                    iconWrap.innerHTML = `
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-                            <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
-                            <text x="12" y="14" font-size="7" font-weight="900" text-anchor="middle" fill="currentColor">1</text>
-                        </svg>
-                    `;
-                }
-            } else {
+        window.toggleContinuousPlay = function() {
+            isContinuousPlayEnabled = !isContinuousPlayEnabled;
+            const badge = document.getElementById('masterContinuousBadge');
+            const repeatBtn = document.getElementById('masterRepeatBtn');
+
+            if (isContinuousPlayEnabled) {
                 masterRepeatMode = 'all';
-                
-                if (btn) btn.classList.add('active');
-                if (iconWrap) {
-                    iconWrap.innerHTML = `
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-                            <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
-                        </svg>
-                    `;
+                if (badge) {
+                    badge.classList.remove('off');
+                    badge.classList.add('active');
+                    badge.innerHTML = '🔁 자동 이어 듣기 ON';
+                    badge.setAttribute('title', '노래 자동 이어 듣기 (연속 듣기) 켜짐 - 클릭하여 끄기');
                 }
+                if (repeatBtn) repeatBtn.classList.add('active');
+                showPlayerToast('노래 자동 이어 듣기가 켜졌습니다 (ON)', '🔁');
+            } else {
+                masterRepeatMode = 'off';
+                if (badge) {
+                    badge.classList.remove('active');
+                    badge.classList.add('off');
+                    badge.innerHTML = '⏹ 자동 이어 듣기 OFF';
+                    badge.setAttribute('title', '노래 자동 이어 듣기 (연속 듣기) 꺼짐 - 클릭하여 켜기');
+                }
+                if (repeatBtn) repeatBtn.classList.remove('active');
+                showPlayerToast('노래 자동 이어 듣기가 꺼졌습니다 (OFF)', '⏹');
             }
+        };
+
+        window.toggleMasterRepeat = function() {
+            toggleContinuousPlay();
         };
 
         // ==========================================
@@ -6272,7 +6301,7 @@
                     <div class="song-row">
                         <div class="song-main-col">
                             <!-- 🖼️ 개별 트랙 좌측 앨범아트 썸네일 (클릭 시 마스터 콘솔 즉시 재생) -->
-                            <div class="song-cover-thumb-box" onclick="loadMasterSong(${playTargetIndex})" title="마스터 콘솔에서 즉시 재생">
+                            <div class="song-cover-thumb-box" onclick="loadMasterSong(${playTargetIndex}, true)" title="마스터 콘솔에서 즉시 재생">
                                 <img class="song-cover-thumb-img" id="cover_thumb_${song.id}" src="${coverUrl}" alt="${safeTitle}" loading="lazy" onerror="handleCoverError(this, '${safeUrl}', '${song.id}')" />
                                 <div class="song-cover-play-icon">▶</div>
                             </div>
