@@ -3181,6 +3181,9 @@
                 <span class="master-track-indicator" id="masterTrackIndicator">1번 트랙</span>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
+                <button type="button" class="master-continuous-badge" id="masterContinuousBadge" onclick="toggleMasterRepeat()" title="노래 자동 이어 듣기 (연속 듣기) - 클릭하여 켜기/끄기">
+                    🔁 자동 이어 듣기 ON
+                </button>
                 <button type="button" class="master-lyrics-bar-btn" id="masterLyricsBtn" onclick="toggleMasterLyrics()" title="현재 곡 가사 보기">
                     📜 가사 보기
                 </button>
@@ -3266,13 +3269,27 @@
             <h3 style="margin-bottom: 0;">🎵 새로운 음악 / 트랙 등록하기</h3>
             <button type="button" class="form-restore-btn" id="formRestoreBtn" onclick="restoreRecentlyDeletedSong()" title="최근 삭제한 내 곡 복구하기" style="display: none;">↩️ 삭제 복구</button>
         </div>
-        <div class="input-group">
+        <!-- 🔗 스트리밍 링크 입력 (원클릭 자동 분석) -->
+        <div class="input-group" style="margin-bottom: 10px;">
+            <input type="text" id="sunoUrl" placeholder="스트리밍 링크를 붙여넣으세요 (Suno, 사운드클라우드, 유튜브)" oninput="handleUrlInputChange()" onpaste="handleUrlPaste(event)">
+        </div>
+
+        <!-- ✨ 스마트 프리뷰 카드 (링크 입력 시 곡명/아티스트/장르/커버 자동 표출) -->
+        <div id="autoPreviewCard" class="auto-preview-card" style="display: none; margin-bottom: 12px;"></div>
+
+        <!-- ✏️ 직접 입력/수정 토글 버튼 & 접이식 패널 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 12px; color: #94a3b8;">💡 링크만 넣으면 아티스트·제목·장르가 자동 분석됩니다</span>
+            <button type="button" class="manual-toggle-btn" id="manualToggleBtn" onclick="toggleManualFields()">✏️ 직접 입력/수정</button>
+        </div>
+
+        <div id="manualFieldsWrap" class="manual-fields-wrap" style="display: none;">
             <input type="text" id="authorName" placeholder="닉네임 / 아티스트 (예: 닌자수박)" maxlength="20">
             <input type="text" id="songTitle" placeholder="노래 제목 (예: 우주를 건너서)" maxlength="30">
             <input type="text" id="songGenre" placeholder="음악 장르 (복수 입력 시 쉼표로 구분 예: 발라드, R&B)" maxlength="50">
-            <input type="text" id="sunoUrl" placeholder="스트리밍 링크 (Suno, 유튜브/유튜브뮤직, 사운드클라우드)">
         </div>
-        <button type="button" onclick="registerSong()" class="submit-btn">스트리밍 트랙 등록하기</button>
+
+        <button type="button" onclick="registerSong()" class="submit-btn" id="registerSubmitBtn">스트리밍 트랙 등록하기</button>
     </div>
 
     <div class="card">
