@@ -3633,7 +3633,7 @@
             }
         };
 
-        // 📜 가사 보기 팝업 창 펼치기/접기 함수
+        // 📜 가사 보기 팝업 창 펼치기/접기 함수 (목록 카드 전용)
         window.toggleLyricsPopup = async function(id) {
             const lyricsBox = document.getElementById('lyrics_' + id);
             const lyricsBtn = document.getElementById('lyrics_btn_' + id);
@@ -3661,43 +3661,97 @@
             const song = songs.find(s => String(s.id) === String(id));
             if (!song) return;
 
-            // 1. 캐시 확인
-            if (sunoCache.has(song.url) && sunoCache.get(song.url).lyrics) {
-                displayLyricsContent(lyricsContent, sunoCache.get(song.url).lyrics);
-                return;
-            }
-
-            // 2. 스프레드시트 자체 필드 확인
+            // 1. 등록된 가사 필드 확인
             if (song.lyrics) {
                 displayLyricsContent(lyricsContent, song.lyrics);
                 return;
             }
 
-            // 3. 로딩 상태
-            lyricsContent.innerHTML = `
-                <div style="padding: 20px; text-align: center; color: var(--text-sub); font-size: 14px;">
-                    ⏳ 수노 가사를 불러오는 중입니다... 잠시만 기다려주세요.
-                </div>
-            `;
+            const pInfo = detectStreamingPlatform(song.url || '');
 
-            try {
-                const data = await resolveSunoTrack(song.url);
-                if (data && data.lyrics) {
-                    displayLyricsContent(lyricsContent, data.lyrics);
-                } else {
+            // 2. Suno 음원
+            if (pInfo.platform === 'suno') {
+                if (sunoCache.has(song.url) && sunoCache.get(song.url).lyrics) {
+                    displayLyricsContent(lyricsContent, sunoCache.get(song.url).lyrics);
+                    return;
+                }
+
+                lyricsContent.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: var(--text-sub); font-size: 14px;">
+                        ⏳ 수노 가사를 불러오는 중입니다... 잠시만 기다려주세요.
+                    </div>
+                `;
+
+                try {
+                    const data = await resolveSunoTrack(song.url);
+                    if (data && data.lyrics) {
+                        displayLyricsContent(lyricsContent, data.lyrics);
+                    } else {
+                        lyricsContent.innerHTML = `
+                            <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 14px;">
+                                ℹ️ 등록된 가사가 없거나 연주곡(Instrumental)입니다.
+                            </div>
+                        `;
+                    }
+                } catch (err) {
                     lyricsContent.innerHTML = `
-                        <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 14px;">
-                            ℹ️ 등록된 가사가 없거나 연주곡(Instrumental)입니다.
+                        <div style="padding: 20px; text-align: center; color: #ef4444; font-size: 14px;">
+                            ⚠️ 가사를 불러오지 못했습니다: ${err.message}
                         </div>
                     `;
                 }
-            } catch (err) {
+                return;
+            }
+
+            // 3. SoundCloud 음원
+            if (pInfo.platform === 'soundcloud') {
                 lyricsContent.innerHTML = `
-                    <div style="padding: 20px; text-align: center; color: #ef4444; font-size: 14px;">
-                        ⚠️ 가사를 불러오지 못했습니다: ${err.message}
+                    <div style="padding: 20px; text-align: center; color: var(--text-sub); font-size: 14px;">
+                        ⏳ 사운드클라우드 가사 정보를 확인하는 중입니다...
                     </div>
                 `;
+                try {
+                    const res = await fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(pInfo.id)}`);
+                    const oData = await res.json();
+                    if (oData && oData.description && oData.description.trim().length > 15) {
+                        const cleanDesc = oData.description.replace(/<br\s*[\/]?>/gi, '\n').replace(/<[^>]+>/g, '').trim();
+                        displayLyricsContent(lyricsContent, cleanDesc);
+                    } else {
+                        lyricsContent.innerHTML = `
+                            <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 14px; line-height: 1.6;">
+                                ℹ️ <b>사운드클라우드 가사 안내</b><br>
+                                해당 음원은 아티스트 설명란(Description)에 별도의 가사가 기재되지 않았거나 연주곡(Instrumental)입니다. 🎧
+                            </div>
+                        `;
+                    }
+                } catch(e) {
+                    lyricsContent.innerHTML = `
+                        <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 14px; line-height: 1.6;">
+                            ℹ️ <b>사운드클라우드 가사 안내</b><br>
+                            사운드클라우드 음원은 아티스트가 곡 설명(Description)에 가사를 기재한 경우에 한해 가사를 확인할 수 있습니다.
+                        </div>
+                    `;
+                }
+                return;
             }
+
+            // 4. YouTube / YouTube Music 음원
+            if (pInfo.platform === 'youtube') {
+                lyricsContent.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 14px; line-height: 1.6;">
+                        ℹ️ <b>유튜브 / 유튜브 뮤직 가사 안내</b><br>
+                        유튜브 및 유튜브 뮤직 스트리밍은 저작권 및 플랫폼 정책상 외부 가사 텍스트 추출이 제공되지 않습니다.<br>
+                        영상 화면 내부의 <b>자막(CC) 버튼</b> 또는 유튜브 뮤직 앱의 <b>[가사] 탭</b>을 통해 가사를 확인하실 수 있습니다. 🎵
+                    </div>
+                `;
+                return;
+            }
+
+            lyricsContent.innerHTML = `
+                <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 14px;">
+                    ℹ️ 등록된 가사가 없습니다.
+                </div>
+            `;
         };
 
         function cleanLyricsRobust(raw) {
@@ -4147,6 +4201,134 @@
                 } catch(e) {}
             }
         }
+
+// ==========================================
+        // 📜 마스터 콘솔 가사 보기 제어 함수
+        // ==========================================
+        window.toggleMasterLyrics = function() {
+            const box = document.getElementById('masterLyricsBox');
+            const btn = document.getElementById('masterLyricsBtn');
+            if (!box) return;
+
+            if (box.style.display === 'block') {
+                box.style.display = 'none';
+                if (btn) {
+                    btn.classList.remove('active');
+                    btn.innerHTML = '📜 가사 보기';
+                }
+            } else {
+                box.style.display = 'block';
+                if (btn) {
+                    btn.classList.add('active');
+                    btn.innerHTML = '📜 가사 닫기';
+                }
+                if (currentMasterSongIndex >= 0 && songs && songs[currentMasterSongIndex]) {
+                    updateMasterLyricsDisplay(songs[currentMasterSongIndex]);
+                }
+            }
+        };
+
+        window.updateMasterLyricsDisplay = async function(song) {
+            const titleEl = document.getElementById('masterLyricsTitle');
+            const contentEl = document.getElementById('masterLyricsContent');
+            if (!contentEl || !song) return;
+
+            if (titleEl) {
+                titleEl.innerText = `${song.title || '재생 곡'} - 가사`;
+            }
+
+            // 1. 등록된 가사 필드가 직접 있는 경우
+            if (song.lyrics) {
+                displayLyricsContent(contentEl, song.lyrics);
+                return;
+            }
+
+            const pInfo = detectStreamingPlatform(song.url || '');
+
+            // 2. Suno 음원: 가사 자동 추출
+            if (pInfo.platform === 'suno') {
+                if (sunoCache.has(song.url) && sunoCache.get(song.url).lyrics) {
+                    displayLyricsContent(contentEl, sunoCache.get(song.url).lyrics);
+                    return;
+                }
+
+                contentEl.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: var(--text-sub); font-size: 14px;">
+                        ⏳ 수노 가사를 불러오는 중입니다... 잠시만 기다려주세요.
+                    </div>
+                `;
+
+                try {
+                    const data = await resolveSunoTrack(song.url);
+                    if (data && data.lyrics) {
+                        displayLyricsContent(contentEl, data.lyrics);
+                    } else {
+                        contentEl.innerHTML = `
+                            <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 14px;">
+                                ℹ️ 등록된 가사가 없거나 연주곡(Instrumental)입니다.
+                            </div>
+                        `;
+                    }
+                } catch (err) {
+                    contentEl.innerHTML = `
+                        <div style="padding: 20px; text-align: center; color: #ef4444; font-size: 14px;">
+                            ⚠️ 가사를 불러오지 못했습니다: ${err.message}
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            // 3. SoundCloud 음원
+            if (pInfo.platform === 'soundcloud') {
+                contentEl.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: var(--text-sub); font-size: 14px;">
+                        ⏳ 사운드클라우드 가사 정보를 확인하는 중입니다...
+                    </div>
+                `;
+                try {
+                    const res = await fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(pInfo.id)}`);
+                    const oData = await res.json();
+                    if (oData && oData.description && oData.description.trim().length > 15) {
+                        const cleanDesc = oData.description.replace(/<br\s*[\/]?>/gi, '\n').replace(/<[^>]+>/g, '').trim();
+                        displayLyricsContent(contentEl, cleanDesc);
+                    } else {
+                        contentEl.innerHTML = `
+                            <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 14px; line-height: 1.6;">
+                                ℹ️ <b>사운드클라우드 가사 안내</b><br>
+                                해당 음원은 아티스트 설명란(Description)에 별도의 가사가 기재되지 않았거나 연주곡(Instrumental)입니다. 🎧
+                            </div>
+                        `;
+                    }
+                } catch(e) {
+                    contentEl.innerHTML = `
+                        <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 14px; line-height: 1.6;">
+                            ℹ️ <b>사운드클라우드 가사 안내</b><br>
+                            사운드클라우드 음원은 아티스트가 곡 설명(Description)에 가사를 기재한 경우에 한해 가사를 확인할 수 있습니다.
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            // 4. YouTube / YouTube Music 음원
+            if (pInfo.platform === 'youtube') {
+                contentEl.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 14px; line-height: 1.6;">
+                        ℹ️ <b>유튜브 / 유튜브 뮤직 가사 안내</b><br>
+                        유튜브 및 유튜브 뮤직 스트리밍은 저작권 및 플랫폼 API 정책상 외부 가사 텍스트 추출이 제공되지 않습니다.<br>
+                        영상 화면 내부의 <b>자막(CC) 버튼</b> 또는 유튜브 뮤직 앱의 <b>[가사] 탭</b>을 통해 가사를 확인하실 수 있습니다. 🎵
+                    </div>
+                `;
+                return;
+            }
+
+            contentEl.innerHTML = `
+                <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 14px;">
+                    ℹ️ 등록된 가사가 없습니다.
+                </div>
+            `;
+        };
 
         // ⏭ 다음 곡 재생
         window.playMasterNextTrack = function() {
