@@ -25,7 +25,7 @@
 
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; 
-            max-width: 780px; 
+            max-width: 960px; 
             margin: 0 auto; 
             padding: 40px 20px 60px 20px; 
             background-color: var(--void-bg); 
@@ -685,16 +685,16 @@
 
         .song-row {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
             width: 100%;
         }
         .song-main-col {
             display: flex;
             align-items: center;
             gap: 14px;
-            flex: 1 1 260px;
+            width: 100%;
             min-width: 0;
         }
         .song-info {
@@ -704,52 +704,56 @@
         }
         .song-title { 
             font-weight: 800; 
-            font-size: 17px; 
+            font-size: 17.5px; 
             color: #f8fafc; 
-            margin-bottom: 4px; 
+            margin-bottom: 5px; 
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             min-width: 0;
+            flex-wrap: wrap;
         }
         .track-title-text {
-            font-size: 17px;
+            font-size: 17.5px;
             font-weight: 800;
             color: #ffffff;
             word-break: keep-all;
+            overflow-wrap: break-word;
             white-space: normal;
             line-height: 1.35;
-            display: inline-block;
         }
         .song-meta-row {
             display: flex;
             align-items: center;
             flex-wrap: wrap;
             gap: 8px;
-            font-size: 12.5px;
+            font-size: 13px;
             color: #94a3b8;
         }
         .song-author {
-            font-size: 12.5px;
+            font-size: 13px;
             color: #94a3b8;
             white-space: nowrap;
         }
         .action-group {
             display: flex;
             align-items: center;
+            justify-content: flex-start;
             gap: 8px;
-            flex-shrink: 0;
-            flex-wrap: nowrap;
-            justify-content: flex-end;
+            width: 100%;
+            flex-wrap: wrap;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
         .action-group .vote-count {
             display: inline-flex;
             align-items: center;
-            gap: 3px;
-            margin-right: 4px;
+            gap: 4px;
+            margin-left: 2px;
+            margin-right: 6px;
             white-space: nowrap;
-            font-size: 13.5px;
+            font-size: 14px;
         }
         
         /* 🎧 사이버 시안 네온 [노래 듣기] 버튼 */
@@ -2474,12 +2478,12 @@
             .action-group .listen-btn,
             .action-group .lyrics-card-btn,
             .action-group .vote-btn {
-                flex: 1 1 auto !important;
+                flex: 0 0 auto !important;
                 min-width: 80px !important;
                 text-align: center !important;
-                padding: 9px 8px !important;
-                font-size: 12px !important;
-                border-radius: 8px !important;
+                padding: 8px 14px !important;
+                font-size: 12.5px !important;
+                border-radius: 9px !important;
             }
             .action-group .edit-btn,
             .action-group .delete-btn {
