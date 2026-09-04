@@ -385,6 +385,153 @@
         }
 
         
+        
+        /* 💫 링크 입력창 흘러가는 로테이션 플레이스홀더 (마퀴 티커) */
+        .url-marquee-group {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        .url-input-marquee {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+            overflow: hidden;
+            padding: 0 16px;
+            box-sizing: border-box;
+            z-index: 5;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+        .url-input-marquee .marquee-track {
+            display: inline-block;
+            white-space: nowrap;
+            will-change: transform;
+            animation: marqueeScroll 18s linear infinite;
+        }
+        .url-input-marquee span {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            user-select: none;
+        }
+        @keyframes marqueeScroll {
+            0% {
+                transform: translateX(0%);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        #sunoUrl:focus ~ .url-input-marquee,
+        .url-marquee-group.has-value .url-input-marquee {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        /* 📄 실시간 스트리밍 재생 목록 10개 1페이지 상단/하단 페이지네이션 바 */
+        .playlist-pagination-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            padding: 9px 18px;
+            margin: 6px 0 12px 0;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(0, 242, 254, 0.22);
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        }
+        .playlist-pagination-bar.bottom {
+            margin: 18px 0 6px 0;
+        }
+        .page-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 242, 254, 0.35);
+            background: rgba(0, 242, 254, 0.08);
+            color: #00f2fe;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
+            outline: none;
+            user-select: none;
+        }
+        .page-nav-btn:hover:not(:disabled) {
+            background: rgba(0, 242, 254, 0.22);
+            border-color: #00f2fe;
+            box-shadow: 0 0 16px rgba(0, 242, 254, 0.45);
+            transform: translateY(-1px);
+        }
+        .page-nav-btn:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+        .page-nav-btn:disabled {
+            opacity: 0.28;
+            cursor: not-allowed;
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            color: #64748b;
+            box-shadow: none;
+            transform: none;
+        }
+        .page-nav-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 16px;
+            background: rgba(2, 6, 23, 0.75);
+            border: 1px solid rgba(0, 242, 254, 0.28);
+            border-radius: 20px;
+            font-size: 13.5px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            font-variant-numeric: tabular-nums;
+            box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4);
+        }
+        .page-nav-current {
+            color: #00f2fe;
+            font-weight: 800;
+            text-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+        }
+        .page-nav-divider {
+            color: #64748b;
+            font-weight: 400;
+        }
+        .page-nav-total {
+            color: #cbd5e1;
+        }
+
+        /* 🔘 마스터 컨트롤러 버튼: OFF 상태 시 하이라이트 잔류 완전 차단 */
+        .master-ctrl-btn:not(.active):hover,
+        .master-ctrl-btn:not(.active):focus {
+            color: #cbd5e1 !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            box-shadow: none !important;
+            filter: none !important;
+        }
+        .master-continuous-badge.off,
+        .master-continuous-badge.off:hover,
+        .master-continuous-badge.off:focus {
+            background: rgba(148, 163, 184, 0.12) !important;
+            color: #94a3b8 !important;
+            border-color: rgba(148, 163, 184, 0.28) !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+    
+
         /* ✕ 등록 폼 취소 / 초기화 버튼 */
         .register-cancel-btn {
             background: rgba(239, 68, 68, 0.14);
@@ -3297,8 +3444,13 @@
             </div>
         </div>
         <!-- 🔗 스트리밍 링크 입력 (원클릭 자동 분석) -->
-        <div class="input-group" style="margin-bottom: 8px; margin-top: 4px;">
-            <input type="text" id="sunoUrl" placeholder="스트리밍 링크를 붙여넣으세요 (Suno, 사운드클라우드, 유튜브)" oninput="handleUrlInputChange()" onpaste="handleUrlPaste(event)">
+        <div class="input-group url-marquee-group" style="margin-bottom: 8px; margin-top: 4px; position: relative;">
+            <input type="text" id="sunoUrl" placeholder="" oninput="handleUrlInputChange(); updateUrlMarqueeState();" onpaste="handleUrlPaste(event)">
+            <div class="url-input-marquee" id="sunoUrlMarquee" onclick="document.getElementById('sunoUrl').focus()">
+                <div class="marquee-track">
+                    <span>🔗 스트리밍 링크를 붙여넣으세요 (Suno, 사운드클라우드, 유튜브, 유튜브 뮤직) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔗 스트리밍 링크를 붙여넣으세요 (Suno, 사운드클라우드, 유튜브, 유튜브 뮤직) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                </div>
+            </div>
         </div>
 
         <!-- ✨ 스마트 프리뷰 카드 (링크 입력 시 곡명/아티스트/장르/커버 자동 표출) -->
@@ -3330,6 +3482,25 @@
                 </button>
                 <span class="total-songs-badge" id="totalSongsBadge">총 0곡</span>
             </div>
+        </div>
+
+        <!-- ◀ 1 / 3 ▶ 상단 페이지네이션 바 (재생목록 채널 카드 제일 위) -->
+        <div class="playlist-pagination-bar top" id="playlistPaginationTop">
+            <button type="button" class="page-nav-btn prev" id="pagePrevBtnTop" onclick="changePlaylistPage(-1)" title="이전 페이지" aria-label="이전 페이지">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <div class="page-nav-indicator" title="현재 페이지 / 전체 페이지">
+                <span class="page-nav-current" id="pageNavCurrentTop">1</span>
+                <span class="page-nav-divider">/</span>
+                <span class="page-nav-total" id="pageNavTotalTop">1</span>
+            </div>
+            <button type="button" class="page-nav-btn next" id="pageNextBtnTop" onclick="changePlaylistPage(1)" title="다음 페이지" aria-label="다음 페이지">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
         </div>
 
         <!-- 🔍 실시간 검색 & 카테고리 필터 바 (제작자, 제목, 음악 장르) -->
@@ -3379,6 +3550,25 @@
 
         <div id="contestList">
             <div class="loading">데이터를 불러오는 중입니다...</div>
+        </div>
+
+        <!-- ◀ 1 / 3 ▶ 하단 페이지네이션 바 (재생목록 채널 카드 제일 아래) -->
+        <div class="playlist-pagination-bar bottom" id="playlistPaginationBottom">
+            <button type="button" class="page-nav-btn prev" id="pagePrevBtnBottom" onclick="changePlaylistPage(-1, true)" title="이전 페이지" aria-label="이전 페이지">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <div class="page-nav-indicator" title="현재 페이지 / 전체 페이지">
+                <span class="page-nav-current" id="pageNavCurrentBottom">1</span>
+                <span class="page-nav-divider">/</span>
+                <span class="page-nav-total" id="pageNavTotalBottom">1</span>
+            </div>
+            <button type="button" class="page-nav-btn next" id="pageNextBtnBottom" onclick="changePlaylistPage(1, true)" title="다음 페이지" aria-label="다음 페이지">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
         </div>
     </div>
 
@@ -3551,6 +3741,8 @@
         const sunoCache = new Map();
 
         let songs = [];
+        window.getSongs = function() { return songs; };
+        window.setSongs = function(s) { songs = s; window.songs = s; };
         // hasVoted deleted
         // myVotedId deleted
         let isAdmin = localStorage.getItem('sunoAdminMode') === 'true';
@@ -3649,6 +3841,44 @@
                 }
             }, 350);
         }
+
+        // 🔔 사이버 글로벌 토스트 알림 함수
+        let playerToastTimeout = null;
+        window.showPlayerToast = function(msg, icon = 'ℹ️') {
+            let toast = document.getElementById('playerGlobalToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'playerGlobalToast';
+                toast.className = 'undo-toast';
+                toast.style.display = 'none';
+                toast.style.zIndex = '99999';
+                toast.innerHTML = `
+                    <div class="undo-toast-content">
+                        <span class="undo-toast-icon" id="playerGlobalToastIcon">${icon}</span>
+                        <span class="undo-toast-text" id="playerGlobalToastText">${msg}</span>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+            }
+            const iconEl = document.getElementById('playerGlobalToastIcon');
+            const textEl = document.getElementById('playerGlobalToastText');
+            if (iconEl) iconEl.innerText = icon;
+            if (textEl) textEl.innerText = msg;
+
+            toast.style.display = 'flex';
+            void toast.offsetWidth;
+            toast.classList.add('show');
+
+            if (playerToastTimeout) clearTimeout(playerToastTimeout);
+            playerToastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (!toast.classList.contains('show')) {
+                        toast.style.display = 'none';
+                    }
+                }, 350);
+            }, 2600);
+        };
 
         function updateRestoreButtonUI() {
             const list = getMyDeletedSongs();
@@ -4052,11 +4282,11 @@
                 authorBtn.style.color = "white";
             }
 
-            const infoBtn = document.getElementById('playerInfoToggleBtn');
-            if (infoBtn) {
-                infoBtn.innerText = showPlayerInfo ? "곡 상세정보: ON" : "곡 상세정보: OFF";
-                infoBtn.style.background = showPlayerInfo ? "#10b981" : "#ef4444";
-                infoBtn.style.color = "white";
+            const genreBtn = document.getElementById('genreToggleBtn') || document.getElementById('playerInfoToggleBtn');
+            if (genreBtn) {
+                genreBtn.innerText = showGenre ? "음악 장르: ON" : "음악 장르: OFF";
+                genreBtn.style.background = showGenre ? "#10b981" : "#ef4444";
+                genreBtn.style.color = "white";
             }
 
             const editDeleteBtn = document.getElementById('editDeleteToggleBtn');
@@ -4229,8 +4459,79 @@
             throw new Error("수노 음원 주소를 찾을 수 없습니다. 링크를 확인해 주세요.");
         }
 
+        // 🛑 마스터 콘솔 재생 완전 중지 함수 (재생 목록 재생 시 호출)
+        window.stopMasterPlayback = function() {
+            isMasterConsoleActivePlayback = false;
+            if (typeof setMasterDotPlaying === 'function') {
+                setMasterDotPlaying(false);
+            }
+
+            let pausedByApi = false;
+            // 1. YouTube Iframe API 일시정지
+            if (window.ytPlayer && typeof window.ytPlayer.pauseVideo === 'function') {
+                try {
+                    window.ytPlayer.pauseVideo();
+                    pausedByApi = true;
+                } catch(e) {}
+            }
+
+            // 2. SoundCloud Widget API 일시정지
+            if (window.scWidget && typeof window.scWidget.pause === 'function') {
+                try {
+                    window.scWidget.pause();
+                    pausedByApi = true;
+                } catch(e) {}
+            }
+
+            // 3. 마스터 콘솔 내 HTML5 오디오 일시정지
+            document.querySelectorAll('#masterPlayerCard audio').forEach(a => {
+                try {
+                    a.pause();
+                } catch(e) {}
+            });
+
+            // 4. Suno 공식 임베드 및 기타 iframe 오디오 즉각 중지 (초기 정지 상태 리셋)
+            const masterIframe = document.getElementById('masterPlayerIframe');
+            if (masterIframe && masterIframe.src && masterIframe.src !== 'about:blank') {
+                if (!pausedByApi || currentActivePlatform === 'suno') {
+                    try {
+                        masterIframe.src = masterIframe.src;
+                    } catch(e) {}
+                }
+            }
+        };
+
+        // 🛑 실시간 스트리밍 재생 목록 재생 완전 중지 함수 (마스터 콘솔 재생 시 호출)
+        window.stopPlaylistPlayback = function() {
+            // 1. 모든 인라인 플레이어 컨테이너 닫기 및 DOM 비우기 (iframe/audio 사운드 즉각 제거)
+            document.querySelectorAll('.player-container').forEach(el => {
+                el.style.display = 'none';
+                el.innerHTML = '';
+            });
+
+            // 2. [플레이어 닫기] 버튼을 기본 [노래 듣기] 상태로 복구
+            document.querySelectorAll('.listen-btn').forEach(b => {
+                b.classList.remove('active');
+                b.innerText = '노래 듣기';
+            });
+
+            // 3. 목록의 모든 HTML5 오디오 일시정지 및 탐색 위치 초기화
+            document.querySelectorAll('audio').forEach(a => {
+                if (!a.closest('#masterPlayerCard')) {
+                    try {
+                        a.pause();
+                        a.currentTime = 0;
+                    } catch(e) {}
+                }
+            });
+        };
+
         // 🎵 [노래 듣기] 플레이어 열기/닫기 토글
         window.toggleInlinePlayer = async function(id, sunoUrl, title, author) {
+            // 🛑 둘 중 한 곳에서만 재생: 재생 목록에서 곡을 열면 마스터 콘솔 재생 즉시 정지
+            if (typeof stopMasterPlayback === 'function') {
+                stopMasterPlayback();
+            }
             const playerContainer = document.getElementById('player_' + id);
             const btn = document.getElementById('btn_' + id);
 
@@ -4336,6 +4637,7 @@
 
         // 📻 Suno 공식 임베드 플레이어로 전환 함수
         window.switchToEmbed = function(id, embedUrl, audioUrl, proxyAudioUrl, coverImg, encTitle, encAuthor) {
+            if (typeof stopMasterPlayback === 'function') stopMasterPlayback();
             const card = document.getElementById(`card_${id}`);
             if (!card) return;
             const displayTitle = decodeURIComponent(encTitle || '');
@@ -4357,6 +4659,7 @@
 
         // 🎧 모바일 인앱 오디오 플레이어로 전환 함수
         window.switchToInAppAudio = function(id, audioUrl, proxyAudioUrl, coverImg, encTitle, encAuthor, embedUrl) {
+            if (typeof stopMasterPlayback === 'function') stopMasterPlayback();
             const card = document.getElementById(`card_${id}`);
             if (!card) return;
             const displayTitle = decodeURIComponent(encTitle || '');
@@ -4664,6 +4967,19 @@
 
         
         // ✕ 링크 주소 잘못 입력 시 초기화 (취소) 함수
+                // 💫 링크 입력창 마퀴 플레이스홀더 표시/숨김 상태 제어 함수
+        window.updateUrlMarqueeState = function() {
+            const input = document.getElementById('sunoUrl');
+            const group = input ? input.closest('.url-marquee-group') : null;
+            if (group && input) {
+                if (input.value && input.value.trim().length > 0) {
+                    group.classList.add('has-value');
+                } else {
+                    group.classList.remove('has-value');
+                }
+            }
+        };
+
         window.resetRegisterForm = function() {
             clearTimeout(urlInspectDebounce);
             const urlInput = document.getElementById('sunoUrl');
@@ -5141,6 +5457,10 @@
         // 🎵 마스터 콘솔 라이브 인디케이터 점멸/블러 제어 함수
         window.setMasterDotPlaying = function(isPlaying) {
             isMasterAudioPlaying = !!isPlaying;
+            if (isPlaying && typeof stopPlaylistPlayback === 'function') {
+                // 🛑 둘 중 한 곳에서만 재생: 마스터 콘솔 재생 시 재생 목록의 모든 플레이어 즉시 중지
+                stopPlaylistPlayback();
+            }
             const dot = document.getElementById('masterLiveDot');
             const card = document.getElementById('masterPlayerCard');
             const spectrum = document.getElementById('masterSpectrum');
@@ -5163,13 +5483,21 @@
             }
         };
 
-        // 🎧 웹 오디오 실제 사운드 재생/일시정지 실시간 연동 (마스터 콘솔 전용)
+        // 🎧 웹 오디오 실제 사운드 재생/일시정지 실시간 연동 (상호 배타적 단독 재생)
         document.addEventListener('play', function(e) {
             if (e.target && e.target.tagName === 'AUDIO') {
                 const isMasterAudio = e.target.closest && e.target.closest('#masterPlayerCard');
                 if (isMasterAudio) {
                     isMasterConsoleActivePlayback = true;
+                    if (typeof stopPlaylistPlayback === 'function') {
+                        stopPlaylistPlayback();
+                    }
                     setMasterDotPlaying(true);
+                } else {
+                    // 재생 목록의 오디오가 재생되면 마스터 콘솔 즉시 중지
+                    if (typeof stopMasterPlayback === 'function') {
+                        stopMasterPlayback();
+                    }
                 }
             }
         }, true);
@@ -5428,13 +5756,21 @@
         // 📜 마스터 콘솔 가사 보기 제어 함수
         // ==========================================
         
-        // 🎧 마스터 콘솔 임베드 프레임 클릭 감지 (Suno/SoundCloud/YouTube 내부 재생 클릭 시 점멸 활성화)
+        // 🎧 마스터 콘솔 임베드 프레임 클릭 감지 (Suno/SoundCloud/YouTube 내부 재생 클릭 시 점멸 활성화 및 재생목록 중지)
         window.addEventListener('blur', function() {
             setTimeout(() => {
-                const iframe = document.getElementById('masterPlayerIframe');
-                if (document.activeElement === iframe) {
+                const activeEl = document.activeElement;
+                const masterIframe = document.getElementById('masterPlayerIframe');
+                if (activeEl === masterIframe) {
                     isMasterConsoleActivePlayback = true;
+                    if (typeof stopPlaylistPlayback === 'function') {
+                        stopPlaylistPlayback();
+                    }
                     setMasterDotPlaying(true);
+                } else if (activeEl && (activeEl.classList?.contains('suno-embed-frame') || activeEl.closest?.('.player-container'))) {
+                    if (typeof stopMasterPlayback === 'function') {
+                        stopMasterPlayback();
+                    }
                 }
             }, 80);
         });
@@ -5444,6 +5780,9 @@
             if (masterEmbedBox) {
                 masterEmbedBox.addEventListener('pointerdown', function() {
                     isMasterConsoleActivePlayback = true;
+                    if (typeof stopPlaylistPlayback === 'function') {
+                        stopPlaylistPlayback();
+                    }
                     setMasterDotPlaying(true);
                 });
             }
@@ -5606,27 +5945,21 @@
             loadMasterSong(prevIdx, true);
         };
 
-        // 🔀 셔플 (무작위 재생) ON / OFF 토글 함수
+        // 🔀 셔플 (무작위 재생) ON / OFF 순수 토글 함수
         window.playMasterShuffleTrack = function() {
-            if (!songs || songs.length === 0) return;
-            isMasterConsoleActivePlayback = true;
+            const list = (typeof songs !== 'undefined' && songs && songs.length > 0) ? songs : (window.songs || []);
+            if (!list || list.length === 0) return;
             isMasterShuffle = !isMasterShuffle;
 
             const btn = document.getElementById('masterShuffleBtn');
             if (btn) {
                 btn.classList.toggle('active', isMasterShuffle);
                 btn.setAttribute('title', isMasterShuffle ? '셔플 (무작위 재생) 켜짐 - 클릭하여 끄기' : '셔플 (무작위 재생) 꺼짐 - 클릭하여 켜기');
+                try { btn.blur(); } catch(e) {}
             }
 
             if (isMasterShuffle) {
                 showPlayerToast('🔀 셔플 무작위 재생이 켜졌습니다 (ON)', '🔀');
-                if (songs.length > 1) {
-                    let nextIdx;
-                    do {
-                        nextIdx = Math.floor(Math.random() * songs.length);
-                    } while (nextIdx === currentMasterSongIndex);
-                    loadMasterSong(nextIdx, true);
-                }
             } else {
                 showPlayerToast('🔁 순차 연속 재생 모드로 복귀했습니다 (셔플 OFF)', '🔁');
             }
@@ -5702,8 +6035,12 @@
                     badge.classList.add('active');
                     badge.innerHTML = '🔁 자동 이어 듣기 ON';
                     badge.setAttribute('title', '노래 자동 이어 듣기 (연속 듣기) 켜짐 - 클릭하여 끄기');
+                    try { badge.blur(); } catch(e) {}
                 }
-                if (repeatBtn) repeatBtn.classList.add('active');
+                if (repeatBtn) {
+                    repeatBtn.classList.add('active');
+                    try { repeatBtn.blur(); } catch(e) {}
+                }
                 showPlayerToast('노래 자동 이어 듣기가 켜졌습니다 (ON)', '🔁');
             } else {
                 masterRepeatMode = 'off';
@@ -5712,8 +6049,12 @@
                     badge.classList.add('off');
                     badge.innerHTML = '⏹ 자동 이어 듣기 OFF';
                     badge.setAttribute('title', '노래 자동 이어 듣기 (연속 듣기) 꺼짐 - 클릭하여 켜기');
+                    try { badge.blur(); } catch(e) {}
                 }
-                if (repeatBtn) repeatBtn.classList.remove('active');
+                if (repeatBtn) {
+                    repeatBtn.classList.remove('active');
+                    try { repeatBtn.blur(); } catch(e) {}
+                }
                 showPlayerToast('노래 자동 이어 듣기가 꺼졌습니다 (OFF)', '⏹');
             }
         };
@@ -5926,7 +6267,7 @@
                 debounceTimer = setTimeout(() => {
                     wrapEl.classList.remove('active');
                     if (pendingTrackIndex >= 0 && pendingTrackIndex !== currentMasterSongIndex) {
-                        loadMasterSong(pendingTrackIndex);
+                        loadMasterSong(pendingTrackIndex, true);
                     }
                 }, 160);
             }, { passive: false });
@@ -6005,7 +6346,7 @@
                 try { wrapEl.releasePointerCapture?.(e.pointerId); } catch(err) {}
 
                 if (pendingTrackIndex >= 0 && pendingTrackIndex !== currentMasterSongIndex) {
-                    loadMasterSong(pendingTrackIndex);
+                    loadMasterSong(pendingTrackIndex, true);
                 }
             }
 
@@ -6282,9 +6623,72 @@
             if (el) el.src = coverUrl;
         }
 
+        // 📄 실시간 스트리밍 재생 목록 10개 1페이지 페이지네이션 상태 및 제어
+        let currentPlaylistPage = 1;
+        const PLAYLIST_PAGE_SIZE = 10;
+
+        window.changePlaylistPage = function(delta, fromBottom = false) {
+            let listForCalc = (typeof songs !== 'undefined' && songs && songs.length > 0) ? songs : (window.songs || []);
+            if (currentSearchKeyword) {
+                const keywords = currentSearchKeyword.split(/[,/]+/).map(k => k.trim().toLowerCase()).filter(Boolean);
+                listForCalc = listForCalc.filter(song => {
+                    const author = (song.author || '').toLowerCase();
+                    const title = (song.title || '').toLowerCase();
+                    const rawG = song.genre || (sunoCache.has(song.url) && sunoCache.get(song.url).genre ? sunoCache.get(song.url).genre : '');
+                    const cleanGenres = cleanMusicGenres(rawG);
+                    const genreStr = cleanGenres.join(', ').toLowerCase();
+                    if (currentSearchType === 'author') return keywords.some(kw => author.includes(kw));
+                    if (currentSearchType === 'title') return keywords.some(kw => title.includes(kw));
+                    if (currentSearchType === 'genre') return keywords.some(kw => genreStr.includes(kw));
+                    return keywords.some(kw => author.includes(kw) || title.includes(kw) || genreStr.includes(kw));
+                });
+            }
+            const totalPages = Math.max(1, Math.ceil(listForCalc.length / PLAYLIST_PAGE_SIZE));
+            const newPage = currentPlaylistPage + delta;
+            if (newPage < 1 || newPage > totalPages) return;
+            currentPlaylistPage = newPage;
+
+            if (typeof stopPlaylistPlayback === 'function') {
+                stopPlaylistPlayback();
+            }
+            renderList();
+
+            if (fromBottom) {
+                const topBar = document.getElementById('playlistPaginationTop') || document.getElementById('contestList');
+                if (topBar) {
+                    topBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        };
+
+        function updatePlaylistPaginationUI(current, total) {
+            const curTop = document.getElementById('pageNavCurrentTop');
+            const totTop = document.getElementById('pageNavTotalTop');
+            const prevTop = document.getElementById('pagePrevBtnTop');
+            const nextTop = document.getElementById('pageNextBtnTop');
+
+            const curBottom = document.getElementById('pageNavCurrentBottom');
+            const totBottom = document.getElementById('pageNavTotalBottom');
+            const prevBottom = document.getElementById('pagePrevBtnBottom');
+            const nextBottom = document.getElementById('pageNextBtnBottom');
+
+            if (curTop) curTop.innerText = current;
+            if (totTop) totTop.innerText = total;
+            if (prevTop) prevTop.disabled = (current <= 1);
+            if (nextTop) nextTop.disabled = (current >= total);
+
+            if (curBottom) curBottom.innerText = current;
+            if (totBottom) totBottom.innerText = total;
+            if (prevBottom) prevBottom.disabled = (current <= 1);
+            if (nextBottom) nextBottom.disabled = (current >= total);
+        }
+
         function renderList() {
             const listEl = document.getElementById('contestList');
             if (!listEl) return;
+            if ((!songs || songs.length === 0) && window.songs && window.songs.length > 0) {
+                songs = window.songs;
+            }
 
             // 총 등록 곡수 배지 갱신
             const totalBadge = document.getElementById('totalSongsBadge');
@@ -6365,12 +6769,22 @@
                 return;
             }
 
+            // 📄 10개 1페이지 페이지네이션 계산
+            const totalPages = Math.max(1, Math.ceil(filteredSongs.length / PLAYLIST_PAGE_SIZE));
+            if (currentPlaylistPage > totalPages) currentPlaylistPage = totalPages;
+            if (currentPlaylistPage < 1) currentPlaylistPage = 1;
+            updatePlaylistPaginationUI(currentPlaylistPage, totalPages);
+
+            const startIndex = (currentPlaylistPage - 1) * PLAYLIST_PAGE_SIZE;
+            const endIndex = Math.min(startIndex + PLAYLIST_PAGE_SIZE, filteredSongs.length);
+            const pageSongs = filteredSongs.slice(startIndex, endIndex);
+
             listEl.innerHTML = '';
-            filteredSongs.forEach((song, index) => {
+            pageSongs.forEach((song, pIndex) => {
                 const safeUrl = String(song.url || '').replace(/'/g, "\\'");
                 const safeTitle = String(song.title || '').replace(/'/g, "\\'");
                 const safeAuthor = String(song.author || '').replace(/'/g, "\\'");
-                const trackNum = index + 1;
+                const trackNum = startIndex + pIndex + 1;
                 const coverUrl = getSongCoverUrl(song);
 
                 const mySongBadge = ''; // 내 등록곡 표시 제거됨
