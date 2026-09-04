@@ -1725,6 +1725,19 @@
            📱 스마트폰 모바일 화면 완벽 최적화 (Mobile Responsive)
            ======================================================== */
         @media (max-width: 640px) {
+            .master-sc-art-box {
+                width: 115px !important;
+                min-width: 115px !important;
+                max-width: 115px !important;
+                height: 150px !important;
+            }
+            .master-sc-badge-tag {
+                font-size: 8px !important;
+                padding: 1px 4px !important;
+                bottom: 5px !important;
+                left: 5px !important;
+            }
+
             /* 1. Body & Container 여백 최적화 */
             body {
                 padding: 12px 10px 50px 10px !important;
@@ -2295,18 +2308,20 @@
             margin: 14px 0 18px 0 !important;
             background: #000000 !important;
             display: flex !important;
+            flex-direction: row !important;
             justify-content: center !important;
-            align-items: center !important;
+            align-items: stretch !important;
             min-height: 160px !important;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
             z-index: 1 !important;
         }
         .master-embed-iframe {
+            flex: 1 1 0% !important;
+            min-width: 0 !important;
             width: 100% !important;
             height: 160px !important;
             border: none !important;
             display: block !important;
-            border-radius: 12px !important;
         }
         .master-player-card {
             box-sizing: border-box !important;
@@ -2409,6 +2424,217 @@
                 width: 20px !important;
                 height: 20px !important;
             }
+        }
+
+
+        /* ↩️ 사용자 삭제 곡 복구 버튼 & 토스트 UI */
+        .contest-list-header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .user-restore-btn {
+            background: rgba(14, 165, 233, 0.12);
+            border: 1px solid rgba(14, 165, 233, 0.35);
+            color: #38bdf8;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.25s ease;
+            outline: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .user-restore-btn:hover {
+            background: rgba(14, 165, 233, 0.25);
+            border-color: #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+        }
+        .user-restore-btn.has-deleted {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.22), rgba(14, 165, 233, 0.32));
+            border-color: #00f2fe;
+            color: #00f2fe;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+            animation: restorePulse 2s infinite ease-in-out;
+        }
+        @keyframes restorePulse {
+            0%, 100% { box-shadow: 0 0 6px rgba(0, 242, 254, 0.25); }
+            50% { box-shadow: 0 0 14px rgba(0, 242, 254, 0.6); }
+        }
+        .restore-badge {
+            background: #00f2fe;
+            color: #0f172a;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 1px 5px;
+            border-radius: 999px;
+            line-height: 1;
+        }
+        .form-restore-btn {
+            background: rgba(14, 165, 233, 0.15);
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            color: #38bdf8;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+        .form-restore-btn:hover {
+            background: rgba(14, 165, 233, 0.28);
+            border-color: #38bdf8;
+            color: #ffffff;
+        }
+        .undo-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            z-index: 99999;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(0, 242, 254, 0.6);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 242, 254, 0.25);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 14px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            max-width: 92vw;
+            width: 440px;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .undo-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .undo-toast-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+        }
+        .undo-toast-icon { font-size: 18px; flex-shrink: 0; }
+        .undo-toast-text {
+            font-size: 13px;
+            color: #f1f5f9;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .undo-toast-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .undo-toast-btn {
+            background: linear-gradient(135deg, #00f2fe, #0ea5e9);
+            color: #0b1120;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 13px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .undo-toast-btn:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 18px rgba(0, 242, 254, 0.6);
+        }
+        .undo-toast-close {
+            background: rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @media (max-width: 640px) {
+            .undo-toast {
+                bottom: 16px;
+                width: 94vw;
+                padding: 10px 14px;
+                gap: 10px;
+            }
+            .undo-toast-text {
+                font-size: 12px;
+            }
+            .user-restore-btn {
+                padding: 2px 8px;
+                font-size: 11px;
+            }
+        }
+
+        /* 🖼️ 사운드클라우드 마스터 콘솔 좌측 앨범아트 프레임 */
+        .master-sc-art-box {
+            width: 160px;
+            min-width: 160px;
+            max-width: 160px;
+            height: 160px;
+            position: relative;
+            overflow: hidden;
+            background: #090d16;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid rgba(0, 242, 254, 0.35);
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .master-sc-art-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease, filter 0.3s ease;
+        }
+        .master-sc-art-box:hover .master-sc-art-img {
+            transform: scale(1.05);
+            filter: brightness(1.08);
+        }
+        .master-sc-badge-tag {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background: rgba(10, 15, 29, 0.88);
+            border: 1px solid rgba(255, 85, 0, 0.5);
+            color: #ff5500;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 6px;
+            backdrop-filter: blur(6px);
+            pointer-events: none;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
         }
 
     </style>
@@ -2551,6 +2777,14 @@
 
         <!-- 🎵 공식 고음질 스트리밍 플레이어 프레임 (Suno / YouTube / SoundCloud) -->
         <div class="master-embed-wrapper" id="masterEmbedWrapper">
+            <!-- 🖼️ 사운드클라우드 좌측 앨범아트 (수노 플레이어처럼 좌측 배치) -->
+            <div class="master-sc-art-box" id="masterScArtBox" style="display: none;" onclick="toggleSoundCloudPlayback()" title="재생 / 일시정지 (클릭)">
+                <img id="masterScArtImg" class="master-sc-art-img" src="" alt="앨범 아트" />
+                <div class="master-sc-badge-tag">
+                    <span>☁️</span>
+                    <span>SOUNDCLOUD</span>
+                </div>
+            </div>
             <iframe id="masterPlayerIframe" 
                     class="master-embed-iframe" 
                     src="" 
@@ -2605,7 +2839,10 @@
     </div>
 
     <div class="card">
-        <h3>🎵 새로운 음악 / 트랙 등록하기</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 8px;">
+            <h3 style="margin-bottom: 0;">🎵 새로운 음악 / 트랙 등록하기</h3>
+            <button type="button" class="form-restore-btn" id="formRestoreBtn" onclick="restoreRecentlyDeletedSong()" title="최근 삭제한 내 곡 복구하기" style="display: none;">↩️ 삭제 복구</button>
+        </div>
         <div class="input-group">
             <input type="text" id="authorName" placeholder="닉네임 / 아티스트 (예: 닌자수박)" maxlength="20">
             <input type="text" id="songTitle" placeholder="노래 제목 (예: 우주를 건너서)" maxlength="30">
@@ -2618,7 +2855,14 @@
     <div class="card">
         <div class="contest-list-header">
             <h3>🎶 실시간 스트리밍 재생 목록</h3>
-            <span class="total-songs-badge" id="totalSongsBadge">총 0곡</span>
+            <div class="contest-list-header-right">
+                <button type="button" class="user-restore-btn" id="userRestoreBtn" onclick="restoreRecentlyDeletedSong()" title="최근 삭제한 내 곡 복구">
+                    <span class="restore-icon">↩️</span>
+                    <span class="restore-text" id="restoreBtnText">복구</span>
+                    <span class="restore-badge" id="restoreBadge" style="display:none;">0</span>
+                </button>
+                <span class="total-songs-badge" id="totalSongsBadge">총 0곡</span>
+            </div>
         </div>
 
         <!-- 🔍 실시간 검색 & 카테고리 필터 바 (제작자, 제목, 음악 장르) -->
@@ -2827,6 +3071,18 @@
         </div>
     </div>
 
+    <!-- ↩️ 최근 삭제 즉시 복구 알림 토스트 (모바일/PC 공용) -->
+    <div id="undoToast" class="undo-toast" style="display:none;">
+        <div class="undo-toast-content">
+            <span class="undo-toast-icon">🗑️</span>
+            <span class="undo-toast-text" id="undoToastText">곡이 삭제되었습니다.</span>
+        </div>
+        <div class="undo-toast-actions">
+            <button type="button" class="undo-toast-btn" onclick="restoreRecentlyDeletedSong()">↩️ 지금 복구</button>
+            <button type="button" class="undo-toast-close" onclick="hideUndoToast()" title="닫기">✕</button>
+        </div>
+    </div>
+
     <script>
         // ⚙️ 구글 앱스 스크립트 웹 앱 URL 설정
         const API_URL = "https://script.google.com/macros/s/AKfycbwIQTAqFaXDdqZ2earoAANRQ-_FWHqxQrI6YYvM3Py4bVc2hNQ_QNH_RvnrsP13dyWe/exec";
@@ -2877,10 +3133,103 @@
         }
 
         function removeMyRegisteredSongId(id) {
+
             if (!id) return;
             const ids = getMyRegisteredSongIds().map(String).filter(i => i !== String(id));
             localStorage.setItem('sunoMyRegisteredSongs', JSON.stringify(ids));
         }
+
+        // ↩️ 사용자 본인 삭제 노래 복구 관리 함수
+        function getMyDeletedSongs() {
+            try {
+                return JSON.parse(localStorage.getItem('sunoMyDeletedSongs') || '[]');
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function saveDeletedSong(item) {
+            if (!item) return;
+            try {
+                let list = getMyDeletedSongs();
+                list = list.filter(s => String(s.id) !== String(item.id) && s.url !== item.url);
+                list.unshift(item);
+                if (list.length > 20) list = list.slice(0, 20);
+                localStorage.setItem('sunoMyDeletedSongs', JSON.stringify(list));
+            } catch(e) {
+                console.error('삭제 목록 저장 에러:', e);
+            }
+        }
+
+        let undoToastTimeout = null;
+        function showUndoToast(item) {
+            const toast = document.getElementById('undoToast');
+            const text = document.getElementById('undoToastText');
+            if (!toast || !text) return;
+
+            text.innerText = `"${item.title}" 곡이 삭제되었습니다.`;
+            toast.style.display = 'flex';
+            void toast.offsetWidth;
+            toast.classList.add('show');
+
+            if (undoToastTimeout) clearTimeout(undoToastTimeout);
+            undoToastTimeout = setTimeout(() => {
+                hideUndoToast();
+            }, 12000);
+        }
+
+        function hideUndoToast() {
+            const toast = document.getElementById('undoToast');
+            if (!toast) return;
+            toast.classList.remove('show');
+            if (undoToastTimeout) {
+                clearTimeout(undoToastTimeout);
+                undoToastTimeout = null;
+            }
+            setTimeout(() => {
+                if (!toast.classList.contains('show')) {
+                    toast.style.display = 'none';
+                }
+            }, 350);
+        }
+
+        function updateRestoreButtonUI() {
+            const list = getMyDeletedSongs();
+            const count = list ? list.length : 0;
+            
+            // 1. 재생목록 헤더 복구 버튼
+            const headerBtn = document.getElementById('userRestoreBtn');
+            const restoreBadge = document.getElementById('restoreBadge');
+            const restoreText = document.getElementById('restoreBtnText');
+            if (headerBtn) {
+                if (count > 0) {
+                    headerBtn.classList.add('has-deleted');
+                    if (restoreBadge) {
+                        restoreBadge.innerText = count;
+                        restoreBadge.style.display = 'inline-block';
+                    }
+                    if (restoreText) restoreText.innerText = '복구';
+                    headerBtn.title = `최근 삭제된 곡 ${count}곡 복구 가능`;
+                } else {
+                    headerBtn.classList.remove('has-deleted');
+                    if (restoreBadge) restoreBadge.style.display = 'none';
+                    if (restoreText) restoreText.innerText = '복구';
+                    headerBtn.title = '최근 삭제한 내 곡 복구';
+                }
+            }
+
+            // 2. 등록 폼 복구 버튼
+            const formBtn = document.getElementById('formRestoreBtn');
+            if (formBtn) {
+                if (count > 0) {
+                    formBtn.style.display = 'inline-flex';
+                    formBtn.innerText = `↩️ 삭제 복구 (${count})`;
+                } else {
+                    formBtn.style.display = 'none';
+                }
+            }
+        }
+
 
         function addMyRegisteredSongUrl(url) {
             if (!url) return;
@@ -4022,23 +4371,118 @@
                 return;
             }
 
-            if (!confirm("정말 이 곡을 삭제하시겠습니까?")) return;
+            if (!confirm(`정말 "${song.title}" 곡을 삭제하시겠습니까?`)) return;
             if (songs && songs.length > 0) {
                 localStorage.setItem('sunoUndoBackup', JSON.stringify(songs));
             }
+
+            // 💾 삭제 전 곡 정보 및 복구 스택 저장
+            const deletedItem = {
+                id: String(song.id),
+                title: String(song.title || ''),
+                author: String(song.author || ''),
+                genre: String(song.genre || ''),
+                url: String(song.url || ''),
+                votes: parseInt(song.votes, 10) || 0,
+                audio_url: String(song.audio_url || ''),
+                song_id: String(song.song_id || ''),
+                isMine: true,
+                deletedAt: Date.now()
+            };
+            saveDeletedSong(deletedItem);
+
             fetch(`${API_URL}?action=deleteSong&id=${id}`)
                 .then(res => res.json())
                 .then(() => { 
                     removeMyRegisteredSongId(id);
-                    alert("삭제되었습니다. (실수로 삭제한 경우 [복구하기] 또는 Ctrl+Z 로 복구 가능)"); 
+                    updateRestoreButtonUI();
+                    prefetchSoundCloudThumbnails();
+                    showUndoToast(deletedItem);
+                    alert(`"${song.title}" 곡이 삭제되었습니다.\n\n실수로 삭제하셨다면 상단의 [↩️ 복구] 버튼을 누르면 언제든 다시 복구할 수 있습니다.`); 
                     fetchAppData(); 
+                })
+                .catch(err => {
+                    alert("삭제 중 오류가 발생했습니다: " + err.message);
                 });
         };
 
-        
-        // ==========================================
-        // 🌐 멀티 플랫폼 스트리밍 엔진 (Suno, YouTube, SoundCloud)
-        // ==========================================
+        // ↩️ 최근 삭제한 본인 등록곡 복구 함수 (모바일/PC 일반 사용자 및 관리자 공용)
+        window.restoreRecentlyDeletedSong = async function(targetSongId) {
+            const deletedList = getMyDeletedSongs();
+            if (!deletedList || deletedList.length === 0) {
+                if (isAdmin) {
+                    restoreLastBackup();
+                    return;
+                }
+                alert("현재 복구할 수 있는 최근 삭제 내역이 없습니다.");
+                return;
+            }
+
+            let targetSong = null;
+            if (targetSongId) {
+                targetSong = deletedList.find(s => String(s.id) === String(targetSongId));
+            }
+            if (!targetSong) {
+                targetSong = deletedList[0];
+            }
+
+            const confirmMsg = `최근 삭제된 곡을 다시 복구하시겠습니까?\n\n▶ 곡 제목: "${targetSong.title}"\n▶ 아티스트: ${targetSong.author}\n▶ 추천수: ${targetSong.votes || 0}${deletedList.length > 1 ? `\n(남은 복구 가능 곡: 총 ${deletedList.length}곡)` : ''}`;
+            if (!confirm(confirmMsg)) return;
+
+            const rBtns = document.querySelectorAll('.user-restore-btn, .form-restore-btn, .undo-toast-btn');
+            rBtns.forEach(b => { 
+                b.disabled = true; 
+                b.dataset.origText = b.innerText; 
+                b.innerText = '복구 중...'; 
+            });
+
+            try {
+                const token = getClientToken();
+                const restoreUrl = `${API_URL}?action=restoreSong&id=${encodeURIComponent(targetSong.id)}&title=${encodeURIComponent(targetSong.title)}&author=${encodeURIComponent(targetSong.author)}&genre=${encodeURIComponent(targetSong.genre || '')}&url=${encodeURIComponent(targetSong.url)}&votes=${encodeURIComponent(targetSong.votes || 0)}&token=${encodeURIComponent(token)}`;
+                let res = await fetch(restoreUrl);
+                let data = await res.json();
+
+                if (data && data.status === 'error' && data.message === 'Invalid action') {
+                    const fallbackUrl = `${API_URL}?action=addSong&title=${encodeURIComponent(targetSong.title)}&author=${encodeURIComponent(targetSong.author)}&genre=${encodeURIComponent(targetSong.genre || '')}&url=${encodeURIComponent(targetSong.url)}&votes=${encodeURIComponent(targetSong.votes || 0)}&token=${encodeURIComponent(token)}`;
+                    res = await fetch(fallbackUrl);
+                    data = await res.json();
+                }
+
+                if (data && (data.status === 'success' || data.id)) {
+                    const newId = data.id || targetSong.id;
+                    addMyRegisteredSongId(newId);
+                    addMyRegisteredSongUrl(targetSong.url);
+                    if (targetSong.author) {
+                        localStorage.setItem('sunoSavedAuthor', targetSong.author);
+                    }
+
+                    const updatedList = getMyDeletedSongs().filter(s => String(s.id) !== String(targetSong.id) && s.url !== targetSong.url);
+                    localStorage.setItem('sunoMyDeletedSongs', JSON.stringify(updatedList));
+                    updateRestoreButtonUI();
+                    hideUndoToast();
+
+                    alert(`🎉 "${targetSong.title}" 곡이 성공적으로 복구되었습니다!`);
+                    await fetchAppData();
+                } else if (data && data.status === 'duplicate') {
+                    const updatedList = getMyDeletedSongs().filter(s => String(s.id) !== String(targetSong.id) && s.url !== targetSong.url);
+                    localStorage.setItem('sunoMyDeletedSongs', JSON.stringify(updatedList));
+                    updateRestoreButtonUI();
+                    alert(`해당 곡("${targetSong.title}")은 이미 목록에 등록되어 있습니다.`);
+                } else {
+                    alert(`복구 실패: ${data?.message || '서버 응답 오류'}`);
+                }
+            } catch (err) {
+                console.error('복구 통신 오류:', err);
+                alert('복구 중 통신 오류가 발생했습니다: ' + err.message);
+            } finally {
+                rBtns.forEach(b => { 
+                    b.disabled = false; 
+                    if (b.dataset.origText) b.innerText = b.dataset.origText; 
+                });
+                updateRestoreButtonUI();
+            }
+        };
+
         function detectStreamingPlatform(url) {
             if (!url) return { platform: 'unknown', id: '', embedUrl: '', badge: '', color: '#94a3b8' };
             const str = String(url).trim();
@@ -4144,6 +4588,91 @@
         }, true);
 
         // 🎵 특정 곡 마스터 콘솔에 로드
+                // 🖼️ 사운드클라우드 앨범아트 캐시 및 제어
+        const scArtworkCache = new Map();
+
+        async function showMasterScArtwork(trackUrl) {
+            const artBox = document.getElementById('masterScArtBox');
+            const artImg = document.getElementById('masterScArtImg');
+            if (!artBox || !artImg) return;
+
+            artBox.style.display = 'flex';
+
+            let cleanUrl = String(trackUrl || '').trim();
+            if (/m\.soundcloud\.com/i.test(cleanUrl)) {
+                cleanUrl = cleanUrl.replace(/^https?:\/\/m\.soundcloud\.com/i, 'https://soundcloud.com');
+            }
+            try {
+                const pu = new URL(cleanUrl);
+                cleanUrl = pu.origin + pu.pathname;
+            } catch(e) {}
+
+            if (scArtworkCache.has(cleanUrl)) {
+                const thumb = scArtworkCache.get(cleanUrl);
+                if (thumb) {
+                    artImg.src = thumb;
+                    return;
+                }
+            }
+
+            // 기본 로딩 플레이스홀더
+            artImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><rect width="160" height="160" fill="%23090d16"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23ff5500" font-size="36" font-family="sans-serif">☁️</text></svg>';
+
+            try {
+                const res = await fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(cleanUrl)}`);
+                const data = await res.json();
+                if (data && data.thumbnail_url) {
+                    let thumb = data.thumbnail_url;
+                    if (thumb.includes('-large.jpg')) {
+                        thumb = thumb.replace('-large.jpg', '-t500x500.jpg');
+                    }
+                    scArtworkCache.set(cleanUrl, thumb);
+                    artImg.src = thumb;
+                }
+            } catch(e) {
+                console.warn('SoundCloud oEmbed 썸네일 조회 에러:', e);
+            }
+        }
+
+        function hideMasterScArtwork() {
+            const artBox = document.getElementById('masterScArtBox');
+            if (artBox) artBox.style.display = 'none';
+        }
+
+        function toggleSoundCloudPlayback() {
+            if (scWidget && typeof scWidget.toggle === 'function') {
+                scWidget.toggle();
+            }
+        }
+
+        function prefetchSoundCloudThumbnails() {
+            if (!songs || !Array.isArray(songs)) return;
+            songs.forEach(song => {
+                if (song.url && /soundcloud\.com/i.test(song.url)) {
+                    let cleanUrl = String(song.url).trim();
+                    if (/m\.soundcloud\.com/i.test(cleanUrl)) {
+                        cleanUrl = cleanUrl.replace(/^https?:\/\/m\.soundcloud\.com/i, 'https://soundcloud.com');
+                    }
+                    try {
+                        const pu = new URL(cleanUrl);
+                        cleanUrl = pu.origin + pu.pathname;
+                    } catch(e) {}
+
+                    if (!scArtworkCache.has(cleanUrl)) {
+                        fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(cleanUrl)}`)
+                            .then(r => r.json())
+                            .then(d => {
+                                if (d && d.thumbnail_url) {
+                                    let thumb = d.thumbnail_url.replace('-large.jpg', '-t500x500.jpg');
+                                    scArtworkCache.set(cleanUrl, thumb);
+                                }
+                            })
+                            .catch(() => {});
+                    }
+                }
+            });
+        }
+
         window.loadMasterSong = async function(index) {
             if (!songs || songs.length === 0) return;
             if (index < 0) index = songs.length - 1;
@@ -4172,6 +4701,7 @@
 
             // 1. Suno 사이트 주소인 경우 -> 처음부터 Suno 공식 플레이어로 화면 표시
             if (info.platform === 'suno') {
+                hideMasterScArtwork();
                 let songId = song.songId || info.id;
                 if (songId) {
                     const embedSrc = `https://suno.com/embed/${songId}`;
@@ -4191,11 +4721,13 @@
             } 
             // 2. YouTube / YouTube Music 주소인 경우 -> YouTube 공식 임베드 표시
             else if (info.platform === 'youtube') {
+                hideMasterScArtwork();
                 iframe.src = info.embedUrl;
                 setupYouTubeApi(iframe);
             }
             // 3. SoundCloud 주소인 경우 -> SoundCloud 공식 위젯 표시 (티저/추천 오버레이 차단 및 순정 수평 플레이어)
             else if (info.platform === 'soundcloud') {
+                showMasterScArtwork(info.id || song.url);
                 if (iframe.src !== info.embedUrl) {
                     iframe.src = info.embedUrl;
                 }
@@ -4776,6 +5308,7 @@
             } else if (info.platform === 'soundcloud') {
                 return '<span style="font-size:10px; color:#f97316; background:rgba(249,115,22,0.15); border:1px solid rgba(249,115,22,0.35); padding:1px 6px; border-radius:5px; margin-right:4px; font-weight:800; vertical-align:middle;">SoundCloud</span>';
             } else if (info.platform === 'suno') {
+                hideMasterScArtwork();
                 return '<span style="font-size:10px; color:#00f2fe; background:rgba(0,242,254,0.15); border:1px solid rgba(0,242,254,0.35); padding:1px 6px; border-radius:5px; margin-right:4px; font-weight:800; vertical-align:middle;">Suno</span>';
             }
             return '';
