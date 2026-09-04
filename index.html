@@ -458,17 +458,27 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 10px;
-            border: 1px solid rgba(0, 242, 254, 0.35);
-            background: rgba(0, 242, 254, 0.08);
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            background: rgba(0, 242, 254, 0.1);
             color: #00f2fe;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
             outline: none;
             user-select: none;
+        }
+        .page-nav-btn svg {
+            width: 20px !important;
+            height: 20px !important;
+            min-width: 20px !important;
+            min-height: 20px !important;
+            flex-shrink: 0 !important;
+            display: block !important;
+            stroke: currentColor !important;
+            pointer-events: none !important;
         }
         .page-nav-btn:hover:not(:disabled) {
             background: rgba(0, 242, 254, 0.22);
@@ -3490,8 +3500,8 @@
         <!-- ◀ 1 / 3 ▶ 상단 페이지네이션 바 (재생목록 채널 카드 제일 위) -->
         <div class="playlist-pagination-bar top" id="playlistPaginationTop">
             <button type="button" class="page-nav-btn prev" id="pagePrevBtnTop" onclick="changePlaylistPage(-1)" title="이전 페이지" aria-label="이전 페이지">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="15 18 9 12 15 6"></polyline>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 19l-7-7 7-7"/>
                 </svg>
             </button>
             <div class="page-nav-indicator" title="현재 페이지 / 전체 페이지">
@@ -3500,8 +3510,8 @@
                 <span class="page-nav-total" id="pageNavTotalTop">1</span>
             </div>
             <button type="button" class="page-nav-btn next" id="pageNextBtnTop" onclick="changePlaylistPage(1)" title="다음 페이지" aria-label="다음 페이지">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 5l7 7-7 7"/>
                 </svg>
             </button>
         </div>
@@ -3558,8 +3568,8 @@
         <!-- ◀ 1 / 3 ▶ 하단 페이지네이션 바 (재생목록 채널 카드 제일 아래) -->
         <div class="playlist-pagination-bar bottom" id="playlistPaginationBottom">
             <button type="button" class="page-nav-btn prev" id="pagePrevBtnBottom" onclick="changePlaylistPage(-1, true)" title="이전 페이지" aria-label="이전 페이지">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="15 18 9 12 15 6"></polyline>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 19l-7-7 7-7"/>
                 </svg>
             </button>
             <div class="page-nav-indicator" title="현재 페이지 / 전체 페이지">
@@ -3568,8 +3578,8 @@
                 <span class="page-nav-total" id="pageNavTotalBottom">1</span>
             </div>
             <button type="button" class="page-nav-btn next" id="pageNextBtnBottom" onclick="changePlaylistPage(1, true)" title="다음 페이지" aria-label="다음 페이지">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 5l7 7-7 7"/>
                 </svg>
             </button>
         </div>
@@ -3585,7 +3595,7 @@
             권리자의 정당한 요청이 있는 경우 해당 콘텐츠는 즉각 삭제 또는 제외 조치됩니다.
         </div>
         <div style="margin-top: 8px; font-size: 10px; color: #475569;">
-            © SoundPlayer-PC Streaming Platform. All rights reserved.
+            © 스트리밍 플레이어 Streaming Platform. All rights reserved.
         </div>
     </footer>
 
@@ -4656,15 +4666,46 @@
                 const embedUrl = data.embedUrl || `https://suno.com/embed/${songId}`;
                 const authorText = author || (song ? song.author : '아티스트');
 
-                // 🎵 모바일/데스크톱 모두 항상 Suno 공식 플레이어로 화면 표시 (SUNO OFFICIAL 및 중복 가사 버튼 제거)
+                // ⚡ 수노 음원 즉시 자동 재생 (대기 상태 방지 및 원클릭 즉시 스트리밍)
+                const safeTitle = escapeHtml(displayTitle);
+                const safeAuthor = escapeHtml(authorText);
+
                 playerContainer.innerHTML = `
-                    <div class="embed-frame-box" id="embed_box_${id}" style="margin-top: 8px;">
-                        <iframe src="${embedUrl}" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
+                    <div class="audio-player-box" id="inapp_box_${id}" style="margin-top: 10px; padding: 14px 16px; background: rgba(10, 15, 30, 0.9); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                                <span style="font-size: 16px;">⚡</span>
+                                <div style="min-width: 0;">
+                                    <div style="font-size: 13.5px; font-weight: 800; color: #00f2fe; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${safeTitle}</div>
+                                    <div style="font-size: 11px; color: #94a3b8;">아티스트: <b style="color: #cbd5e1;">${safeAuthor}</b> <span style="color:#38bdf8; font-size:10px; margin-left:4px; font-weight:700;">[즉시 재생 중]</span></div>
+                                </div>
+                            </div>
+                            <button type="button" class="switch-player-btn" onclick="switchToEmbed('${id}', '${encodeURIComponent(embedUrl)}', '${encodeURIComponent(audioUrl)}', '${encodeURIComponent(proxyAudioUrl)}', '${encodeURIComponent(coverImg)}', '${encodeURIComponent(displayTitle)}', '${encodeURIComponent(authorText)}')" style="font-size: 11px; padding: 5px 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #94a3b8; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                                📻 Suno 임베드 보기
+                            </button>
+                        </div>
+                        <div class="audio-wrapper">
+                            <audio id="audio_el_${id}" controls autoplay playsinline webkit-playsinline preload="auto" style="width: 100%; border-radius: 8px;">
+                                <source src="${audioUrl}" type="audio/mp4">
+                                <source src="${proxyAudioUrl}" type="audio/mp4">
+                                브라우저가 오디오 재생을 지원하지 않습니다.
+                            </audio>
+                        </div>
                     </div>
                 `;
 
                 btn.classList.add('active');
                 btn.innerText = '플레이어 닫기';
+
+                // 🚀 브라우저 오디오 즉시 재생 격발
+                const newAudio = document.getElementById(`audio_el_${id}`);
+                if (newAudio) {
+                    newAudio.volume = (typeof currentMasterVolume === 'number') ? currentMasterVolume : 0.8;
+                    const p = newAudio.play();
+                    if (p !== undefined) {
+                        p.catch(() => {});
+                    }
+                }
             } catch (err) {
                 console.error(err);
                 playerContainer.innerHTML = `
@@ -4677,34 +4718,41 @@
         };
 
         // 📻 Suno 공식 임베드 플레이어로 전환 함수
-        window.switchToEmbed = function(id, embedUrl, audioUrl, proxyAudioUrl, coverImg, encTitle, encAuthor) {
+        window.switchToEmbed = function(id, encEmbedUrl, encAudioUrl, encProxyAudioUrl, encCoverImg, encTitle, encAuthor) {
             if (typeof stopMasterPlayback === 'function') stopMasterPlayback();
-            const card = document.getElementById(`card_${id}`);
-            if (!card) return;
+            const container = document.getElementById(`player_${id}`) || document.getElementById(`card_${id}`);
+            if (!container) return;
+            const embedUrl = decodeURIComponent(encEmbedUrl || '');
+            const audioUrl = decodeURIComponent(encAudioUrl || '');
+            const proxyAudioUrl = decodeURIComponent(encProxyAudioUrl || '');
+            const coverImg = decodeURIComponent(encCoverImg || '');
             const displayTitle = decodeURIComponent(encTitle || '');
             const authorText = decodeURIComponent(encAuthor || '');
 
-            card.innerHTML = `
+            container.innerHTML = `
                 <div class="embed-frame-box" id="embed_box_${id}" style="margin-top: 8px;">
-                    <iframe src="${embedUrl}" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allow="autoplay; encrypted-media" loading="lazy"></iframe>
+                    <iframe src="${embedUrl}" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
                 </div>
-
-                <div class="player-footer-tools" id="footer_tools_${id}">
+                <div class="player-footer-tools" id="footer_tools_${id}" style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding:0 4px; font-size:11px; color:#94a3b8;">
                     <span>✨ Suno 공식 임베드</span>
-                    <button type="button" class="switch-player-btn" onclick="switchToInAppAudio('${id}', '${audioUrl}', '${proxyAudioUrl}', '${coverImg}', '${encTitle}', '${encAuthor}', '${embedUrl}')">
-                        🎧 인앱 플레이어로 전환
+                    <button type="button" class="switch-player-btn" onclick="switchToInAppAudio('${id}', '${encodeURIComponent(audioUrl)}', '${encodeURIComponent(proxyAudioUrl)}', '${encodeURIComponent(coverImg)}', '${encodeURIComponent(displayTitle)}', '${encodeURIComponent(authorText)}', '${encodeURIComponent(embedUrl)}')" style="font-size: 11px; padding: 4px 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #38bdf8; cursor: pointer;">
+                        ⚡ 즉시 재생 플레이어로 전환
                     </button>
                 </div>
             `;
         };
 
-        // 🎧 모바일 인앱 오디오 플레이어로 전환 함수
-        window.switchToInAppAudio = function(id, audioUrl, proxyAudioUrl, coverImg, encTitle, encAuthor, embedUrl) {
+        // ⚡ 즉시 재생 인앱 오디오 플레이어로 복귀 함수
+        window.switchToInAppAudio = function(id, encAudioUrl, encProxyAudioUrl, encCoverImg, encTitle, encAuthor, encEmbedUrl) {
             if (typeof stopMasterPlayback === 'function') stopMasterPlayback();
-            const card = document.getElementById(`card_${id}`);
+            const card = document.getElementById(`player_${id}`) || document.getElementById(`card_${id}`);
             if (!card) return;
+            const audioUrl = decodeURIComponent(encAudioUrl || '');
+            const proxyAudioUrl = decodeURIComponent(encProxyAudioUrl || '');
+            const coverImg = decodeURIComponent(encCoverImg || '');
             const displayTitle = decodeURIComponent(encTitle || '');
             const authorText = decodeURIComponent(encAuthor || '');
+            const embedUrl = decodeURIComponent(encEmbedUrl || '');
 
             card.innerHTML = `
                 <div class="player-top-header">
