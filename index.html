@@ -6010,43 +6010,145 @@
         }
 
         
-        // 🖼️ 트랙별 앨범아트 주소 획득 함수 (Suno, SoundCloud, YouTube 자동 판별)
+        // 🖼️ 트랙별 앨범아트 주소 획득 및 고해상도 프리로드 캐시
+        const PRELOADED_COVERS = {
+            "https://suno.com/s/zkugegc0osww2r2j": "https://cdn2.suno.ai/image_large_105c5f43-2b64-41f9-8051-eb069fdbb157.jpeg",
+            "https://suno.com/s/qekdgulmuz63kdcg": "https://cdn2.suno.ai/image_large_9f2225c4-19e1-4224-a3f3-e2a08fa16318.jpeg",
+            "https://suno.com/s/tm5ykawf3wdy78hw": "https://cdn2.suno.ai/image_large_dd8d15e2-03d0-4094-ad54-a847adb132c9.jpeg",
+            "https://suno.com/s/vnepmejdmahue2rj": "https://cdn2.suno.ai/image_large_2c0a4955-9fe9-4211-8f52-9fc927baa191.jpeg",
+            "https://suno.com/s/9yqv4mdi79ckogbb": "https://cdn2.suno.ai/image_large_0991abb8-dbc9-4cd3-b79b-b54bf7416058.jpeg",
+            "https://suno.com/s/kbrr27rcqj2evotm": "https://cdn2.suno.ai/image_large_875b390e-0cd1-4cf5-9897-f49d9f8d929d.jpeg",
+            "https://soundcloud.com/dropcat-75673245/7abvmiitcnr8": "https://i1.sndcdn.com/artworks-eabkBBBDgxCco1x2-uFy0Iw-t500x500.jpg",
+            "https://suno.com/s/elt1r8hkjuguzyae": "https://cdn2.suno.ai/image_large_6c1d4085-49e3-4737-ab1d-180a7e37cfab.jpeg",
+            "https://suno.com/s/ykmq7bjrz9vkk4g9": "https://cdn2.suno.ai/image_large_299e9a0b-ca90-44da-895c-2f688ac78861.jpeg",
+            "https://music.youtube.com/watch?v=rxyffba4xqc": "https://img.youtube.com/vi/RxyFFbA4xQc/mqdefault.jpg",
+            "https://suno.com/s/cejzmoj1nzewbjvc": "https://cdn2.suno.ai/image_large_974e3dde-6946-4c2b-8e13-0131596ea897.jpeg",
+            "https://soundcloud.com/chozza-784169833/22a1": "https://i1.sndcdn.com/artworks-ZzdDhtOuA6Ui6uzP-SF9Lwg-t500x500.jpg",
+            "https://soundcloud.com/chozza-784169833/21a1": "https://i1.sndcdn.com/artworks-MobeHzB8E1irTjI0-6YmUMw-t500x500.jpg",
+            "https://soundcloud.com/chozza-784169833/20a1": "https://i1.sndcdn.com/artworks-LVyVp0T6euBJ0Cyu-AMuRhQ-t500x500.jpg",
+            "https://soundcloud.com/chozza-784169833/19-u-a-moon": "https://i1.sndcdn.com/artworks-6uX8930AGyi9yK8y-qqrJvg-t500x500.jpg",
+            "https://soundcloud.com/chozza-784169833/18a1": "https://i1.sndcdn.com/artworks-JEYz8bhYzz7aw3uC-K8g2LQ-t500x500.jpg",
+            "https://soundcloud.com/chozza-784169833/17a1": "https://i1.sndcdn.com/artworks-jM8uXPkTqQyoOz8m-tLIJOg-t500x500.jpg",
+            "https://soundcloud.com/chozza-784169833/16a1": "https://i1.sndcdn.com/artworks-hy7Uqj7eHShxRkcf-nx8Dpw-t500x500.jpg",
+            "https://soundcloud.com/chozza-784169833/15a1": "https://i1.sndcdn.com/artworks-e6Fhsb66jmPdv1rB-CZEd3g-t500x500.jpg",
+            "https://youtu.be/utd1ijn5vsq": "https://img.youtube.com/vi/uTD1IjN5vsQ/mqdefault.jpg"
+        };
+
+        const COVER_CACHE_KEY = 'streaming_player_cover_cache_v2';
+        let songCoverCache = {};
+        try {
+            const saved = localStorage.getItem(COVER_CACHE_KEY);
+            if (saved) songCoverCache = JSON.parse(saved);
+        } catch(e) {}
+
+        function getCleanCoverKey(url) {
+            if (!url) return '';
+            let clean = String(url).trim().toLowerCase();
+            try {
+                const u = new URL(clean);
+                clean = u.origin + u.pathname;
+            } catch(e) {}
+            return clean.replace(/\/+$/, '');
+        }
+
+        function saveSongCover(url, coverUrl) {
+            if (!url || !coverUrl) return;
+            const key = getCleanCoverKey(url);
+            songCoverCache[key] = coverUrl;
+            songCoverCache[url] = coverUrl;
+            try {
+                localStorage.setItem(COVER_CACHE_KEY, JSON.stringify(songCoverCache));
+            } catch(e) {}
+        }
+
         function getSongCoverUrl(song) {
             if (!song) return '';
             if (song.coverUrl) return song.coverUrl;
+            const key = getCleanCoverKey(song.url || '');
+            if (songCoverCache[key]) return songCoverCache[key];
+            if (songCoverCache[song.url]) return songCoverCache[song.url];
+            if (PRELOADED_COVERS[key]) return PRELOADED_COVERS[key];
+            if (PRELOADED_COVERS[song.url]) return PRELOADED_COVERS[song.url];
             if (song.url && sunoCache.has(song.url) && sunoCache.get(song.url).coverUrl) {
                 return sunoCache.get(song.url).coverUrl;
             }
+
             const pInfo = detectStreamingPlatform(song.url || '');
             if (pInfo.platform === 'suno') {
-                const songId = song.songId || pInfo.id;
-                if (songId) return `https://cdn2.suno.ai/image_large_${songId}.jpeg`;
-                return 'https://suno.com/favicon.ico';
+                const uuidMatch = String(song.url).match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+                if (uuidMatch) {
+                    const direct = `https://cdn2.suno.ai/image_large_${uuidMatch[0]}.jpeg`;
+                    saveSongCover(song.url, direct);
+                    return direct;
+                }
+                if (song.songId) {
+                    const direct = `https://cdn2.suno.ai/image_large_${song.songId}.jpeg`;
+                    saveSongCover(song.url, direct);
+                    return direct;
+                }
             }
-            if (pInfo.platform === 'youtube') {
-                if (pInfo.id) return `https://img.youtube.com/vi/${pInfo.id}/mqdefault.jpg`;
+            if (pInfo.platform === 'youtube' && pInfo.id) {
+                const ytThumb = `https://img.youtube.com/vi/${pInfo.id}/mqdefault.jpg`;
+                saveSongCover(song.url, ytThumb);
+                return ytThumb;
             }
             if (pInfo.platform === 'soundcloud') {
-                let cleanUrl = String(pInfo.id || song.url || '').trim();
-                try { cleanUrl = new URL(cleanUrl).origin + new URL(cleanUrl).pathname; } catch(e) {}
-                if (scArtworkCache.has(cleanUrl)) return scArtworkCache.get(cleanUrl);
-                return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23090d16"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23ff5500" font-size="36" font-family="sans-serif">☁️</text></svg>';
+                if (scArtworkCache.has(key)) return scArtworkCache.get(key);
+                if (scArtworkCache.has(song.url)) return scArtworkCache.get(song.url);
             }
-            return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23090d16"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2300f2fe" font-size="34" font-family="sans-serif">🎵</text></svg>';
+            return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23090d16"/><circle cx="50" cy="50" r="32" fill="%231e293b"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="%2300f2fe" font-size="28">🎵</text></svg>';
         }
 
-        function handleCoverError(img, url) {
+        function handleCoverError(img, url, songId) {
             if (!img) return;
             const pInfo = detectStreamingPlatform(url || '');
             if (pInfo.platform === 'suno') {
-                const songId = pInfo.id;
-                if (songId && img.src.includes('cdn2.suno.ai')) {
-                    img.src = `https://cdn1.suno.ai/${songId}.png`;
+                const songIdMatch = String(url).match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+                if (songIdMatch && img.src.includes('cdn2.suno.ai')) {
+                    img.src = `https://cdn1.suno.ai/${songIdMatch[0]}.png`;
                     return;
                 }
             }
             img.onerror = null;
-            img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23090d16"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2300f2fe" font-size="32" font-family="sans-serif">🎧</text></svg>';
+            img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23090d16"/><circle cx="50" cy="50" r="32" fill="%231e293b"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="%2300f2fe" font-size="28">🎧</text></svg>';
+        }
+
+        async function resolveMissingTrackCovers(songList) {
+            if (!songList || !Array.isArray(songList)) return;
+            for (const song of songList) {
+                const key = getCleanCoverKey(song.url || '');
+                if (songCoverCache[key] || PRELOADED_COVERS[key]) continue;
+
+                const pInfo = detectStreamingPlatform(song.url || '');
+                if (pInfo.platform === 'suno') {
+                    try {
+                        const data = await resolveSunoTrack(song.url);
+                        if (data && data.coverUrl) {
+                            saveSongCover(song.url, data.coverUrl);
+                            updateCoverInDom(song.id, data.coverUrl);
+                        }
+                    } catch(e) {}
+                } else if (pInfo.platform === 'soundcloud') {
+                    try {
+                        let cleanUrl = String(song.url).trim();
+                        try { cleanUrl = new URL(cleanUrl).origin + new URL(cleanUrl).pathname; } catch(e) {}
+                        const res = await fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(cleanUrl)}`);
+                        const d = await res.json();
+                        if (d && d.thumbnail_url) {
+                            const thumb = d.thumbnail_url.replace('-large.jpg', '-t500x500.jpg');
+                            scArtworkCache.set(key, thumb);
+                            saveSongCover(song.url, thumb);
+                            updateCoverInDom(song.id, thumb);
+                        }
+                    } catch(e) {}
+                }
+            }
+        }
+
+        function updateCoverInDom(songId, coverUrl) {
+            if (!songId || !coverUrl) return;
+            const el = document.getElementById(`cover_thumb_${songId}`);
+            if (el) el.src = coverUrl;
         }
 
         function renderList() {
@@ -6140,7 +6242,7 @@
                 const trackNum = index + 1;
                 const coverUrl = getSongCoverUrl(song);
 
-                const mySongBadge = isMySong(song) ? '<span style="font-size:10px; color:#38bdf8; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.35); padding:1px 7px; border-radius:6px; margin-left:6px; font-weight:800;">내 등록곡</span>' : '';
+                const mySongBadge = ''; // 내 등록곡 표시 제거됨
 
                 // 🏷️ 순수 음악 장르 개별 칩 생성 (최대 3~4개)
                 const rawGenre = song.genre || (sunoCache.has(song.url) && sunoCache.get(song.url).genre ? sunoCache.get(song.url).genre : '');
@@ -6171,7 +6273,7 @@
                         <div class="song-main-col">
                             <!-- 🖼️ 개별 트랙 좌측 앨범아트 썸네일 (클릭 시 마스터 콘솔 즉시 재생) -->
                             <div class="song-cover-thumb-box" onclick="loadMasterSong(${playTargetIndex})" title="마스터 콘솔에서 즉시 재생">
-                                <img class="song-cover-thumb-img" src="${coverUrl}" alt="${safeTitle}" loading="lazy" onerror="handleCoverError(this, '${safeUrl}')" />
+                                <img class="song-cover-thumb-img" id="cover_thumb_${song.id}" src="${coverUrl}" alt="${safeTitle}" loading="lazy" onerror="handleCoverError(this, '${safeUrl}', '${song.id}')" />
                                 <div class="song-cover-play-icon">▶</div>
                             </div>
                             <div class="song-info">
@@ -6179,7 +6281,6 @@
                                     <span class="track-num-badge">#${trackNum}</span>
                                     <span class="track-title-text">${song.title}</span>
                                     ${genreBadgesHtml}
-                                    ${mySongBadge}
                                 </div>
                                 <div class="song-author" style="display: ${showAuthor ? 'block' : 'none'};">아티스트: <b style="color:#e2e8f0;">${song.author}</b></div>
                             </div>
@@ -6204,6 +6305,9 @@
                 `;
                 listEl.appendChild(item);
             });
+
+            // 🖼️ 누락된 트랙 커버 실시간 백그라운드 분석 및 자동 갱신
+            resolveMissingTrackCovers(filteredSongs);
         }
 
         
