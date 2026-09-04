@@ -65,6 +65,13 @@ export default async function handler(req, res) {
       genre = genre.split(/[:{"']/)[0].trim();
     }
 
+    // 5.8 아티스트 / 작성자 이름 추출 (meta description 및 JSON handle/display_name)
+    const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*\sby\s+([^"'(]+)(?:\s*\(@([^)]+)\))?[^"']*)["']/i);
+    const unescapedHtml = html.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+    const handleMatch = unescapedHtml.match(/"handle"\s*:\s*"([^"{}:]+?)"/i) ||
+                        unescapedHtml.match(/"display_name"\s*:\s*"([^"{}:]+?)"/i);
+    const author = descMatch ? descMatch[2].trim() : (handleMatch ? handleMatch[1].trim() : 'Suno Creator');
+
     // 6. 가사 (Prompt) 정밀 추출 및 메타데이터 아티팩트 정제
     let lyrics = '';
     const promptRefMatch = html.match(/\\?"prompt\\?"\s*:\s*\\?"\$([a-zA-Z0-9]+)\\?"/);
@@ -137,6 +144,7 @@ export default async function handler(req, res) {
       cdnUrl,
       embedUrl,
       title,
+      author,
       coverUrl,
       lyrics,
       genre

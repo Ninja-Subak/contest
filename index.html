@@ -144,6 +144,252 @@
             color: #64748b;
         }
 
+        /* ✨ 스마트 프리뷰 카드 (링크 입력 시 자동 분석 프리뷰) */
+        .auto-preview-card {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 242, 254, 0.35);
+            border-radius: 12px;
+            padding: 10px 14px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(0, 242, 254, 0.08);
+            transition: all 0.25s ease;
+            animation: fadeInCard 0.25s ease forwards;
+        }
+        @keyframes fadeInCard {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .preview-loading-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 2px;
+            color: #38bdf8;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .preview-spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(0, 242, 254, 0.25);
+            border-top-color: #00f2fe;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+        .preview-content-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .preview-cover-thumb {
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
+        }
+        .preview-meta-details {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .preview-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .preview-song-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .preview-platform-badge {
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(0, 242, 254, 0.2);
+            color: #00f2fe;
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .preview-tags-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .preview-badge-author {
+            font-size: 11px;
+            font-weight: 700;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+            padding: 2px 7px;
+            border-radius: 6px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            max-width: 130px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .preview-badge-genre {
+            font-size: 11px;
+            font-weight: 700;
+            color: #c084fc;
+            background: rgba(192, 132, 252, 0.12);
+            padding: 2px 7px;
+            border-radius: 6px;
+            border: 1px solid rgba(192, 132, 252, 0.25);
+            max-width: 170px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .manual-fields-wrap {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 6px;
+            padding: 10px;
+            background: rgba(2, 6, 23, 0.5);
+            border-radius: 10px;
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            box-sizing: border-box;
+            animation: fadeInCard 0.25s ease forwards;
+        }
+        .manual-toggle-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #94a3b8;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        /* 🖼️ 재생 목록 개별 트랙 좌측 앨범아트 & 레이아웃 */
+        .song-main-col {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+        .song-cover-thumb-box {
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            max-width: 52px;
+            border-radius: 9px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid rgba(0, 242, 254, 0.35);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            background: #090d16;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .song-cover-thumb-box:hover {
+            transform: scale(1.06);
+            border-color: #00f2fe;
+            box-shadow: 0 0 16px rgba(0, 242, 254, 0.4);
+        }
+        .song-cover-thumb-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: filter 0.2s ease;
+        }
+        .song-cover-play-icon {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            color: #00f2fe;
+            font-size: 14px;
+        }
+        .song-cover-thumb-box:hover .song-cover-play-icon {
+            opacity: 1;
+        }
+        .song-cover-thumb-box:hover .song-cover-thumb-img {
+            filter: brightness(0.8);
+        }
+        .track-num-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 242, 254, 0.12);
+            color: #00f2fe;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 6px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .master-continuous-badge {
+            background: rgba(16, 185, 129, 0.18);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.45);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+            border-radius: 999px;
+            padding: 5px 12px;
+            font-size: 11.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .master-continuous-badge:hover {
+            background: rgba(16, 185, 129, 0.3);
+            border-color: #34d399;
+            box-shadow: 0 0 20px rgba(52, 211, 153, 0.5);
+            transform: scale(1.03);
+        }
+        .master-continuous-badge.off {
+            background: rgba(148, 163, 184, 0.12);
+            color: #94a3b8;
+            border-color: rgba(148, 163, 184, 0.3);
+            box-shadow: none;
+        }
+
+        .manual-toggle-btn:hover {
+            color: #ffffff;
+            border-color: #00f2fe;
+            background: rgba(0, 242, 254, 0.08);
+        }
+
         button { 
             padding: 10px 18px; 
             font-size: 14px; 
@@ -249,7 +495,8 @@
         }
 
         .song-row { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
-        .song-info { flex: 1; overflow: hidden; }
+        .song-main-col { width: 100% !important; }
+            .song-info { flex: 1; overflow: hidden; }
         .song-title { 
             font-weight: 800; 
             font-size: 18px; 
@@ -2842,7 +3089,7 @@
                 <button type="button" onclick="clearData()" class="admin-grid-btn btn-danger" id="resetBtn">🗑️ 데이터 초기화</button>
                 <button type="button" onclick="restoreLastBackup()" class="admin-grid-btn btn-cyan" id="restoreBtn" title="초기화/삭제 이전 상태로 복구 (Ctrl+Z)">↩️ 복구하기</button>
                 <button type="button" onclick="downloadExcel()" class="admin-grid-btn btn-blue" id="downloadBtn">📥 엑셀 백업</button>
-                <button type="button" onclick="openVoteResultsModal()" class="admin-grid-btn btn-purple" id="resultsBtn">📊 인기 차트</button>
+                <button type="button" onclick="openVoteResultsModal()" class="admin-grid-btn btn-purple" id="resultsBtn">📊 트랙 현황</button>
             </div>
 
             <!-- 2. 화면 표시 설정 섹션 -->
@@ -2891,31 +3138,31 @@
         <div class="guide-body" id="guideBody">
             <div class="guide-grid">
                 <div class="guide-item">
-                    <div class="guide-item-title">🎵 1. 새로운 음악 / 트랙 등록하기</div>
+                    <div class="guide-item-title">🎵 1. 스마트 프리뷰 & 1초 트랙 등록</div>
                     <div class="guide-item-desc">
-                        • 닉네임(아티스트), 노래 제목, 스트리밍 링크(Suno, 유튜브/유튜브뮤직, 사운드클라우드)를 입력하고 등록합니다.<br>
-                        • 등록 즉시 고유 음원으로 변환되어 실시간 스트리밍 플레이리스트에 자동 등록됩니다.
+                        • <b>[스트리밍 링크 입력]</b>: Suno, 사운드클라우드, 유튜브 링크를 붙여넣으면 <b>아티스트 이름, 곡 제목, 음악 장르가 자동으로 추출</b>되어 스마트 프리뷰 카드로 펼쳐집니다.<br>
+                        • 추출된 정보를 확인 후 <b>[스트리밍 트랙 등록하기]</b>를 누르면 즉시 등록되며, 필요 시 <b>[✏️ 직접 입력/수정]</b>을 눌러 내용을 손쉽게 변경할 수 있습니다.
                     </div>
                 </div>
                 <div class="guide-item">
-                    <div class="guide-item-title">🎧 2. 공식 플레이어 & 실시간 가사</div>
+                    <div class="guide-item-title">🎛️ 2. 마스터 콘솔 (조그 다이얼 & 셔플)</div>
                     <div class="guide-item-desc">
-                        • <b>[노래 듣기]</b>: 공식 스트리밍 플레이어가 열려 파형 비주얼라이저와 함께 안정적으로 스트리밍 재생됩니다.<br>
-                        • <b>[가사 보기]</b>: 각 노래 카드의 [가사 보기]를 누르면 노래 카드 밑에 가사 창이 펼쳐집니다.
+                        • <b>[조그 다이얼 회전]</b>: 마스터 콘솔의 조그 다이얼을 휠/드래그로 돌려 등록된 전곡 트랙(노란색 번호)을 부드럽게 탐색·선택할 수 있습니다.<br>
+                        • <b>[🔁 자동 이어듣기 & 🔀 셔플]</b>: 자동 이어듣기(연속 듣기)가 기본 활성화되어 곡이 끝나면 다음 곡으로 자동 재생되며, 셔플 버튼으로 무작위 재생을 즐길 수 있습니다.
                     </div>
                 </div>
                 <div class="guide-item">
-                    <div class="guide-item-title">❤️ 3. 실시간 인기 트랙 추천 시스템</div>
+                    <div class="guide-item-title">✨ 3. 고음질 멀티 플랫폼 스트리밍 & 앨범아트</div>
                     <div class="guide-item-desc">
-                        • 가장 마음에 드는 곡에 <b>[Like]</b>를 클릭하여 응원할 수 있습니다.<br>
-                        • 회원들의 실시간 추천(좋아요)을 통해 인기 순위가 집계되며, 중복 방지 시스템이 적용되어 있습니다.
+                        • <b>[앨범아트 비주얼]</b>: 실시간 재생 목록의 각 트랙 좌측 앨범아트를 클릭하면 마스터 콘솔에서 즉시 재생됩니다.<br>
+                        • <b>[3대 플랫폼 통합]</b>: Suno AI 음원, SoundCloud, YouTube를 하나의 고음질 인터페이스에서 끊김 없이 감상하실 수 있습니다.
                     </div>
                 </div>
                 <div class="guide-item">
                     <div class="guide-item-title">🔒 4. 관리자 모드 전용 기능 (운영자)</div>
                     <div class="guide-item-desc">
                         • <b>[관리자 모드]</b>: 운영자 비밀번호 인증 후 활성화.<br>
-                        • <b>[📊 인기 차트]</b>: 실시간 인기 순위, 추천수, 추천율 통계 확인 및 일반 공개 스위치 제어.<br>
+                        • <b>[📊 트랙 관리 & 엑셀 백업]</b>: 등록된 전곡 트랙 현황 확인 및 실시간 데이터 백업/복구.<br>
                         • <b>[곡 상세정보 / 제작자 ON/OFF]</b>: 앨범 커버 및 제작자 정보 실시간 숨김 제어.<br>
                         • <b>[📥 엑셀 백업 & 🗑️ 초기화]</b>: 실시간 데이터 백업 및 리셋.
                     </div>
@@ -3196,42 +3443,32 @@
     </div>
 
     <!-- 🏆 3D 메타피지컬 인기 차트 모달 콘솔 -->
+        <!-- 📊 실시간 트랙 관리 & 데이터 현황 모달 콘솔 -->
     <div class="modal-overlay" id="voteResultsModal" onclick="handleModalBackdropClick(event)">
         <div class="modal-box">
-            <!-- 📌 상단 고정 영역: 헤더 + 통계 카드 + 공개 여부 토글 바 -->
+            <!-- 📌 상단 고정 영역: 헤더 + 통계 카드 -->
             <div class="modal-top-fixed">
                 <div class="modal-header">
                     <div class="modal-title">
-                        <span>🏆</span>
-                        <span>실시간 인기 트랙 & 추천 통계</span>
+                        <span>📊</span>
+                        <span>실시간 트랙 관리 & 데이터 현황</span>
                     </div>
                     <button type="button" onclick="closeVoteResultsModal()" class="modal-close-btn">✕</button>
                 </div>
 
                 <div class="modal-stats-grid">
                     <div class="stat-card">
-                        <div class="stat-label">총 추천수</div>
-                        <div class="stat-val" id="totalVotesCount">0표</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">총 등록 곡</div>
+                        <div class="stat-label">총 등록 트랙</div>
                         <div class="stat-val" id="totalSongsCount">0곡</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">1위 추천수</div>
-                        <div class="stat-val" id="topVotesCount">0표</div>
+                        <div class="stat-label">활동 아티스트 수</div>
+                        <div class="stat-val" id="totalAuthorsCount">0명</div>
                     </div>
-                </div>
-
-                <!-- 관리자용 일반 공개 제어 바 -->
-                <div class="public-toggle-bar">
-                    <div>
-                        <span style="font-weight: 700; color: #f1f5f9; font-size: 13px;">📢 일반 사용자 결과 공개 여부:</span>
-                        <span id="publicStatusText" style="font-size: 13px; font-weight: 800; color: #ef4444; margin-left: 6px;">현재 관리자 전용 비공개</span>
+                    <div class="stat-card">
+                        <div class="stat-label">등록 음악 장르</div>
+                        <div class="stat-val" id="totalGenresCount">0개</div>
                     </div>
-                    <button type="button" onclick="toggleResultPublic()" class="public-toggle-btn" id="publicToggleBtn">
-                        일반 공개로 전환
-                    </button>
                 </div>
             </div>
 
@@ -3270,8 +3507,8 @@
         const sunoCache = new Map();
 
         let songs = [];
-        let hasVoted = false;
-        let myVotedId = null;
+        // hasVoted deleted
+        // myVotedId deleted
         let isAdmin = localStorage.getItem('sunoAdminMode') === 'true';
         let showAuthor = localStorage.getItem('sunoShowAuthor') !== 'false';
         let showPlayerInfo = localStorage.getItem('sunoShowPlayerInfo') !== 'false';
@@ -3500,8 +3737,8 @@
                 if (songs.length > 0) {
                     localStorage.setItem('sunoAutoBackupSongs', JSON.stringify(songs));
                 }
-                hasVoted = data.hasVoted;
-                myVotedId = data.myVotedId ? String(data.myVotedId) : null;
+                
+                
                 
                 const noticeDisplay = document.getElementById('noticeDisplay');
                 const noticeInput = document.getElementById('noticeInput');
@@ -3659,7 +3896,7 @@
                 console.error('로컬 백업 파싱 오류:', e);
             }
 
-            if (!confirm("이전 데이터(트랙 및 추천수)를 복구하시겠습니까? (Ctrl+Z 기능)")) {
+            if (!confirm("이전 데이터(트랙 목록)를 복구하시겠습니까? (Ctrl+Z 기능)")) {
                 return;
             }
 
@@ -3794,62 +4031,50 @@
             const modal = document.getElementById('voteResultsModal');
             if (!modal) return;
 
-            // 만약 songs가 비어있다면 즉시 서버에서 다시 동기화 시도
             if (!songs || songs.length === 0) {
                 try {
                     await fetchAppData();
                 } catch(e) {}
             }
 
-            const sortedSongs = [...songs].sort((a, b) => Number(b.votes) - Number(a.votes));
-            const totalVotes = sortedSongs.reduce((sum, s) => sum + Number(s.votes || 0), 0);
-            const topVotes = sortedSongs.length > 0 ? Number(sortedSongs[0].votes || 0) : 0;
+            const currentSongs = [...songs].sort((a, b) => Number(a.id) - Number(b.id));
+            const authorsSet = new Set(currentSongs.map(s => (s.author || '').trim()).filter(Boolean));
+            const genresSet = new Set();
+            currentSongs.forEach(s => {
+                cleanMusicGenres(s.genre).forEach(g => genresSet.add(g));
+            });
 
-            document.getElementById('totalVotesCount').innerText = totalVotes + '회';
-            document.getElementById('totalSongsCount').innerText = sortedSongs.length + '곡';
-            document.getElementById('topVotesCount').innerText = topVotes + '회';
-
-            const statusText = document.getElementById('publicStatusText');
-            const toggleBtn = document.getElementById('publicToggleBtn');
-            if (statusText && toggleBtn) {
-                statusText.innerText = isResultPublic ? "현재 일반 공개 중" : "현재 관리자 전용 비공개";
-                statusText.style.color = isResultPublic ? "#34d399" : "#ef4444";
-                toggleBtn.innerText = isResultPublic ? "비공개로 전환" : "일반 공개로 전환";
-            }
+            const elSongs = document.getElementById('totalSongsCount');
+            const elAuthors = document.getElementById('totalAuthorsCount');
+            const elGenres = document.getElementById('totalGenresCount');
+            if (elSongs) elSongs.innerText = currentSongs.length + '곡';
+            if (elAuthors) elAuthors.innerText = authorsSet.size + '명';
+            if (elGenres) elGenres.innerText = genresSet.size + '개';
 
             const listEl = document.getElementById('modalResultsList');
             listEl.innerHTML = '';
 
-            if (sortedSongs.length === 0) {
-                listEl.innerHTML = `<p style="text-align:center; color:#94a3b8; padding:20px;">등록된 곡이 없습니다.</p>`;
+            if (currentSongs.length === 0) {
+                listEl.innerHTML = '<p style="text-align:center; color:#94a3b8; padding:20px;">등록된 곡이 없습니다.</p>';
             } else {
-                sortedSongs.forEach((song, index) => {
-                    const votes = Number(song.votes || 0);
-                    const percent = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
-                    
-                    let medal = `<span style="font-weight:900; color:#94a3b8; min-width:28px;">#${index+1}</span>`;
-                    if (index === 0) medal = '<span style="font-size:18px;">🥇</span>';
-                    else if (index === 1) medal = '<span style="font-size:18px;">🥈</span>';
-                    else if (index === 2) medal = '<span style="font-size:18px;">🥉</span>';
+                currentSongs.forEach((song, index) => {
+                    const pInfo = detectStreamingPlatform(song.url || '');
+                    const cover = getSongCoverUrl(song);
 
                     const row = document.createElement('div');
                     row.className = 'result-row';
+                    row.style.display = 'flex';
+                    row.style.alignItems = 'center';
+                    row.style.gap = '12px';
+                    row.style.padding = '10px 14px';
                     row.innerHTML = `
-                        <div class="result-row-top">
-                            <div class="result-info-box">
-                                ${medal}
-                                <div>
-                                    <div class="result-song-title">${song.title}</div>
-                                    <div style="font-size:12px; color:#94a3b8;">아티스트: <b style="color:#cbd5e1;">${song.author || '아티스트'}</b></div>
-                                </div>
-                            </div>
-                            <div class="result-votes">
-                                ❤️ ${votes} <span style="font-size:12px; color:#94a3b8; font-weight:400;">(${percent}%)</span>
-                            </div>
+                        <div style="font-weight:900; color:#00f2fe; min-width:32px; font-size:13px;">#${index + 1}</div>
+                        <img src="${cover}" alt="커버" style="width:38px; height:38px; border-radius:7px; object-fit:cover; border:1px solid rgba(0,242,254,0.3);" onerror="handleCoverError(this, '${song.url}')" />
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-size:14px; font-weight:800; color:#ffffff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(song.title)}</div>
+                            <div style="font-size:12px; color:#94a3b8;">아티스트: <b style="color:#cbd5e1;">${escapeHtml(song.author || '아티스트')}</b> ${song.genre ? '· <span style="color:#c084fc;">#' + escapeHtml(song.genre) + '</span>' : ''}</div>
                         </div>
-                        <div class="result-bar-bg">
-                            <div class="result-bar-fill" style="width: ${percent}%;"></div>
-                        </div>
+                        <span style="font-size:11px; font-weight:800; color:${pInfo.color || '#38bdf8'}; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);">${pInfo.badge}</span>
                     `;
                     listEl.appendChild(row);
                 });
@@ -3867,14 +4092,6 @@
             if (e.target.id === 'voteResultsModal') {
                 closeVoteResultsModal();
             }
-        };
-
-        window.toggleResultPublic = function() {
-            isResultPublic = !isResultPublic;
-            localStorage.setItem('sunoResultPublic', isResultPublic);
-            alert(isResultPublic ? "인기 차트가 일반 사용자 화면에도 공개되었습니다!" : "인기 차트가 비공개(관리자 전용)로 전환되었습니다.");
-            openVoteResultsModal();
-            renderList();
         };
 
         window.toggleGuide = function() {
@@ -4458,26 +4675,7 @@
                 });
         };
 
-        window.voteSong = function(id) {
-            if (hasVoted) {
-                alert('이미 추천하셨습니다!');
-                return;
-            }
-            if (!confirm('이 곡을 추천하시겠습니까?')) return;
-
-            const token = getClientToken();
-            fetch(`${API_URL}?action=voteSong&id=${id}&token=${token}`)
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === "already_voted") {
-                        alert('이미 추천한 이력이 존재합니다.');
-                    } else {
-                        alert('추천이 완료되었습니다! 👍');
-                    }
-                    fetchAppData();
-                });
-        };
-
+        // 추천 기능 삭제됨
         window.editSong = function(id) {
             const song = songs.find(s => String(s.id) === String(id));
             if (!song) return;
@@ -4509,17 +4707,12 @@
             }
 
             // 추천수 수정은 관리자만 가능하며, 일반 사용자는 기존 값 유지
-            let newVotes = song.votes;
-            if (isAdmin) {
-                const promptVotes = prompt("추천수 수정 (관리자 전용):", song.votes);
-                if (promptVotes === null) return;
-                newVotes = isNaN(promptVotes) ? song.votes : promptVotes;
-            }
+            // 추천수 입력창 삭제됨
 
             if (newAuthor) localStorage.setItem('sunoSavedAuthor', newAuthor.trim());
             if (newUrl) addMyRegisteredSongUrl(newUrl.trim());
 
-            fetch(`${API_URL}?action=updateSong&id=${id}&title=${encodeURIComponent(newTitle)}&author=${encodeURIComponent(newAuthor)}&genre=${encodeURIComponent(newGenre)}&url=${encodeURIComponent(newUrl)}&votes=${newVotes}`)
+            fetch(`${API_URL}?action=updateSong&id=${id}&title=${encodeURIComponent(newTitle)}&author=${encodeURIComponent(newAuthor)}&genre=${encodeURIComponent(newGenre)}&url=${encodeURIComponent(newUrl)}`)
                 .then(res => res.json())
                 .then(() => { alert("수정되었습니다."); fetchAppData(); });
         };
@@ -4549,7 +4742,7 @@
                 author: String(song.author || ''),
                 genre: String(song.genre || ''),
                 url: String(song.url || ''),
-                votes: parseInt(song.votes, 10) || 0,
+                votes: 0,
                 audio_url: String(song.audio_url || ''),
                 song_id: String(song.song_id || ''),
                 isMine: true,
@@ -4750,6 +4943,9 @@
             if (e.target && e.target.tagName === 'AUDIO') {
                 const anyPlaying = Array.from(document.querySelectorAll('audio')).some(a => !a.paused && !a.ended);
                 if (!anyPlaying) setMasterDotPlaying(false);
+                if (masterRepeatMode !== 'off') {
+                    playMasterNextTrack();
+                }
             }
         }, true);
 
@@ -5637,6 +5833,46 @@
             return '';
         }
 
+        
+        // 🖼️ 트랙별 앨범아트 주소 획득 함수 (Suno, SoundCloud, YouTube 자동 판별)
+        function getSongCoverUrl(song) {
+            if (!song) return '';
+            if (song.coverUrl) return song.coverUrl;
+            if (song.url && sunoCache.has(song.url) && sunoCache.get(song.url).coverUrl) {
+                return sunoCache.get(song.url).coverUrl;
+            }
+            const pInfo = detectStreamingPlatform(song.url || '');
+            if (pInfo.platform === 'suno') {
+                const songId = song.songId || pInfo.id;
+                if (songId) return `https://cdn2.suno.ai/image_large_${songId}.jpeg`;
+                return 'https://suno.com/favicon.ico';
+            }
+            if (pInfo.platform === 'youtube') {
+                if (pInfo.id) return `https://img.youtube.com/vi/${pInfo.id}/mqdefault.jpg`;
+            }
+            if (pInfo.platform === 'soundcloud') {
+                let cleanUrl = String(pInfo.id || song.url || '').trim();
+                try { cleanUrl = new URL(cleanUrl).origin + new URL(cleanUrl).pathname; } catch(e) {}
+                if (scArtworkCache.has(cleanUrl)) return scArtworkCache.get(cleanUrl);
+                return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23090d16"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23ff5500" font-size="36" font-family="sans-serif">☁️</text></svg>';
+            }
+            return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23090d16"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2300f2fe" font-size="34" font-family="sans-serif">🎵</text></svg>';
+        }
+
+        function handleCoverError(img, url) {
+            if (!img) return;
+            const pInfo = detectStreamingPlatform(url || '');
+            if (pInfo.platform === 'suno') {
+                const songId = pInfo.id;
+                if (songId && img.src.includes('cdn2.suno.ai')) {
+                    img.src = `https://cdn1.suno.ai/${songId}.png`;
+                    return;
+                }
+            }
+            img.onerror = null;
+            img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23090d16"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2300f2fe" font-size="32" font-family="sans-serif">🎧</text></svg>';
+        }
+
         function renderList() {
             const listEl = document.getElementById('contestList');
             if (!listEl) return;
@@ -5660,14 +5896,8 @@
                 updateMasterCounter(currentMasterSongIndex, songs.length);
             }
 
-            // 결과 공개 상태이거나 관리자 모드일 때만 득표순 정렬, 아니면 등록순(id순) 정렬
-            const canSeeResults = isResultPublic || isAdmin;
-
-            if (canSeeResults) {
-                songs.sort((a, b) => Number(b.votes) - Number(a.votes));
-            } else {
-                songs.sort((a, b) => Number(a.id) - Number(b.id));
-            }
+            // 등록 순서(id순) 정렬로 전곡 일관 순번 유지
+            songs.sort((a, b) => Number(a.id) - Number(b.id));
 
             // 🔍 실시간 검색 필터 적용 (제작자, 제목, 음악 장르 - 순수 장르만 매칭)
             let filteredSongs = songs;
@@ -5728,34 +5958,15 @@
 
             listEl.innerHTML = '';
             filteredSongs.forEach((song, index) => {
-                const isThisMyVote = (myVotedId !== null && String(myVotedId) === String(song.id));
                 const safeUrl = String(song.url || '').replace(/'/g, "\\'");
                 const safeTitle = String(song.title || '').replace(/'/g, "\\'");
                 const safeAuthor = String(song.author || '').replace(/'/g, "\\'");
-                
-                let rankBadge = '';
-                if (canSeeResults) {
-                    if (index === 0) {
-                        rankBadge = '<span style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #000; font-size: 11px; font-weight: 900; padding: 2px 7px; border-radius: 6px; margin-right: 6px; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);">🥇 1위</span>';
-                    } else if (index === 1) {
-                        rankBadge = '<span style="background: linear-gradient(135deg, #94a3b8, #e2e8f0); color: #000; font-size: 11px; font-weight: 900; padding: 2px 7px; border-radius: 6px; margin-right: 6px; box-shadow: 0 0 10px rgba(148, 163, 184, 0.4);">🥈 2위</span>';
-                    } else if (index === 2) {
-                        rankBadge = '<span style="background: linear-gradient(135deg, #b45309, #d97706); color: #fff; font-size: 11px; font-weight: 900; padding: 2px 7px; border-radius: 6px; margin-right: 6px; box-shadow: 0 0 10px rgba(180, 83, 9, 0.4);">🥉 3위</span>';
-                    } else {
-                        rankBadge = `<span style="background: rgba(255, 255, 255, 0.08); color: #94a3b8; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 6px; margin-right: 6px;">#${index + 1}</span>`;
-                    }
-                } else {
-                    rankBadge = `<span style="background: rgba(255, 255, 255, 0.08); color: #38bdf8; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 6px; margin-right: 6px;">No.${index + 1}</span>`;
-                }
+                const trackNum = index + 1;
+                const coverUrl = getSongCoverUrl(song);
 
-                const myVoteBadge = isThisMyVote ? '<span style="font-size:11px; color:#a855f7; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.35); padding:2px 8px; border-radius:999px; margin-left:6px; font-weight:800; box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);">내가 추천한 곡</span>' : '';
                 const mySongBadge = isMySong(song) ? '<span style="font-size:10px; color:#38bdf8; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.35); padding:1px 7px; border-radius:6px; margin-left:6px; font-weight:800;">내 등록곡</span>' : '';
 
-                const voteCountHtml = canSeeResults 
-                    ? `<span class="vote-count">❤️ ${song.votes}</span>` 
-                    : ``;
-
-                // 🏷️ 순수 음악 장르 개별 칩 생성 (최대 3~4개 엄선)
+                // 🏷️ 순수 음악 장르 개별 칩 생성 (최대 3~4개)
                 const rawGenre = song.genre || (sunoCache.has(song.url) && sunoCache.get(song.url).genre ? sunoCache.get(song.url).genre : '');
                 const genreList = cleanMusicGenres(rawGenre);
                 let genreBadgesHtml = '';
@@ -5774,23 +5985,34 @@
                     ? `<button type="button" onclick="deleteSong('${song.id}')" class="delete-btn" style="display:inline-block;">삭제</button>` 
                     : ``;
 
+                const originalIndex = songs.findIndex(s => String(s.id) === String(song.id));
+                const playTargetIndex = originalIndex >= 0 ? originalIndex : index;
+
                 const item = document.createElement('div');
                 item.className = 'song-card';
                 item.innerHTML = `
                     <div class="song-row">
-                        <div class="song-info">
-                            <div class="song-title">${rankBadge}${song.title} ${genreBadgesHtml} ${myVoteBadge} ${mySongBadge}</div>
-                            <div class="song-author" style="display: ${showAuthor ? 'block' : 'none'};">아티스트: <b style="color:#e2e8f0;">${song.author}</b></div>
+                        <div class="song-main-col">
+                            <!-- 🖼️ 개별 트랙 좌측 앨범아트 썸네일 (클릭 시 마스터 콘솔 즉시 재생) -->
+                            <div class="song-cover-thumb-box" onclick="loadMasterSong(${playTargetIndex})" title="마스터 콘솔에서 즉시 재생">
+                                <img class="song-cover-thumb-img" src="${coverUrl}" alt="${safeTitle}" loading="lazy" onerror="handleCoverError(this, '${safeUrl}')" />
+                                <div class="song-cover-play-icon">▶</div>
+                            </div>
+                            <div class="song-info">
+                                <div class="song-title">
+                                    <span class="track-num-badge">#${trackNum}</span>
+                                    <span class="track-title-text">${song.title}</span>
+                                    ${genreBadgesHtml}
+                                    ${mySongBadge}
+                                </div>
+                                <div class="song-author" style="display: ${showAuthor ? 'block' : 'none'};">아티스트: <b style="color:#e2e8f0;">${song.author}</b></div>
+                            </div>
                         </div>
                         <div class="action-group">
                             <button type="button" id="btn_${song.id}" onclick="toggleInlinePlayer('${song.id}')" class="listen-btn">노래 듣기</button>
                             <button type="button" id="lyrics_btn_${song.id}" onclick="toggleLyricsPopup('${song.id}')" class="lyrics-card-btn">가사 보기</button>
-                            <button type="button" onclick="voteSong('${song.id}')" class="vote-btn ${hasVoted ? 'voted' : ''}" ${hasVoted ? 'disabled' : ''}>
-                                ${isThisMyVote ? 'Like 완료' : 'Like'}
-                            </button>
                             ${editBtnHtml}
                             ${deleteBtnHtml}
-                            ${voteCountHtml}
                         </div>
                     </div>
                     <div id="player_${song.id}" class="player-container"></div>
