@@ -4236,9 +4236,12 @@
         window.toggleEditDeleteDisplay = function() {
             showEditDelete = !showEditDelete;
             localStorage.setItem('sunoShowEditDelete', showEditDelete);
-            alert(showEditDelete ? "수정/삭제 버튼이 활성화(ON)되었습니다.\n(사용자는 본인이 등록한 곡에 한해 수정/삭제가 가능합니다.)" : "수정/삭제 버튼이 비활성화(OFF)되었습니다.");
             updateAdminUI();
             renderList();
+            alert(showEditDelete ? "수정/삭제 버튼이 활성화(ON)되었습니다.\n(화면에 수정/삭제 버튼이 표시됩니다.)" : "수정/삭제 버튼이 비활성화(OFF)되었습니다.\n(화면에서 수정/삭제 버튼이 완전히 사라집니다.)");
+            if (typeof showPlayerToast === 'function') {
+                showPlayerToast(showEditDelete ? '수정/삭제 버튼이 활성화되었습니다 (ON)' : '수정/삭제 버튼이 숨겨졌습니다 (OFF)', '🛠️');
+            }
         };
 
         window.saveNoticeText = function() {
@@ -6973,8 +6976,8 @@
                     `</span>`;
                 }
 
-                // 관리자이거나, 관리자가 수정을 허용한 상태에서 사용자가 직접 등록한 곡인 경우에만 수정/삭제 버튼 노출
-                const canEditOrDelete = isAdmin || (showEditDelete && isMySong(song));
+                // 🛠️ 수정/삭제 버튼 노출: 관리자 모드에서 '수정/삭제: ON' 상태일 때만 노출 (OFF 시 화면에서 완전 숨김)
+                const canEditOrDelete = showEditDelete && (isAdmin || isMySong(song));
                 const editBtnHtml = canEditOrDelete 
                     ? `<button type="button" onclick="editSong('${song.id}')" class="edit-btn" style="display:inline-block;">수정</button>` 
                     : ``;
