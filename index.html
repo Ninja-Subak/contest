@@ -3188,15 +3188,15 @@
                     📜 가사 보기
                 </button>
                 <div class="master-jog-counter-box" style="display: flex; align-items: center; gap: 8px;">
+                    <span class="master-playlist-counter" id="masterPlaylistCounter">
+                        <span class="master-cur-num" id="masterCurTrackNum">1</span><span class="counter-slash"> / </span><span id="masterTotalTrackNum">0</span>
+                    </span>
                     <div class="master-jog-dial-wrap" id="masterJogDialWrap" title="조그 다이얼: 마우스 휠을 굴리거나 드래그하여 트랙 탐색">
                         <div class="master-jog-dial" id="masterJogDial">
                             <div class="master-jog-indicator"></div>
                             <div class="master-jog-core"></div>
                         </div>
                     </div>
-                    <span class="master-playlist-counter" id="masterPlaylistCounter">
-                        <span class="master-cur-num" id="masterCurTrackNum">1</span><span class="counter-slash"> / </span><span id="masterTotalTrackNum">0</span>
-                    </span>
                 </div>
             </div>
         </div>
@@ -4628,16 +4628,168 @@
             }
         }
 
-        window.registerSong = function() {
-            const author = document.getElementById('authorName').value.trim();
-            const title = document.getElementById('songTitle').value.trim();
-            const genre = document.getElementById('songGenre') ? document.getElementById('songGenre').value.trim() : '';
-            let url = document.getElementById('sunoUrl').value.trim();
+        // ==========================================
+        // ✨ 스마트 프리뷰 & 등록 폼 제어
+        // ==========================================
+        let currentPreviewData = null;
+        let urlInspectDebounce = null;
 
-            if (!author || !title || !url) {
-                alert('모든 칸을 채워주세요!');
+        window.toggleManualFields = function() {
+            const wrap = document.getElementById('manualFieldsWrap');
+            const btn = document.getElementById('manualToggleBtn');
+            if (!wrap) return;
+            if (wrap.style.display === 'none' || !wrap.style.display) {
+                wrap.style.display = 'flex';
+                if (btn) btn.innerText = '✕ 직접 입력 접기';
+            } else {
+                wrap.style.display = 'none';
+                if (btn) btn.innerText = '✏️ 직접 입력/수정';
+            }
+        };
+
+        window.handleUrlInputChange = function() {
+            const urlInput = document.getElementById('sunoUrl');
+            if (!urlInput) return;
+            const val = urlInput.value.trim();
+            if (!val) {
+                const card = document.getElementById('autoPreviewCard');
+                if (card) { card.style.display = 'none'; card.innerHTML = ''; }
+                currentPreviewData = null;
                 return;
             }
+            clearTimeout(urlInspectDebounce);
+            urlInspectDebounce = setTimeout(() => {
+                inspectStreamingUrlAndPreview(val);
+            }, 300);
+        };
+
+        window.handleUrlPaste = function(e) {
+            setTimeout(() => {
+                const urlInput = document.getElementById('sunoUrl');
+                if (urlInput && urlInput.value.trim()) {
+                    inspectStreamingUrlAndPreview(urlInput.value.trim());
+                }
+            }, 50);
+        };
+
+        window.inspectStreamingUrlAndPreview = async function(rawUrl) {
+            const card = document.getElementById('autoPreviewCard');
+            if (!card || !rawUrl) return;
+
+            let url = rawUrl.trim();
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
+            const pInfo = detectStreamingPlatform(url);
+            if (pInfo.platform === 'unknown') {
+                card.style.display = 'none';
+                card.innerHTML = '';
+                currentPreviewData = null;
+                return;
+            }
+
+            card.style.display = 'block';
+            card.innerHTML = `
+                <div class="preview-loading-box">
+                    <span class="preview-spinner"></span>
+                    <span>🔍 ${pInfo.badge} 스트리밍 정보(곡명·아티스트·장르)를 자동 분석하고 있습니다...</span>
+                </div>
+            `;
+
+            try {
+                let title = '';
+                let author = '';
+                let genre = '';
+                let coverUrl = '';
+
+                if (pInfo.platform === 'suno') {
+                    const data = await resolveSunoTrack(url);
+                    title = data.title || 'Suno Music';
+                    author = data.author || 'Suno Creator';
+                    genre = data.genre || '';
+                    coverUrl = data.coverUrl || (data.songId ? `https://cdn2.suno.ai/image_large_${data.songId}.jpeg` : '');
+                } else if (pInfo.platform === 'youtube') {
+                    title = 'YouTube 영상 음악';
+                    author = 'YouTube Creator';
+                    genre = 'Pop / Soundtrack';
+                    coverUrl = pInfo.id ? `https://img.youtube.com/vi/${pInfo.id}/mqdefault.jpg` : '';
+                    try {
+                        const oRes = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`);
+                        const oData = await oRes.json();
+                        if (oData && oData.title) title = oData.title;
+                        if (oData && oData.author_name) author = oData.author_name;
+                    } catch(e) {}
+                } else if (pInfo.platform === 'soundcloud') {
+                    title = 'SoundCloud 트랙';
+                    author = 'SoundCloud Artist';
+                    genre = 'Electronic / Hip-Hop';
+                    coverUrl = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23090d16"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23ff5500" font-size="34">☁️</text></svg>';
+                    try {
+                        const scRes = await fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(pInfo.id || url)}`);
+                        const scData = await scRes.json();
+                        if (scData && scData.title) title = scData.title;
+                        if (scData && scData.author_name) author = scData.author_name;
+                        if (scData && scData.thumbnail_url) {
+                            coverUrl = scData.thumbnail_url.replace('-large.jpg', '-t500x500.jpg');
+                        }
+                    } catch(e) {}
+                }
+
+                currentPreviewData = { title, author, genre, coverUrl, url };
+
+                const titleEl = document.getElementById('songTitle');
+                const authorEl = document.getElementById('authorName');
+                const genreEl = document.getElementById('songGenre');
+                if (titleEl && !titleEl.value.trim()) titleEl.value = title;
+                if (authorEl && !authorEl.value.trim()) authorEl.value = author;
+                if (genreEl && !genreEl.value.trim() && genre) genreEl.value = genre;
+
+                const displayGenre = genre ? genre.split(/[,/]+/).slice(0, 3).join(', ') : '장르 자동 분석';
+
+                card.innerHTML = `
+                    <div class="preview-content-box">
+                        <img class="preview-cover-thumb" src="${coverUrl}" alt="앨범아트" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'50\' height=\'50\' fill=\'%23090d16\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%2300f2fe\' font-size=\'20\'>🎵</text></svg>'" />
+                        <div class="preview-meta-details">
+                            <div class="preview-title-row">
+                                <span class="preview-song-title">${escapeHtml(title)}</span>
+                                <span class="preview-platform-badge">${pInfo.badge}</span>
+                            </div>
+                            <div class="preview-tags-row">
+                                <span class="preview-badge-author">👤 ${escapeHtml(author)}</span>
+                                <span class="preview-badge-genre">🏷️ ${escapeHtml(displayGenre)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                console.warn("스마트 프리뷰 분석 에러:", err);
+                card.innerHTML = `
+                    <div style="font-size: 12px; color: #94a3b8; padding: 4px 2px;">
+                        ℹ️ 링크가 확인되었습니다. [스트리밍 트랙 등록하기]를 누르면 등록됩니다.
+                    </div>
+                `;
+            }
+        };
+
+        window.registerSong = function() {
+            let author = document.getElementById('authorName').value.trim();
+            let title = document.getElementById('songTitle').value.trim();
+            let genre = document.getElementById('songGenre') ? document.getElementById('songGenre').value.trim() : '';
+            let url = document.getElementById('sunoUrl').value.trim();
+
+            if (currentPreviewData) {
+                if (!title) title = currentPreviewData.title;
+                if (!author) author = currentPreviewData.author;
+                if (!genre && currentPreviewData.genre) genre = currentPreviewData.genre;
+            }
+
+            if (!url) {
+                alert('스트리밍 링크 주소를 입력해 주세요!');
+                return;
+            }
+            if (!title) title = '새로운 스트리밍 트랙';
+            if (!author) author = localStorage.getItem('sunoSavedAuthor') || '익명 아티스트';
 
             if (/m\.soundcloud\.com/i.test(url)) {
                 url = url.replace(/^https?:\/\/m\.soundcloud\.com/i, 'https://soundcloud.com');
@@ -4684,6 +4836,13 @@
                     document.getElementById('songTitle').value = '';
                     if (document.getElementById('songGenre')) document.getElementById('songGenre').value = '';
                     document.getElementById('sunoUrl').value = '';
+                    const previewCard = document.getElementById('autoPreviewCard');
+                    if (previewCard) { previewCard.style.display = 'none'; previewCard.innerHTML = ''; }
+                    currentPreviewData = null;
+                    const wrap = document.getElementById('manualFieldsWrap');
+                    if (wrap) wrap.style.display = 'none';
+                    const btn = document.getElementById('manualToggleBtn');
+                    if (btn) btn.innerText = '✏️ 직접 입력/수정';
                     alert('등록 완료!');
                     fetchAppData();
                 })
