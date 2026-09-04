@@ -2303,6 +2303,17 @@
         .super-tenant-table tr:hover td {
             background: rgba(255, 255, 255, 0.03);
         }
+        .super-tenant-clickable-cell {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .super-tenant-clickable-cell:hover {
+            background: rgba(56, 189, 248, 0.12) !important;
+        }
+        .super-tenant-clickable-cell:hover b {
+            color: #7dd3fc !important;
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+        }
         .super-badge-active { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
         .super-badge-transferred { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
         .super-badge-paused { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
@@ -3724,7 +3735,7 @@
         </div>
         <div>본 서비스는 각 플랫폼(YouTube, SoundCloud, Suno AI)의 공식 임베드 및 API 스트리밍을 기반으로 운영되며, 모든 음원 및 미디어의 권리는 원저작자에게 귀속됩니다. 권리자의 정당한 요청이 있는 경우 해당 콘텐츠는 즉각 삭제 또는 제외 조치됩니다.</div>
         <div style="margin-top: 8px; font-size: 10px; color: #475569;" id="footerCopyrightText">
-            © 스트리밍 플레이어 Streaming Platform. All rights reserved.
+            © @NinjaSubak. All rights reserved.
         </div>
     </footer>
 
@@ -3762,10 +3773,16 @@
 
             <div class="modal-results-list" id="superModalBody" style="padding-top: 10px;">
                 <!-- ➕ 신규 관리자 발급 / 대여 등록 패널 -->
-                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 14px; padding: 18px; margin-bottom: 22px;">
-                    <div style="font-size: 15px; font-weight: 800; color: #f472b6; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                        <span>➕</span> <b>새로운 관리자(채널) 프로그램 발급 및 대여 등록</b>
+                <div id="superTenantFormPanel" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 14px; padding: 18px; margin-bottom: 22px; transition: all 0.3s ease;">
+                    <div style="font-size: 15px; font-weight: 800; color: #f472b6; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                        <div id="superFormTitle" style="display: flex; align-items: center; gap: 6px;">
+                            <span>➕</span> <b>새로운 관리자(채널) 프로그램 발급 및 대여 등록</b>
+                        </div>
+                        <button type="button" id="superFormResetBtn" onclick="resetSuperTenantForm()" style="display: none; background: rgba(255,255,255,0.08); color: #94a3b8; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 5px 12px; font-size: 11px; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.color='#f8fafc'; this.style.borderColor='rgba(255,255,255,0.4)';" onmouseout="this.style.color='#94a3b8'; this.style.borderColor='rgba(255,255,255,0.2)';">
+                            ✕ 신규 등록 모드로 전환
+                        </button>
                     </div>
+                    <input type="hidden" id="editingOriginalTenantId" value="" />
                     <div style="display: grid; grid-template-columns: 1fr 1.3fr 1.2fr 1fr 1.1fr; gap: 10px; margin-bottom: 10px;">
                         <div>
                             <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">채널 ID (영문/숫자/슬러그)</label>
@@ -3788,18 +3805,19 @@
                         </div>
                         <div>
                             <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">이관 / 대여 구분</label>
-                            <select id="newTenantRental" style="width: 100%; padding: 8px 10px; font-size: 13px; background: rgba(14, 22, 44, 0.85); color: #f8fafc; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px;">
+                            <select id="newTenantRental" onchange="handleRentalSelectChange()" style="width: 100%; padding: 8px 10px; font-size: 13px; background: rgba(14, 22, 44, 0.85); color: #f8fafc; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px;">
                                 <option value="transferred">🟣 영구 이관 (무제한)</option>
                                 <option value="1m">🟢 1개월 대여</option>
                                 <option value="3m">🟢 3개월 대여</option>
                                 <option value="6m">🟢 6개월 대여</option>
                                 <option value="custom">📅 만료일 직접 지정</option>
                             </select>
+                            <input type="date" id="newTenantRentalDate" style="display: none; width: 100%; margin-top: 6px; padding: 6px 8px; font-size: 12px; background: rgba(14, 22, 44, 0.85); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 8px;" />
                         </div>
                     </div>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <input type="text" id="newTenantNote" placeholder="메모 / 참고사항 (예: 2026-09 대여 발급)" style="flex: 1; padding: 8px 10px; font-size: 13px;" />
-                        <button type="button" onclick="createTenantAction()" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; padding: 9px 20px; font-size: 13px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; white-space: nowrap; box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);">
+                        <button type="button" id="superSubmitBtn" onclick="handleSuperFormSubmit()" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; padding: 9px 20px; font-size: 13px; font-weight: 800; border-radius: 10px; border: none; cursor: pointer; white-space: nowrap; box-shadow: 0 0 15px rgba(236, 72, 153, 0.4); transition: all 0.2s ease;">
                             🚀 전용 독립 플레이어 발급
                         </button>
                     </div>
@@ -4042,9 +4060,7 @@
             }
             const footerCopy = document.getElementById('footerCopyrightText');
             if (footerCopy) {
-                footerCopy.innerText = isContest 
-                    ? "© Suno 노래 콘테스트. All rights reserved." 
-                    : "© 스트리밍 플레이어 Streaming Platform. All rights reserved.";
+                footerCopy.innerText = "© @NinjaSubak. All rights reserved.";
             }
             const voteModalTitle = document.getElementById('voteModalTitleText');
             if (voteModalTitle) {
@@ -7460,9 +7476,12 @@
                         : `<button type="button" class="super-action-btn" onclick="toggleTenantModeAction('${escapeHtml(t.tenant_id)}', 'contest')" style="background: rgba(236, 72, 153, 0.15); color:#f472b6; border: 1px solid rgba(236, 72, 153, 0.4);" title="노래 콘테스트 모드(Like/투표 기능) 활성화">🏆 콘테스트 활성화</button>`;
 
                     tr.innerHTML = `
-                        <td>
-                            <b style="color: #38bdf8;">${escapeHtml(t.tenant_id)}</b><br>
-                            <span style="font-size: 11px; color: #94a3b8;">${escapeHtml(t.tenant_name || '')}</span>
+                        <td onclick="selectTenantForEdit('${escapeHtml(t.tenant_id)}')" style="cursor: pointer;" class="super-tenant-clickable-cell" title="클릭하여 상단 입력창에서 채널 ID, 이름, 비밀번호, 만료일 등을 수정합니다">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <b style="color: #38bdf8; text-decoration: underline dotted #38bdf8;">${escapeHtml(t.tenant_id)}</b>
+                                <span style="font-size: 10px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.3);">✏️ 수정</span>
+                            </div>
+                            <span style="font-size: 11px; color: #cbd5e1;">${escapeHtml(t.tenant_name || '')}</span>
                         </td>
                         <td>
                             <button type="button" class="super-action-btn" onclick="copyTenantLink('${escapeHtml(t.tenant_id)}', '${effectiveMode}')" style="background: rgba(255,255,255,0.08); color:#f1f5f9;" title="${tenantUrl}">
@@ -7489,12 +7508,147 @@
             }
         };
 
+        window.handleRentalSelectChange = function() {
+            const rentalSelect = document.getElementById('newTenantRental');
+            const rentalDate = document.getElementById('newTenantRentalDate');
+            if (!rentalSelect || !rentalDate) return;
+            if (rentalSelect.value === 'custom') {
+                rentalDate.style.display = 'block';
+                if (!rentalDate.value) {
+                    rentalDate.value = new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0];
+                }
+            } else {
+                rentalDate.style.display = 'none';
+            }
+        };
+
+        window.selectTenantForEdit = function(tid) {
+            const tenant = (window._lastLoadedTenants || []).find(t => t.tenant_id === tid);
+            if (!tenant) {
+                alert("채널 정보를 찾을 수 없습니다.");
+                return;
+            }
+
+            const origIdInput = document.getElementById('editingOriginalTenantId');
+            if (origIdInput) origIdInput.value = tenant.tenant_id;
+
+            // Fill form fields
+            const idInput = document.getElementById('newTenantId');
+            const nameInput = document.getElementById('newTenantName');
+            const modeSelect = document.getElementById('newTenantMode');
+            const pwdInput = document.getElementById('newTenantPassword');
+            const rentalSelect = document.getElementById('newTenantRental');
+            const rentalDate = document.getElementById('newTenantRentalDate');
+            const noteInput = document.getElementById('newTenantNote');
+
+            if (idInput) idInput.value = tenant.tenant_id;
+            if (nameInput) nameInput.value = tenant.tenant_name || '';
+            if (modeSelect) modeSelect.value = getTenantModeFromData(tenant);
+            if (pwdInput) pwdInput.value = tenant.admin_password || 'as0000';
+
+            if (rentalSelect) {
+                if (tenant.rental_until === 'unlimited' || tenant.status === 'transferred') {
+                    rentalSelect.value = 'transferred';
+                    if (rentalDate) {
+                        rentalDate.style.display = 'none';
+                        rentalDate.value = '';
+                    }
+                } else {
+                    rentalSelect.value = 'custom';
+                    if (rentalDate) {
+                        rentalDate.style.display = 'block';
+                        rentalDate.value = tenant.rental_until || '';
+                    }
+                }
+            }
+
+            if (noteInput) noteInput.value = stripModeTagFromNote(tenant.note || '');
+
+            // Switch Panel to Edit UI
+            const panel = document.getElementById('superTenantFormPanel');
+            if (panel) {
+                panel.style.borderColor = '#38bdf8';
+                panel.style.boxShadow = '0 0 25px rgba(56, 189, 248, 0.35)';
+            }
+
+            const formTitle = document.getElementById('superFormTitle');
+            if (formTitle) {
+                formTitle.innerHTML = `<span style="color:#38bdf8;">✏️</span> <b style="color:#38bdf8;">[${escapeHtml(tenant.tenant_id)}] 채널 정보 수정</b> <span style="font-size:11px; color:#94a3b8; font-weight:normal;">(ID, 이름, 유형, 비밀번호, 만료일 수정 가능)</span>`;
+            }
+
+            const resetBtn = document.getElementById('superFormResetBtn');
+            if (resetBtn) resetBtn.style.display = 'inline-block';
+
+            const submitBtn = document.getElementById('superSubmitBtn');
+            if (submitBtn) {
+                submitBtn.innerHTML = '💾 채널 정보 수정 저장';
+                submitBtn.style.background = 'linear-gradient(135deg, #0284c7, #38bdf8)';
+                submitBtn.style.boxShadow = '0 0 18px rgba(56, 189, 248, 0.5)';
+            }
+
+            // Smooth scroll to top of modal body
+            const modalBody = document.getElementById('superModalBody');
+            if (modalBody) {
+                modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            setTimeout(() => {
+                if (nameInput) nameInput.focus();
+            }, 150);
+        };
+
+        window.resetSuperTenantForm = function() {
+            const origIdInput = document.getElementById('editingOriginalTenantId');
+            if (origIdInput) origIdInput.value = '';
+
+            const idInput = document.getElementById('newTenantId');
+            const nameInput = document.getElementById('newTenantName');
+            const modeSelect = document.getElementById('newTenantMode');
+            const pwdInput = document.getElementById('newTenantPassword');
+            const rentalSelect = document.getElementById('newTenantRental');
+            const rentalDate = document.getElementById('newTenantRentalDate');
+            const noteInput = document.getElementById('newTenantNote');
+
+            if (idInput) idInput.value = '';
+            if (nameInput) nameInput.value = '';
+            if (modeSelect) modeSelect.value = 'player';
+            if (pwdInput) pwdInput.value = 'as0000';
+            if (rentalSelect) rentalSelect.value = 'transferred';
+            if (rentalDate) {
+                rentalDate.style.display = 'none';
+                rentalDate.value = '';
+            }
+            if (noteInput) noteInput.value = '';
+
+            const panel = document.getElementById('superTenantFormPanel');
+            if (panel) {
+                panel.style.borderColor = 'rgba(236, 72, 153, 0.3)';
+                panel.style.boxShadow = 'none';
+            }
+
+            const formTitle = document.getElementById('superFormTitle');
+            if (formTitle) {
+                formTitle.innerHTML = `<span>➕</span> <b>새로운 관리자(채널) 프로그램 발급 및 대여 등록</b>`;
+            }
+
+            const resetBtn = document.getElementById('superFormResetBtn');
+            if (resetBtn) resetBtn.style.display = 'none';
+
+            const submitBtn = document.getElementById('superSubmitBtn');
+            if (submitBtn) {
+                submitBtn.innerHTML = '🚀 전용 독립 플레이어 발급';
+                submitBtn.style.background = 'linear-gradient(135deg, #ec4899, #8b5cf6)';
+                submitBtn.style.boxShadow = '0 0 15px rgba(236, 72, 153, 0.4)';
+            }
+        };
+
         window.createTenantAction = async function() {
             const tid = document.getElementById('newTenantId').value.trim().toLowerCase();
             const tname = document.getElementById('newTenantName').value.trim();
             const tpwd = document.getElementById('newTenantPassword').value.trim() || 'as0000';
             const tmode = (document.getElementById('newTenantMode') ? document.getElementById('newTenantMode').value : 'player') || 'player';
             const rentalChoice = document.getElementById('newTenantRental').value;
+            const rentalDateVal = document.getElementById('newTenantRentalDate') ? document.getElementById('newTenantRentalDate').value : '';
             const tnote = document.getElementById('newTenantNote').value.trim();
 
             if (!tid) {
@@ -7509,9 +7663,13 @@
                 rentalUntil = 'unlimited';
                 status = 'transferred';
             } else if (rentalChoice === 'custom') {
-                const customDate = prompt("대여 만료일을 입력하세요 (형식: YYYY-MM-DD):", new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0]);
-                if (!customDate) return;
-                rentalUntil = customDate;
+                if (rentalDateVal) {
+                    rentalUntil = rentalDateVal;
+                } else {
+                    const customDate = prompt("대여 만료일을 입력하세요 (형식: YYYY-MM-DD):", new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0]);
+                    if (!customDate) return;
+                    rentalUntil = customDate;
+                }
             } else {
                 let months = 1;
                 if (rentalChoice === '3m') months = 3;
@@ -7539,15 +7697,147 @@
                     const modeName = tmode === 'contest' ? '🏆 Suno 노래 콘테스트 (Like/투표 포함)' : '🎧 일반 스트리밍 플레이어';
                     alert(`🎉 새로운 관리자 프로그램이 발급되었습니다!\n\n채널 ID: ${tid}\n관리자 이름: ${tname || tid}\n프로그램 유형: ${modeName}\n관리자 비밀번호: ${tpwd}\n대여/이관: ${rentalUntil === 'unlimited' ? '영구 이관' : rentalUntil + '까지 대여'}\n\n배포 링크: ${fullLink}\n(확인을 누르면 클립보드에 링크가 복사됩니다)`);
                     try { navigator.clipboard.writeText(fullLink); } catch(e){}
-                    document.getElementById('newTenantId').value = '';
-                    document.getElementById('newTenantName').value = '';
-                    document.getElementById('newTenantNote').value = '';
+                    resetSuperTenantForm();
                     loadSuperTenantsList();
                 } else {
                     alert(data.message || "발급에 실패했습니다.");
                 }
             } catch(e) {
                 alert("발급 오류: " + e.message);
+            }
+        };
+
+        window.handleSuperFormSubmit = async function() {
+            const origIdInput = document.getElementById('editingOriginalTenantId');
+            const origTid = origIdInput ? origIdInput.value.trim().toLowerCase() : '';
+
+            if (!origTid) {
+                // Not in edit mode -> create new tenant
+                return createTenantAction();
+            }
+
+            // Edit mode
+            const newTid = document.getElementById('newTenantId').value.trim().toLowerCase();
+            const newName = document.getElementById('newTenantName').value.trim();
+            const newPwd = document.getElementById('newTenantPassword').value.trim() || 'as0000';
+            const newMode = (document.getElementById('newTenantMode') ? document.getElementById('newTenantMode').value : 'player') || 'player';
+            const rentalChoice = document.getElementById('newTenantRental').value;
+            const rentalDateVal = document.getElementById('newTenantRentalDate') ? document.getElementById('newTenantRentalDate').value : '';
+            const newNote = document.getElementById('newTenantNote').value.trim();
+
+            if (!newTid) {
+                alert("채널 ID를 입력하세요.");
+                return;
+            }
+
+            if (origTid === 'default' && newTid !== 'default') {
+                alert("⚠️ 'default' 채널은 시스템 기본 루트 채널이므로 채널 ID를 변경할 수 없습니다.\n채널 ID를 'default'로 유지하고 이름, 비밀번호, 만료일 등의 정보를 수정합니다.");
+                document.getElementById('newTenantId').value = 'default';
+                return;
+            }
+
+            let rentalUntil = 'unlimited';
+            let status = 'active';
+
+            if (rentalChoice === 'transferred') {
+                rentalUntil = 'unlimited';
+                status = 'transferred';
+            } else if (rentalChoice === 'custom') {
+                if (rentalDateVal) {
+                    rentalUntil = rentalDateVal;
+                } else {
+                    const customDate = prompt("대여 만료일을 입력하세요 (형식: YYYY-MM-DD):", new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0]);
+                    if (!customDate) return;
+                    rentalUntil = customDate;
+                }
+            } else {
+                let months = 1;
+                if (rentalChoice === '3m') months = 3;
+                if (rentalChoice === '6m') months = 6;
+                const d = new Date();
+                d.setMonth(d.getMonth() + months);
+                rentalUntil = d.toISOString().split('T')[0];
+            }
+
+            if (!superPassword) {
+                superPassword = localStorage.getItem('sunoSuperPassword') || 'super5125';
+            }
+
+            const finalNote = attachModeTagToNote(newNote, newMode);
+
+            try {
+                if (newTid !== origTid) {
+                    // Changing channel ID
+                    const existing = (window._lastLoadedTenants || []).find(t => t.tenant_id === newTid);
+                    if (existing) {
+                        alert(`❌ 이미 존재하는 채널 ID('${newTid}')입니다. 다른 채널 ID를 사용하세요.`);
+                        return;
+                    }
+
+                    if (!confirm(`채널 ID를 '${origTid}'에서 '${newTid}'(으)로 변경하시겠습니까?\n이름, 비밀번호, 만료일 등 모든 설정이 새 ID로 이관됩니다.`)) {
+                        return;
+                    }
+
+                    // Attempt super_updateTenant with newTenantId
+                    const res = await fetch(`${API_URL}?action=super_updateTenant&superPassword=${encodeURIComponent(superPassword)}&tenantId=${encodeURIComponent(origTid)}&newTenantId=${encodeURIComponent(newTid)}&tenantName=${encodeURIComponent(newName)}&adminPassword=${encodeURIComponent(newPwd)}&status=${encodeURIComponent(status)}&rentalUntil=${encodeURIComponent(rentalUntil)}&note=${encodeURIComponent(finalNote)}&mode=${encodeURIComponent(newMode)}`);
+                    const data = await res.json();
+
+                    if (data.status === "success") {
+                        localStorage.removeItem('tenant_mode_' + origTid);
+                        localStorage.setItem('tenant_mode_' + newTid, newMode);
+
+                        if (origTid === currentTenant) {
+                            currentTenant = newTid;
+                            if (currentTenantInfo) {
+                                currentTenantInfo.tenant_id = newTid;
+                                currentTenantInfo.tenant_name = newName;
+                                currentTenantInfo.mode = newMode;
+                            }
+                            updateDynamicBrandTitles(newMode === 'contest');
+                            renderList();
+                        }
+
+                        alert(`✅ 채널 ID가 '${origTid}'에서 '${newTid}'(으)로 변경되고 모든 설정이 성공적으로 저장되었습니다!`);
+                        resetSuperTenantForm();
+                        loadSuperTenantsList();
+                    } else {
+                        // Fallback: If cloud GAS does not support newTenantId yet
+                        const createRes = await fetch(`${API_URL}?action=super_createTenant&superPassword=${encodeURIComponent(superPassword)}&tenantId=${encodeURIComponent(newTid)}&tenantName=${encodeURIComponent(newName)}&adminPassword=${encodeURIComponent(newPwd)}&status=${encodeURIComponent(status)}&rentalUntil=${encodeURIComponent(rentalUntil)}&note=${encodeURIComponent(finalNote)}&mode=${encodeURIComponent(newMode)}`);
+                        const createData = await createRes.json();
+                        if (createData.status === "success") {
+                            await fetch(`${API_URL}?action=super_deleteTenant&superPassword=${encodeURIComponent(superPassword)}&tenantId=${encodeURIComponent(origTid)}`);
+                            localStorage.removeItem('tenant_mode_' + origTid);
+                            localStorage.setItem('tenant_mode_' + newTid, newMode);
+                            alert(`✅ 채널 ID가 '${origTid}'에서 '${newTid}'(으)로 이관되고 모든 설정이 성공적으로 저장되었습니다!`);
+                            resetSuperTenantForm();
+                            loadSuperTenantsList();
+                        } else {
+                            alert(createData.message || data.message || "채널 ID 변경 저장 실패");
+                        }
+                    }
+                } else {
+                    // Update existing tenant (ID unchanged)
+                    const res = await fetch(`${API_URL}?action=super_updateTenant&superPassword=${encodeURIComponent(superPassword)}&tenantId=${encodeURIComponent(origTid)}&tenantName=${encodeURIComponent(newName)}&adminPassword=${encodeURIComponent(newPwd)}&status=${encodeURIComponent(status)}&rentalUntil=${encodeURIComponent(rentalUntil)}&note=${encodeURIComponent(finalNote)}&mode=${encodeURIComponent(newMode)}`);
+                    const data = await res.json();
+                    if (data.status === "success") {
+                        localStorage.setItem('tenant_mode_' + origTid, newMode);
+                        if (origTid === currentTenant) {
+                            if (currentTenantInfo) {
+                                currentTenantInfo.tenant_name = newName;
+                                currentTenantInfo.mode = newMode;
+                            }
+                            updateDynamicBrandTitles(newMode === 'contest');
+                            renderList();
+                        }
+                        alert(`✅ '${origTid}' 채널의 모든 정보가 성공적으로 수정되었습니다!`);
+                        resetSuperTenantForm();
+                        loadSuperTenantsList();
+                    } else {
+                        alert(data.message || "수정 저장 실패");
+                    }
+                }
+            } catch(e) {
+                alert("수정 통신 오류: " + e.message);
             }
         };
 
@@ -7716,27 +8006,6 @@
 
         window.editTenantAction = function(tid) {
             openEditTenantModal(tid);
-        };
-
-        window.deleteTenantAction = async function(tid) {
-            if (!confirm(`⚠️ 정말 '${tid}' 관리자 채널과 해당 채널의 전용 데이터베이스를 영구 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!`)) return;
-
-            if (!superPassword) {
-                superPassword = localStorage.getItem('sunoSuperPassword') || 'super5125';
-            }
-
-            try {
-                const res = await fetch(`${API_URL}?action=super_deleteTenant&superPassword=${encodeURIComponent(superPassword)}&tenantId=${encodeURIComponent(tid)}`);
-                const data = await res.json();
-                if (data.status === "success") {
-                    alert(`'${tid}' 채널이 영구 삭제되었습니다.`);
-                    loadSuperTenantsList();
-                } else {
-                    alert(data.message || "삭제 실패");
-                }
-            } catch(e) {
-                alert("오류: " + e.message);
-            }
         };
 
         window.deleteTenantAction = async function(tid) {
