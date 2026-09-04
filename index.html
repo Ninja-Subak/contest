@@ -4513,7 +4513,7 @@
                 return {
                     platform: 'soundcloud',
                     id: cleanScUrl,
-                    embedUrl: `https://w.soundcloud.com/player/?url=${encodeURIComponent(cleanScUrl)}&color=%2300f2fe&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false`,
+                    embedUrl: `https://w.soundcloud.com/player/?url=${encodeURIComponent(cleanScUrl)}&color=%2300f2fe&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false&show_artwork=false`,
                     badge: 'SoundCloud',
                     color: '#f97316'
                 };
@@ -5308,7 +5308,6 @@
             } else if (info.platform === 'soundcloud') {
                 return '<span style="font-size:10px; color:#f97316; background:rgba(249,115,22,0.15); border:1px solid rgba(249,115,22,0.35); padding:1px 6px; border-radius:5px; margin-right:4px; font-weight:800; vertical-align:middle;">SoundCloud</span>';
             } else if (info.platform === 'suno') {
-                hideMasterScArtwork();
                 return '<span style="font-size:10px; color:#00f2fe; background:rgba(0,242,254,0.15); border:1px solid rgba(0,242,254,0.35); padding:1px 6px; border-radius:5px; margin-right:4px; font-weight:800; vertical-align:middle;">Suno</span>';
             }
             return '';
