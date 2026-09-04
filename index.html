@@ -1725,17 +1725,20 @@
            📱 스마트폰 모바일 화면 완벽 최적화 (Mobile Responsive)
            ======================================================== */
         @media (max-width: 640px) {
+            /* 모바일 사운드클라우드 앨범아트 & 배지 최적화 (1:1 정사각형 유지) */
             .master-sc-art-box {
-                width: 115px !important;
-                min-width: 115px !important;
-                max-width: 115px !important;
-                height: 150px !important;
+                width: 114px !important;
+                height: 114px !important;
+                min-width: 114px !important;
+                max-width: 114px !important;
+                aspect-ratio: 1 / 1 !important;
             }
             .master-sc-badge-tag {
                 font-size: 8px !important;
                 padding: 1px 4px !important;
                 bottom: 5px !important;
                 left: 5px !important;
+                white-space: nowrap !important;
             }
 
             /* 1. Body & Container 여백 최적화 */
@@ -2590,51 +2593,120 @@
             }
         }
 
-        /* 🖼️ 사운드클라우드 마스터 콘솔 좌측 앨범아트 프레임 */
-        .master-sc-art-box {
-            width: 160px;
-            min-width: 160px;
-            max-width: 160px;
-            height: 160px;
-            position: relative;
-            overflow: hidden;
-            background: #090d16;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-right: 1px solid rgba(0, 242, 254, 0.35);
-            flex-shrink: 0;
-            cursor: pointer;
+        /* 🖼️ 사운드클라우드 마스터 콘솔: 수노(Suno) 스타일 일체형 다크 카드 레이아웃 (1:1 정사각형 & 자연스러운 매칭) */
+        .master-embed-wrapper.sc-active {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 8px !important;
+            gap: 8px !important;
+            min-height: unset !important;
+            height: auto !important;
+            background: #090d16 !important;
+            border-radius: 14px !important;
+            border: 1px solid rgba(0, 242, 254, 0.4) !important;
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.15), inset 0 0 15px rgba(0, 0, 0, 0.5) !important;
+            box-sizing: border-box !important;
         }
-        .master-sc-art-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.4s ease, filter 0.3s ease;
+        .master-embed-wrapper.sc-active .master-sc-art-box {
+            display: flex !important;
+            width: 114px !important;
+            height: 114px !important;
+            min-width: 114px !important;
+            max-width: 114px !important;
+            min-height: 114px !important;
+            max-height: 114px !important;
+            aspect-ratio: 1 / 1 !important;
+            border-radius: 10px !important;
+            border: 1px solid rgba(0, 242, 254, 0.35) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6) !important;
+            overflow: hidden !important;
+            flex-shrink: 0 !important;
+            position: relative !important;
+            cursor: pointer !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #000000 !important;
         }
-        .master-sc-art-box:hover .master-sc-art-img {
-            transform: scale(1.05);
-            filter: brightness(1.08);
+        .master-embed-wrapper.sc-active .master-sc-art-img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            display: block !important;
+            border-radius: 9px !important;
+            transition: transform 0.3s ease, filter 0.3s ease !important;
         }
-        .master-sc-badge-tag {
-            position: absolute;
-            bottom: 8px;
-            left: 8px;
-            background: rgba(10, 15, 29, 0.88);
-            border: 1px solid rgba(255, 85, 0, 0.5);
-            color: #ff5500;
-            font-size: 10px;
-            font-weight: 800;
-            padding: 2px 7px;
-            border-radius: 6px;
-            backdrop-filter: blur(6px);
-            pointer-events: none;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        .master-embed-wrapper.sc-active .master-sc-art-box:hover .master-sc-art-img {
+            transform: scale(1.05) !important;
+            filter: brightness(1.1) !important;
+        }
+        .master-embed-wrapper.sc-active .master-sc-badge-tag {
+            position: absolute !important;
+            bottom: 5px !important;
+            left: 5px !important;
+            background: rgba(10, 15, 29, 0.88) !important;
+            border: 1px solid rgba(255, 85, 0, 0.5) !important;
+            color: #ff5500 !important;
+            font-size: 8px !important;
+            font-weight: 800 !important;
+            padding: 1px 5px !important;
+            border-radius: 4px !important;
+            backdrop-filter: blur(4px) !important;
+            pointer-events: none !important;
+            letter-spacing: 0.3px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 3px !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5) !important;
+            white-space: nowrap !important;
+        }
+        .master-embed-wrapper.sc-active .master-embed-iframe {
+            flex: 1 1 0% !important;
+            min-width: 0 !important;
+            width: 100% !important;
+            height: 114px !important;
+            min-height: 114px !important;
+            max-height: 114px !important;
+            border-radius: 10px !important;
+            border: none !important;
+            display: block !important;
+            filter: invert(0.93) hue-rotate(180deg) brightness(0.95) contrast(1.1) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+            margin: 0 !important;
+            background: #090d16 !important;
+        }
+
+        /* 🖥️ 데스크톱 / 대형 화면 (641px 이상): 여유롭고 균형 잡힌 130px 크기 */
+        @media (min-width: 641px) {
+            .master-embed-wrapper.sc-active {
+                padding: 10px !important;
+                gap: 12px !important;
+            }
+            .master-embed-wrapper.sc-active .master-sc-art-box {
+                width: 130px !important;
+                height: 130px !important;
+                min-width: 130px !important;
+                max-width: 130px !important;
+                min-height: 130px !important;
+                max-height: 130px !important;
+                border-radius: 12px !important;
+            }
+            .master-embed-wrapper.sc-active .master-sc-art-img {
+                border-radius: 11px !important;
+            }
+            .master-embed-wrapper.sc-active .master-embed-iframe {
+                height: 130px !important;
+                min-height: 130px !important;
+                max-height: 130px !important;
+                border-radius: 12px !important;
+            }
+            .master-embed-wrapper.sc-active .master-sc-badge-tag {
+                font-size: 9px !important;
+                padding: 2px 6px !important;
+                bottom: 7px !important;
+                left: 7px !important;
+            }
         }
 
     </style>
@@ -4592,6 +4664,8 @@
         const scArtworkCache = new Map();
 
         async function showMasterScArtwork(trackUrl) {
+            const wrapper = document.getElementById('masterEmbedWrapper');
+            if (wrapper) wrapper.classList.add('sc-active');
             const artBox = document.getElementById('masterScArtBox');
             const artImg = document.getElementById('masterScArtImg');
             if (!artBox || !artImg) return;
@@ -4635,6 +4709,8 @@
         }
 
         function hideMasterScArtwork() {
+            const wrapper = document.getElementById('masterEmbedWrapper');
+            if (wrapper) wrapper.classList.remove('sc-active');
             const artBox = document.getElementById('masterScArtBox');
             if (artBox) artBox.style.display = 'none';
         }
