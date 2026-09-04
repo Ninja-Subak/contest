@@ -320,6 +320,7 @@
             height: 100%;
             object-fit: cover;
             display: block;
+            pointer-events: none;
             transition: filter 0.2s ease;
         }
         .song-cover-play-icon {
@@ -330,6 +331,7 @@
             align-items: center;
             justify-content: center;
             opacity: 0;
+            pointer-events: none;
             transition: opacity 0.2s ease;
             color: #00f2fe;
             font-size: 14px;
@@ -4509,10 +4511,13 @@
                 el.innerHTML = '';
             });
 
-            // 2. [플레이어 닫기] 버튼을 기본 [노래 듣기] 상태로 복구
+            // 2. [플레이어 닫기] 버튼 및 커버 아이콘을 기본 상태로 복구
             document.querySelectorAll('.listen-btn').forEach(b => {
                 b.classList.remove('active');
                 b.innerText = '노래 듣기';
+            });
+            document.querySelectorAll('.song-cover-play-icon').forEach(ci => {
+                ci.innerText = '▶';
             });
 
             // 3. 목록의 모든 HTML5 오디오 일시정지 및 탐색 위치 초기화
@@ -4542,6 +4547,8 @@
                 playerContainer.innerHTML = '';
                 btn.classList.remove('active');
                 btn.innerText = '노래 듣기';
+                const cIcon = document.getElementById('cover_icon_' + id);
+                if (cIcon) cIcon.innerText = '▶';
                 return;
             }
 
@@ -4571,6 +4578,9 @@
                 alert("올바른 스트리밍 링크(Suno, YouTube, SoundCloud)가 아닙니다.");
                 return;
             }
+
+            const curCoverIcon = document.getElementById('cover_icon_' + id);
+            if (curCoverIcon) curCoverIcon.innerText = '⏸';
 
             if (pInfo.platform === 'youtube') {
                 btn.classList.add('active');
@@ -6817,9 +6827,9 @@
                     <div class="song-row">
                         <div class="song-main-col">
                             <!-- 🖼️ 개별 트랙 좌측 앨범아트 썸네일 (클릭 시 마스터 콘솔 즉시 재생) -->
-                            <div class="song-cover-thumb-box" onclick="loadMasterSong(${playTargetIndex}, true)" title="마스터 콘솔에서 즉시 재생">
+                            <div class="song-cover-thumb-box" id="cover_box_${song.id}" onclick="toggleInlinePlayer('${song.id}')" title="노래 재생 / 플레이어 열기 (클릭)">
                                 <img class="song-cover-thumb-img" id="cover_thumb_${song.id}" src="${coverUrl}" alt="${safeTitle}" loading="lazy" onerror="handleCoverError(this, '${safeUrl}', '${song.id}')" />
-                                <div class="song-cover-play-icon">▶</div>
+                                <div class="song-cover-play-icon" id="cover_icon_${song.id}">▶</div>
                             </div>
                             <div class="song-info">
                                 <div class="song-title">
