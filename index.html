@@ -3590,10 +3590,7 @@
         <div style="margin-bottom: 6px; font-weight: 700; color: #94a3b8; font-size: 12px;">
             ⚖️ 저작권 및 서비스 운영 안내
         </div>
-        <div>
-            본 서비스는 각 플랫폼(YouTube, SoundCloud, Suno AI)의 공식 임베드 및 API 스트리밍을 기반으로 운영되며, 모든 음원 및 미디어의 권리는 원저작자에게 귀속됩니다.<br>
-            권리자의 정당한 요청이 있는 경우 해당 콘텐츠는 즉각 삭제 또는 제외 조치됩니다.
-        </div>
+        <div>본 서비스는 각 플랫폼(YouTube, SoundCloud, Suno AI)의 공식 임베드 및 API 스트리밍을 기반으로 운영되며, 모든 음원 및 미디어의 권리는 원저작자에게 귀속됩니다. 권리자의 정당한 요청이 있는 경우 해당 콘텐츠는 즉각 삭제 또는 제외 조치됩니다.</div>
         <div style="margin-top: 8px; font-size: 10px; color: #475569;">
             © 스트리밍 플레이어 Streaming Platform. All rights reserved.
         </div>
@@ -4600,6 +4597,15 @@
                 if (!title) title = song.title;
                 if (!author) author = song.author;
             }
+            const songIdx = songs.findIndex(s => String(s.id) === String(id));
+            if (songIdx >= 0) {
+                currentMasterSongIndex = songIdx;
+                updateMasterCounter(songIdx, songs.length);
+                const indicator = document.getElementById('masterTrackIndicator');
+                if (indicator && songs[songIdx]) {
+                    indicator.innerText = `${songIdx + 1}번 트랙 (${songs[songIdx].title || '제목 없음'})`;
+                }
+            }
 
             // 🔇 목록 인라인 플레이어: 마스터 콘솔 연속 재생 간섭 방지 및 독립 재생
             isMasterConsoleActivePlayback = false;
@@ -4666,46 +4672,15 @@
                 const embedUrl = data.embedUrl || `https://suno.com/embed/${songId}`;
                 const authorText = author || (song ? song.author : '아티스트');
 
-                // ⚡ 수노 음원 즉시 자동 재생 (대기 상태 방지 및 원클릭 즉시 스트리밍)
-                const safeTitle = escapeHtml(displayTitle);
-                const safeAuthor = escapeHtml(authorText);
-
+                // 🎵 Suno 공식 임베드 플레이어로 화면 표시 (원상복구)
                 playerContainer.innerHTML = `
-                    <div class="audio-player-box" id="inapp_box_${id}" style="margin-top: 10px; padding: 14px 16px; background: rgba(10, 15, 30, 0.9); border: 1px solid rgba(0, 242, 254, 0.35); border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px;">
-                            <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                                <span style="font-size: 16px;">⚡</span>
-                                <div style="min-width: 0;">
-                                    <div style="font-size: 13.5px; font-weight: 800; color: #00f2fe; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${safeTitle}</div>
-                                    <div style="font-size: 11px; color: #94a3b8;">아티스트: <b style="color: #cbd5e1;">${safeAuthor}</b> <span style="color:#38bdf8; font-size:10px; margin-left:4px; font-weight:700;">[즉시 재생 중]</span></div>
-                                </div>
-                            </div>
-                            <button type="button" class="switch-player-btn" onclick="switchToEmbed('${id}', '${encodeURIComponent(embedUrl)}', '${encodeURIComponent(audioUrl)}', '${encodeURIComponent(proxyAudioUrl)}', '${encodeURIComponent(coverImg)}', '${encodeURIComponent(displayTitle)}', '${encodeURIComponent(authorText)}')" style="font-size: 11px; padding: 5px 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #94a3b8; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
-                                📻 Suno 임베드 보기
-                            </button>
-                        </div>
-                        <div class="audio-wrapper">
-                            <audio id="audio_el_${id}" controls autoplay playsinline webkit-playsinline preload="auto" style="width: 100%; border-radius: 8px;">
-                                <source src="${audioUrl}" type="audio/mp4">
-                                <source src="${proxyAudioUrl}" type="audio/mp4">
-                                브라우저가 오디오 재생을 지원하지 않습니다.
-                            </audio>
-                        </div>
+                    <div class="embed-frame-box" id="embed_box_${id}" style="margin-top: 8px;">
+                        <iframe src="${embedUrl}" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
                     </div>
                 `;
 
                 btn.classList.add('active');
                 btn.innerText = '플레이어 닫기';
-
-                // 🚀 브라우저 오디오 즉시 재생 격발
-                const newAudio = document.getElementById(`audio_el_${id}`);
-                if (newAudio) {
-                    newAudio.volume = (typeof currentMasterVolume === 'number') ? currentMasterVolume : 0.8;
-                    const p = newAudio.play();
-                    if (p !== undefined) {
-                        p.catch(() => {});
-                    }
-                }
             } catch (err) {
                 console.error(err);
                 playerContainer.innerHTML = `
@@ -6002,36 +5977,61 @@
             `;
         };
 
-        // ⏭ 다음 곡 재생 (마스터 콘솔 재생 전용)
-        window.playMasterNextTrack = function() {
-            if (!songs || songs.length === 0) return;
-            if (!isContinuousPlayEnabled || masterRepeatMode === 'off') {
-                setMasterDotPlaying(false);
-                return;
+        // ⏭ 다음 곡 재생 (마스터 콘솔)
+        window.playMasterNextTrack = function(isAutoFromEnd = false) {
+            const list = (typeof songs !== 'undefined' && songs && songs.length > 0) ? songs : (window.songs || []);
+            if (!list || list.length === 0) return;
+
+            // 1. 곡이 끝났을 때 자동 이어듣기 호출인 경우: OFF 상태면 중지
+            if (isAutoFromEnd) {
+                if (!isContinuousPlayEnabled || masterRepeatMode === 'off') {
+                    setMasterDotPlaying(false);
+                    return;
+                }
+                if (masterRepeatMode === 'one' && currentMasterSongIndex >= 0) {
+                    loadMasterSong(currentMasterSongIndex, true);
+                    return;
+                }
             }
+
+            // 2. 사용자가 수동으로 [다음 곡] 버튼을 누른 경우: 항상 다음 곡으로 즉시 이동
             isMasterConsoleActivePlayback = true;
-            if (masterRepeatMode === 'one' && currentMasterSongIndex >= 0) {
-                loadMasterSong(currentMasterSongIndex, true);
-                return;
-            }
-            if (isMasterShuffle && songs.length > 1) {
+
+            // 🔀 셔플 모드 활성화 시 랜덤 트랙 이동
+            if (isMasterShuffle && list.length > 1) {
                 let nextIdx;
+                let attempts = 0;
                 do {
-                    nextIdx = Math.floor(Math.random() * songs.length);
-                } while (nextIdx === currentMasterSongIndex);
+                    nextIdx = Math.floor(Math.random() * list.length);
+                    attempts++;
+                } while (nextIdx === currentMasterSongIndex && attempts < 10);
                 loadMasterSong(nextIdx, true);
+                if (!isAutoFromEnd && list[nextIdx]) {
+                    showPlayerToast(`🔀 셔플 다음 곡: ${list[nextIdx].title}`, '🔀');
+                }
                 return;
             }
-            const nextIdx = (currentMasterSongIndex + 1) % songs.length;
+
+            // ⏭ 순차 다음 곡 이동
+            let nextIdx = (currentMasterSongIndex + 1) % list.length;
+            if (nextIdx < 0) nextIdx = 0;
             loadMasterSong(nextIdx, true);
+            if (!isAutoFromEnd && list[nextIdx]) {
+                showPlayerToast(`⏭ 다음 곡 재생: ${list[nextIdx].title}`, '⏭');
+            }
         };
 
         // ⏮ 이전 곡 재생
         window.playMasterPrevTrack = function() {
-            if (!songs || songs.length === 0) return;
+            const list = (typeof songs !== 'undefined' && songs && songs.length > 0) ? songs : (window.songs || []);
+            if (!list || list.length === 0) return;
             isMasterConsoleActivePlayback = true;
-            const prevIdx = (currentMasterSongIndex - 1 + songs.length) % songs.length;
+            let prevIdx = (currentMasterSongIndex - 1 + list.length) % list.length;
+            if (prevIdx < 0) prevIdx = 0;
             loadMasterSong(prevIdx, true);
+            if (list[prevIdx]) {
+                showPlayerToast(`⏮ 이전 곡 재생: ${list[prevIdx].title}`, '⏮');
+            }
         };
 
         // 🔀 셔플 (무작위 재생) ON / OFF 순수 토글 함수
