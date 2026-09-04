@@ -2903,7 +2903,7 @@
                 if (song.url && urls.some(u => u.toLowerCase() === song.url.trim().toLowerCase())) return true;
             } catch(e) {}
             const savedAuthor = localStorage.getItem('sunoSavedAuthor');
-            if (savedAuthor && song.author && savedAuthor.trim().toLowerCase() === song.author.trim().toLowerCase()) {
+            if (savedAuthor && song.author && savedAuthor.trim().toLowerCase() === String(song.author).trim().toLowerCase()) {
                 return true;
             }
             return false;
@@ -2963,7 +2963,15 @@
                     if (bSlug) bSlug.innerText = `// ${currentTenant.toUpperCase()}`;
                 }
 
-                songs = data.songs || [];
+                songs = (data.songs || []).map(s => ({
+                    ...s,
+                    id: String(s.id != null ? s.id : ''),
+                    title: String(s.title != null ? s.title : ''),
+                    author: String(s.author != null ? s.author : ''),
+                    url: String(s.url != null ? s.url : ''),
+                    genre: String(s.genre != null ? s.genre : ''),
+                    votes: Number(s.votes) || 0
+                }));
                 if (songs.length > 0) {
                     localStorage.setItem('sunoAutoBackupSongs', JSON.stringify(songs));
                 }
@@ -3494,7 +3502,7 @@
                 playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
                     <div style="width:100%; height:166px; border-radius:10px; overflow:hidden; margin-top:8px;">
-                        <iframe src="${pInfo.embedUrl}" style="width:100%; height:100%; border:none;" allow="autoplay"></iframe>
+                        <iframe src="${pInfo.embedUrl}" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media; fullscreen"></iframe>
                     </div>
                 `;
                 return;
@@ -4634,9 +4642,9 @@
             listEl.innerHTML = '';
             filteredSongs.forEach((song, index) => {
                 const isThisMyVote = (myVotedId !== null && String(myVotedId) === String(song.id));
-                const safeUrl = (song.url || '').replace(/'/g, "\\'");
-                const safeTitle = (song.title || '').replace(/'/g, "\\'");
-                const safeAuthor = (song.author || '').replace(/'/g, "\\'");
+                const safeUrl = String(song.url || '').replace(/'/g, "\\'");
+                const safeTitle = String(song.title || '').replace(/'/g, "\\'");
+                const safeAuthor = String(song.author || '').replace(/'/g, "\\'");
                 
                 let rankBadge = '';
                 if (canSeeResults) {
