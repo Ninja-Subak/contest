@@ -17,6 +17,14 @@
       "dest": "/api/$1"
     },
     {
+      "src": "/contest",
+      "dest": "/index.html?mode=contest"
+    },
+    {
+      "src": "/c/(.*)",
+      "dest": "/index.html?t=$1&mode=contest"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }

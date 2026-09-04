@@ -1872,11 +1872,40 @@
             resize: vertical; 
             display: none; 
             margin-top: 10px; 
+            padding: 10px 12px;
+            font-family: inherit;
+            font-size: 13px;
+            line-height: 1.5;
             box-sizing: border-box; 
             background: rgba(14, 22, 44, 0.9);
             border: 1px solid rgba(96, 165, 250, 0.5);
             color: #f8fafc;
             border-radius: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: #38bdf8 rgba(14, 22, 44, 0.7);
+        }
+        .notice-textarea::-webkit-scrollbar {
+            width: 5px;
+        }
+        .notice-textarea::-webkit-scrollbar-track {
+            background: rgba(14, 22, 44, 0.7);
+            border-radius: 999px;
+            margin: 4px 0;
+        }
+        .notice-textarea::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #38bdf8 0%, #3b82f6 100%);
+            border-radius: 999px;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+            transition: all 0.2s;
+        }
+        .notice-textarea::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+            box-shadow: 0 0 12px rgba(96, 165, 250, 0.9);
+        }
+        .notice-textarea::-webkit-scrollbar-button {
+            display: none;
+            width: 0;
+            height: 0;
         }
         .notice-save-btn { 
             background: linear-gradient(135deg, #2563eb, #3b82f6); 
@@ -2278,6 +2307,28 @@
         .super-badge-transferred { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
         .super-badge-paused { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
         .super-badge-expired { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
+        .super-mode-select {
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 800;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(14, 22, 44, 0.95);
+            color: #f8fafc;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .super-mode-select.is-contest {
+            background: rgba(236, 72, 153, 0.2);
+            border-color: rgba(236, 72, 153, 0.5);
+            color: #f472b6;
+        }
+        .super-mode-select.is-player {
+            background: rgba(56, 189, 248, 0.18);
+            border-color: rgba(56, 189, 248, 0.45);
+            color: #38bdf8;
+        }
         .super-action-btn {
             padding: 5px 9px;
             font-size: 11px;
@@ -3365,8 +3416,8 @@
                 <button type="button" onclick="toggleEditDeleteDisplay()" class="admin-grid-btn" id="editDeleteToggleBtn">수정/삭제: OFF</button>
             </div>
         </div>
-        <h2 class="title-glow">🎧 스트리밍 플레이어</h2>
-        <p class="subtitle-cyber">좋아하는 음악을 등록하고, 고음질 스트리밍과 실시간 플레이리스트를 자유롭게 감상해 보세요!</p>
+        <h2 class="title-glow" id="mainHeaderTitle">🎧 스트리밍 플레이어</h2>
+        <p class="subtitle-cyber" id="mainHeaderSubtitle">좋아하는 음악을 등록하고, 고음질 스트리밍과 실시간 플레이리스트를 자유롭게 감상해 보세요!</p>
 
         <div class="spectrum-visualizer">
             <span style="--d: 0.1s; --h: 22px;"></span>
@@ -3396,7 +3447,7 @@
         <div class="guide-header" onclick="toggleGuide()">
             <div class="guide-header-title">
                 <span>💡</span>
-                <span>스트리밍 플레이어 이용 가이드</span>
+                <span id="guideHeaderTitleText">스트리밍 플레이어 이용 가이드</span>
             </div>
             <span class="guide-toggle-icon" id="guideToggleIcon">펼치기 ▼</span>
         </div>
@@ -3567,7 +3618,7 @@
 
     <div class="card">
         <div class="contest-list-header">
-            <h3>🎶 실시간 스트리밍 재생 목록</h3>
+            <h3 id="playlistSectionTitle">🎶 실시간 스트리밍 재생 목록</h3>
             <div class="contest-list-header-right">
                 <button type="button" class="user-restore-btn" id="userRestoreBtn" onclick="restoreRecentlyDeletedSong()" title="최근 삭제한 내 곡 복구">
                     <span class="restore-icon">↩️</span>
@@ -3672,7 +3723,7 @@
             ⚖️ 저작권 및 서비스 운영 안내
         </div>
         <div>본 서비스는 각 플랫폼(YouTube, SoundCloud, Suno AI)의 공식 임베드 및 API 스트리밍을 기반으로 운영되며, 모든 음원 및 미디어의 권리는 원저작자에게 귀속됩니다. 권리자의 정당한 요청이 있는 경우 해당 콘텐츠는 즉각 삭제 또는 제외 조치됩니다.</div>
-        <div style="margin-top: 8px; font-size: 10px; color: #475569;">
+        <div style="margin-top: 8px; font-size: 10px; color: #475569;" id="footerCopyrightText">
             © 스트리밍 플레이어 Streaming Platform. All rights reserved.
         </div>
     </footer>
@@ -3695,7 +3746,7 @@
                         <div class="stat-val" id="superTotalTenants">0개</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">활성 대여 중</div>
+                        <div class="stat-label">정상 대여 채널</div>
                         <div class="stat-val" id="superActiveRentals" style="color: #34d399;">0개</div>
                     </div>
                     <div class="stat-card">
@@ -3788,8 +3839,68 @@
         </div>
     </div>
 
+    <!-- ⚙️ 슈퍼 관리자: 채널 상세 설정 & 모든 항목 전체 수정 모달 -->
+    <div class="modal-overlay" id="superTenantEditModal" onclick="handleSuperEditModalBackdropClick(event)" style="display:none; z-index: 10005;">
+        <div class="modal-box" style="max-width: 580px; border-color: rgba(168, 85, 247, 0.6); box-shadow: 0 25px 60px rgba(0,0,0,0.9), 0 0 40px rgba(168, 85, 247, 0.35);">
+            <div class="modal-header">
+                <div class="modal-title" style="background: linear-gradient(135deg, #c084fc, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    <span>⚙️</span>
+                    <span>채널 상세 설정 & 모든 항목 수정</span>
+                </div>
+                <button type="button" onclick="closeSuperTenantEditModal()" class="modal-close-btn">✕</button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+                <div>
+                    <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">채널 고유 ID (식별자)</label>
+                    <input type="text" id="editModalTenantId" readonly style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(255,255,255,0.05); color: #38bdf8; font-weight: 800; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;" />
+                </div>
+                <div>
+                    <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">관리자 이름 / 채널명</label>
+                    <input type="text" id="editModalTenantName" placeholder="예: 홍길동 전용 채널" style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(14, 22, 44, 0.85); color: #f8fafc; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;" />
+                </div>
+                <div>
+                    <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">프로그램 유형</label>
+                    <select id="editModalTenantMode" style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(14, 22, 44, 0.85); color: #f8fafc; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;">
+                        <option value="player">🎧 일반 스트리밍 플레이어</option>
+                        <option value="contest">🏆 Suno 노래 콘테스트 (Like/투표 포함)</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">관리자 로그인 비밀번호</label>
+                    <input type="text" id="editModalAdminPassword" style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(14, 22, 44, 0.85); color: #fca5a5; font-weight: 700; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;" />
+                </div>
+                <div>
+                    <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">대여 / 이관 운영 상태</label>
+                    <select id="editModalStatus" style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(14, 22, 44, 0.85); color: #f8fafc; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;">
+                        <option value="transferred">🟣 영구 이관 (무제한 운영)</option>
+                        <option value="active">🟢 정상 대여 중</option>
+                        <option value="paused">⏸️ 일시 정지 (접속 차단)</option>
+                        <option value="expired">🔴 대여 만료</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">대여 만료일 (무제한은 'unlimited' 또는 만료 날짜)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="editModalRentalUntil" placeholder="unlimited 또는 YYYY-MM-DD" style="flex: 1; padding: 8px 12px; font-size: 13px; background: rgba(14, 22, 44, 0.85); color: #f8fafc; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;" />
+                        <button type="button" onclick="document.getElementById('editModalRentalUntil').value='unlimited'; document.getElementById('editModalStatus').value='transferred';" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 8px; padding: 0 12px; font-size: 11px; cursor: pointer; font-weight: 700;">무제한 설정</button>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">메모 / 비고 사항</label>
+                    <input type="text" id="editModalNote" placeholder="운영 메모 (예: 2026-09 대여 발급)" style="width: 100%; padding: 8px 12px; font-size: 13px; background: rgba(14, 22, 44, 0.85); color: #f8fafc; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;" />
+                </div>
+            </div>
+
+            <div class="modal-footer" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="closeSuperTenantEditModal()" class="modal-btn-close">취소</button>
+                <button type="button" onclick="saveTenantFullEditAction()" style="background: linear-gradient(135deg, #a855f7, #3b82f6); color: white; padding: 8px 20px; font-size: 13px; font-weight: 800; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);">💾 변경사항 전체 저장</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 🏆 3D 메타피지컬 인기 차트 모달 콘솔 -->
-        <!-- 📊 실시간 트랙 관리 & 데이터 현황 모달 콘솔 -->
+    <!-- 📊 실시간 트랙 관리 & 데이터 현황 모달 콘솔 -->
     <div class="modal-overlay" id="voteResultsModal" onclick="handleModalBackdropClick(event)">
         <div class="modal-box">
             <!-- 📌 상단 고정 영역: 헤더 + 통계 카드 -->
@@ -3797,7 +3908,7 @@
                 <div class="modal-header">
                     <div class="modal-title">
                         <span>📊</span>
-                        <span>실시간 트랙 관리 & 데이터 현황</span>
+                        <span id="voteModalTitleText">실시간 트랙 관리 & 데이터 현황</span>
                     </div>
                     <button type="button" onclick="closeVoteResultsModal()" class="modal-close-btn">✕</button>
                 </div>
@@ -3863,21 +3974,94 @@
         let showEditDelete = localStorage.getItem('sunoShowEditDelete') === 'true';
         let isResultPublic = localStorage.getItem('sunoResultPublic') === 'true';
 
-        // 🌐 멀티 테넌트 식별 파라미터 감지 (예: ?t=user_a)
+        // 🌐 멀티 테넌트 식별 파라미터 및 경로 감지 (예: ?t=user_a 또는 /c/user_a 또는 /contest)
         const urlParams = new URLSearchParams(window.location.search);
-        const currentTenant = (urlParams.get('t') || urlParams.get('tenant') || urlParams.get('c') || 'default').trim().toLowerCase();
+        let pathTenant = '';
+        const rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+        if (rawPath.startsWith('c/')) {
+            pathTenant = rawPath.split('/')[1] || '';
+        } else if (rawPath.startsWith('contest/')) {
+            pathTenant = rawPath.split('/')[1] || '';
+        }
+        const currentTenant = (urlParams.get('t') || urlParams.get('tenant') || urlParams.get('c') || pathTenant || 'default').trim().toLowerCase();
         let isSuperAdmin = localStorage.getItem('sunoSuperAdminMode') === 'true';
         let superPassword = localStorage.getItem('sunoSuperPassword') || '';
         let currentTenantInfo = null;
 
         // 🏆 특정 관리자 전용 [노래 콘테스트] 모드 판별 함수 (슈퍼 관리자가 모드 부여 시에만 활성화)
+        function getTenantModeFromData(t) {
+            if (!t) return 'player';
+            if (t.mode === 'contest' || t.mode === 'player') return t.mode;
+            if (t.note) {
+                if (t.note.includes('[mode:contest]')) return 'contest';
+                if (t.note.includes('[mode:player]')) return 'player';
+            }
+            const tid = t.tenant_id || currentTenant;
+            const cached = localStorage.getItem('tenant_mode_' + tid);
+            if (cached === 'contest' || cached === 'player') return cached;
+            return 'player';
+        }
+
+        function attachModeTagToNote(rawNote, mode) {
+            let cleanNote = (rawNote || '').replace(/\[mode:(contest|player)\]/g, '').trim();
+            return (cleanNote ? cleanNote + ' ' : '') + `[mode:${mode}]`;
+        }
+
+        function stripModeTagFromNote(rawNote) {
+            return (rawNote || '').replace(/\[mode:(contest|player)\]/g, '').trim();
+        }
+
+        // 🏆 특정 채널 전용 [노래 콘테스트] 모드 판별 함수 (슈퍼 관리자가 권한 부여 시에만 활성화)
         function isContestModeActive() {
+            const pathName = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+            if (pathName === 'contest' || pathName.startsWith('contest/') || pathName.startsWith('c/')) return true;
             if (urlParams.get('mode') === 'contest') return true;
             if (urlParams.get('mode') === 'player') return false;
-            if (currentTenantInfo && currentTenantInfo.mode) {
-                return currentTenantInfo.mode === 'contest';
+            if (currentTenantInfo) {
+                return getTenantModeFromData(currentTenantInfo) === 'contest';
             }
             return localStorage.getItem('tenant_mode_' + currentTenant) === 'contest';
+        }
+
+        // 🏷️ 콘테스트 모드 / 일반 플레이어 모드에 따라 브랜드 명칭 동적 전환
+        function updateDynamicBrandTitles(isContest) {
+            document.title = isContest ? "Suno 노래 콘테스트" : "스트리밍 플레이어";
+            const headerTitle = document.getElementById('mainHeaderTitle');
+            if (headerTitle) {
+                headerTitle.innerHTML = isContest ? "🏆 Suno 노래 콘테스트" : "🎧 스트리밍 플레이어";
+            }
+            const headerSub = document.getElementById('mainHeaderSubtitle');
+            if (headerSub) {
+                headerSub.innerHTML = isContest 
+                    ? "최고의 Suno 음악에 투표하고, 실시간 순위와 감동을 함께 나누세요!" 
+                    : "좋아하는 음악을 등록하고, 고음질 스트리밍과 실시간 플레이리스트를 자유롭게 감상해 보세요!";
+            }
+            const guideTitle = document.getElementById('guideHeaderTitleText');
+            if (guideTitle) {
+                guideTitle.innerText = isContest ? "Suno 노래 콘테스트 이용 가이드" : "스트리밍 플레이어 이용 가이드";
+            }
+            const footerCopy = document.getElementById('footerCopyrightText');
+            if (footerCopy) {
+                footerCopy.innerText = isContest 
+                    ? "© Suno 노래 콘테스트. All rights reserved." 
+                    : "© 스트리밍 플레이어 Streaming Platform. All rights reserved.";
+            }
+            const voteModalTitle = document.getElementById('voteModalTitleText');
+            if (voteModalTitle) {
+                voteModalTitle.innerText = isContest ? "Suno 노래 콘테스트 실시간 랭킹 차트" : "실시간 트랙 관리 & 데이터 현황";
+            }
+            const playlistTitle = document.getElementById('playlistSectionTitle');
+            if (playlistTitle) {
+                playlistTitle.innerHTML = isContest ? "🎶 콘테스트 참가 노래 목록" : "🎶 실시간 스트리밍 재생 목록";
+            }
+            const regSubmitBtn = document.getElementById('registerSubmitBtn');
+            if (regSubmitBtn) {
+                regSubmitBtn.innerText = isContest ? "🏆 콘테스트 참가곡 등록하기" : "스트리밍 트랙 등록하기";
+            }
+            const resultsBtn = document.getElementById('resultsBtn');
+            if (resultsBtn) {
+                resultsBtn.innerText = isContest ? "🏆 투표 랭킹 & 현황" : "📊 트랙 현황";
+            }
         }
 
         if (currentTenant !== 'default') {
@@ -4114,10 +4298,13 @@
                 }
 
                 currentTenantInfo = data.tenant || null;
-                if (currentTenantInfo && currentTenantInfo.mode) {
-                    localStorage.setItem('tenant_mode_' + currentTenant, currentTenantInfo.mode);
+                if (currentTenantInfo) {
+                    const effectiveMode = getTenantModeFromData(currentTenantInfo);
+                    localStorage.setItem('tenant_mode_' + currentTenant, effectiveMode);
                 }
                 const isContest = isContestModeActive();
+                updateDynamicBrandTitles(isContest);
+
                 const bTitle = document.getElementById('tenantBadgeTitle');
                 const bSlug = document.getElementById('tenantBadgeSlug');
                 if (currentTenantInfo && currentTenantInfo.tenant_name) {
@@ -7222,6 +7409,7 @@
                 }
 
                 const list = data.tenants || [];
+                window._lastLoadedTenants = list;
                 const totalTenants = list.length;
                 const activeRentals = list.filter(t => t.status === 'active').length;
                 const transferred = list.filter(t => t.status === 'transferred').length;
@@ -7246,7 +7434,8 @@
 
                 list.forEach(t => {
                     const tr = document.createElement('tr');
-                    const isContest = (t.mode === 'contest');
+                    const effectiveMode = getTenantModeFromData(t);
+                    const isContest = (effectiveMode === 'contest');
                     const tenantUrl = t.tenant_id === 'default' 
                         ? (isContest ? `${currentBaseUrl}?mode=contest` : currentBaseUrl) 
                         : (isContest ? `${currentBaseUrl}?t=${t.tenant_id}&mode=contest` : `${currentBaseUrl}?t=${t.tenant_id}`);
@@ -7259,13 +7448,16 @@
                     const isPaused = t.status === 'paused';
                     const pauseBtnText = isPaused ? '▶️ 재개' : '⏸️ 정지';
 
-                    const modeBadge = isContest 
-                        ? '<span style="background: rgba(236, 72, 153, 0.15); border: 1px solid rgba(236, 72, 153, 0.4); color: #f472b6; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; white-space: nowrap;">🏆 콘테스트</span>' 
-                        : '<span style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; white-space: nowrap;">🎧 일반 스트리밍</span>';
+                    const modeSelectHtml = `
+                        <select onchange="changeTenantModeDirectly('${escapeHtml(t.tenant_id)}', this.value)" class="super-mode-select ${isContest ? 'is-contest' : 'is-player'}" title="클릭하여 프로그램 유형을 즉시 변경합니다">
+                            <option value="player" ${!isContest ? 'selected' : ''}>🎧 일반 스트리밍</option>
+                            <option value="contest" ${isContest ? 'selected' : ''}>🏆 노래 콘테스트</option>
+                        </select>
+                    `;
 
                     const modeToggleBtn = isContest 
-                        ? `<button type="button" class="super-action-btn" onclick="toggleTenantModeAction('${t.tenant_id}', 'player')" style="background: rgba(56, 189, 248, 0.15); color:#38bdf8; border-color: rgba(56, 189, 248, 0.4);" title="일반 스트리밍 플레이어 모드로 전환">🎧 일반 전환</button>` 
-                        : `<button type="button" class="super-action-btn" onclick="toggleTenantModeAction('${t.tenant_id}', 'contest')" style="background: rgba(236, 72, 153, 0.15); color:#f472b6; border-color: rgba(236, 72, 153, 0.4);" title="노래 콘테스트 모드(Like/투표 기능) 활성화">🏆 콘테스트 활성화</button>`;
+                        ? `<button type="button" class="super-action-btn" onclick="toggleTenantModeAction('${escapeHtml(t.tenant_id)}', 'player')" style="background: rgba(56, 189, 248, 0.15); color:#38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);" title="일반 스트리밍 플레이어 모드로 전환">🎧 일반 전환</button>` 
+                        : `<button type="button" class="super-action-btn" onclick="toggleTenantModeAction('${escapeHtml(t.tenant_id)}', 'contest')" style="background: rgba(236, 72, 153, 0.15); color:#f472b6; border: 1px solid rgba(236, 72, 153, 0.4);" title="노래 콘테스트 모드(Like/투표 기능) 활성화">🏆 콘테스트 활성화</button>`;
 
                     tr.innerHTML = `
                         <td>
@@ -7273,21 +7465,21 @@
                             <span style="font-size: 11px; color: #94a3b8;">${escapeHtml(t.tenant_name || '')}</span>
                         </td>
                         <td>
-                            <button type="button" class="super-action-btn" onclick="copyTenantLink('${t.tenant_id}', '${t.mode || 'player'}')" style="background: rgba(255,255,255,0.08); color:#f1f5f9;" title="${tenantUrl}">
+                            <button type="button" class="super-action-btn" onclick="copyTenantLink('${escapeHtml(t.tenant_id)}', '${effectiveMode}')" style="background: rgba(255,255,255,0.08); color:#f1f5f9;" title="${tenantUrl}">
                                 📋 링크 복사
                             </button>
                         </td>
-                        <td>${modeBadge}</td>
+                        <td>${modeSelectHtml}</td>
                         <td><code style="background:rgba(0,0,0,0.3); padding:2px 6px; border-radius:4px; color:#fca5a5;">${escapeHtml(t.admin_password)}</code></td>
                         <td><b style="color:#34d399;">${t.song_count}곡</b></td>
                         <td>${statusBadge}</td>
                         <td style="font-size: 12px; color: #cbd5e1;">${t.rental_until === 'unlimited' ? '무제한' : escapeHtml(t.rental_until)}</td>
                         <td style="white-space: nowrap;">
-                            <button type="button" class="super-action-btn super-btn-jump" onclick="jumpToTenant('${t.tenant_id}', '${t.mode || 'player'}')">🚀 접속</button>
+                            <button type="button" class="super-action-btn super-btn-jump" onclick="jumpToTenant('${escapeHtml(t.tenant_id)}', '${effectiveMode}')">🚀 접속</button>
                             ${modeToggleBtn}
-                            <button type="button" class="super-action-btn super-btn-edit" onclick="editTenantAction('${t.tenant_id}', '${escapeHtml(t.tenant_name)}', '${escapeHtml(t.admin_password)}', '${t.status}', '${escapeHtml(t.rental_until)}')">⚙️ 설정</button>
-                            <button type="button" class="super-action-btn super-btn-pause" onclick="toggleTenantPause('${t.tenant_id}', '${t.status}')">${pauseBtnText}</button>
-                            ${t.tenant_id !== 'default' ? `<button type="button" class="super-action-btn super-btn-del" onclick="deleteTenantAction('${t.tenant_id}')">🗑️ 삭제</button>` : ''}
+                            <button type="button" class="super-action-btn super-btn-edit" onclick="openEditTenantModal('${escapeHtml(t.tenant_id)}')">⚙️ 설정</button>
+                            <button type="button" class="super-action-btn super-btn-pause" onclick="toggleTenantPause('${escapeHtml(t.tenant_id)}', '${escapeHtml(t.status)}')">${pauseBtnText}</button>
+                            ${t.tenant_id !== 'default' ? `<button type="button" class="super-action-btn super-btn-del" onclick="deleteTenantAction('${escapeHtml(t.tenant_id)}')">🗑️ 삭제</button>` : ''}
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -7333,15 +7525,18 @@
                 superPassword = localStorage.getItem('sunoSuperPassword') || 'super5125';
             }
 
+            const finalNote = attachModeTagToNote(tnote, tmode);
+
             try {
-                const res = await fetch(`${API_URL}?action=super_createTenant&superPassword=${encodeURIComponent(superPassword)}&tenantId=${encodeURIComponent(tid)}&tenantName=${encodeURIComponent(tname)}&adminPassword=${encodeURIComponent(tpwd)}&status=${encodeURIComponent(status)}&rentalUntil=${encodeURIComponent(rentalUntil)}&note=${encodeURIComponent(tnote)}&mode=${encodeURIComponent(tmode)}`);
+                const res = await fetch(`${API_URL}?action=super_createTenant&superPassword=${encodeURIComponent(superPassword)}&tenantId=${encodeURIComponent(tid)}&tenantName=${encodeURIComponent(tname)}&adminPassword=${encodeURIComponent(tpwd)}&status=${encodeURIComponent(status)}&rentalUntil=${encodeURIComponent(rentalUntil)}&note=${encodeURIComponent(finalNote)}&mode=${encodeURIComponent(tmode)}`);
                 const data = await res.json();
                 if (data.status === "success") {
+                    localStorage.setItem('tenant_mode_' + tid, tmode);
                     const currentBaseUrl = window.location.origin + window.location.pathname;
                     const fullLink = tid === 'default' 
                         ? (tmode === 'contest' ? `${currentBaseUrl}?mode=contest` : currentBaseUrl) 
                         : (tmode === 'contest' ? `${currentBaseUrl}?t=${tid}&mode=contest` : `${currentBaseUrl}?t=${tid}`);
-                    const modeName = tmode === 'contest' ? '🏆 노래 콘테스트 (Like/투표 포함)' : '🎧 일반 스트리밍 플레이어';
+                    const modeName = tmode === 'contest' ? '🏆 Suno 노래 콘테스트 (Like/투표 포함)' : '🎧 일반 스트리밍 플레이어';
                     alert(`🎉 새로운 관리자 프로그램이 발급되었습니다!\n\n채널 ID: ${tid}\n관리자 이름: ${tname || tid}\n프로그램 유형: ${modeName}\n관리자 비밀번호: ${tpwd}\n대여/이관: ${rentalUntil === 'unlimited' ? '영구 이관' : rentalUntil + '까지 대여'}\n\n배포 링크: ${fullLink}\n(확인을 누르면 클립보드에 링크가 복사됩니다)`);
                     try { navigator.clipboard.writeText(fullLink); } catch(e){}
                     document.getElementById('newTenantId').value = '';
@@ -7357,11 +7552,14 @@
         };
 
         window.copyTenantLink = function(tid, mode) {
-            const currentBaseUrl = window.location.origin + window.location.pathname;
+            const origin = window.location.origin;
             const isContest = (mode === 'contest');
-            const fullLink = tid === 'default' 
-                ? (isContest ? `${currentBaseUrl}?mode=contest` : currentBaseUrl) 
-                : (isContest ? `${currentBaseUrl}?t=${tid}&mode=contest` : `${currentBaseUrl}?t=${tid}`);
+            let fullLink = '';
+            if (tid === 'default') {
+                fullLink = isContest ? `${origin}/contest` : `${origin}/`;
+            } else {
+                fullLink = isContest ? `${origin}/c/${tid}` : `${origin}/?t=${tid}`;
+            }
             navigator.clipboard.writeText(fullLink).then(() => {
                 alert(`배포 링크가 클립보드에 복사되었습니다!\n${fullLink}`);
             }).catch(() => {
@@ -7370,38 +7568,60 @@
         };
 
         window.jumpToTenant = function(tid, mode) {
-            const currentBaseUrl = window.location.origin + window.location.pathname;
+            const origin = window.location.origin;
             const isContest = (mode === 'contest');
-            const fullLink = tid === 'default' 
-                ? (isContest ? `${currentBaseUrl}?mode=contest` : currentBaseUrl) 
-                : (isContest ? `${currentBaseUrl}?t=${tid}&mode=contest` : `${currentBaseUrl}?t=${tid}`);
+            let fullLink = '';
+            if (tid === 'default') {
+                fullLink = isContest ? `${origin}/contest` : `${origin}/`;
+            } else {
+                fullLink = isContest ? `${origin}/c/${tid}` : `${origin}/?t=${tid}`;
+            }
             window.location.href = fullLink;
         };
 
-        // 👑 슈퍼 관리자 전용: 특정 하부 관리자 채널의 모드 전환 (일반 🎧 <-> 콘테스트 🏆)
-        window.toggleTenantModeAction = async function(tid, targetMode) {
-            const modeName = targetMode === 'contest' ? '🏆 노래 콘테스트 (Like/투표 기능)' : '🎧 일반 스트리밍 플레이어';
-            if (!confirm(`'${tid}' 채널의 프로그램 유형을 [${modeName}]로 변경하시겠습니까?`)) return;
+        // 👑 슈퍼 관리자 전용: 특정 하부 관리자 채널의 모드 직접 전환 (일반 🎧 <-> 콘테스트 🏆)
+        window.changeTenantModeDirectly = async function(tid, targetMode) {
+            const modeName = targetMode === 'contest' ? '🏆 Suno 노래 콘테스트' : '🎧 일반 스트리밍 플레이어';
 
             if (!superPassword) {
                 superPassword = localStorage.getItem('sunoSuperPassword') || 'super5125';
             }
 
+            const tenant = (window._lastLoadedTenants || []).find(t => t.tenant_id === tid) || {};
+            const updatedNote = attachModeTagToNote(tenant.note || '', targetMode);
+
             try {
-                const res = await fetch(`${API_URL}?action=super_toggleTenantMode&superPassword=${encodeURIComponent(superPassword)}&tenantId=${encodeURIComponent(tid)}&mode=${encodeURIComponent(targetMode)}`);
+                const res = await fetch(`${API_URL}?action=super_updateTenant&superPassword=${encodeURIComponent(superPassword)}&tenantId=${encodeURIComponent(tid)}&mode=${encodeURIComponent(targetMode)}&note=${encodeURIComponent(updatedNote)}`);
                 const data = await res.json();
                 if (data.status === "success") {
-                    alert(`✅ '${tid}' 채널의 프로그램 유형이 [${modeName}] 모드로 성공적으로 변경되었습니다.`);
-                    loadSuperTenantsList();
-                    if (tid === currentTenant) {
-                        localStorage.setItem('tenant_mode_' + currentTenant, targetMode);
-                        fetchAppData();
+                    localStorage.setItem('tenant_mode_' + tid, targetMode);
+                    if (tenant) {
+                        tenant.mode = targetMode;
+                        tenant.note = updatedNote;
                     }
+                    if (tid === currentTenant) {
+                        if (currentTenantInfo) currentTenantInfo.mode = targetMode;
+                        updateDynamicBrandTitles(targetMode === 'contest');
+                        renderList();
+                    }
+                    if (typeof showPlayerToast === 'function') {
+                        showPlayerToast(`'${tid}' 채널이 [${modeName}] 모드로 전환되었습니다.`, targetMode === 'contest' ? '🏆' : '🎧');
+                    }
+                    loadSuperTenantsList();
                 } else {
                     alert(data.message || "모드 변경 실패");
+                    loadSuperTenantsList();
                 }
             } catch(e) {
                 alert("오류: " + e.message);
+                loadSuperTenantsList();
+            }
+        };
+
+        window.toggleTenantModeAction = function(tid, targetMode) {
+            const modeName = targetMode === 'contest' ? '🏆 Suno 노래 콘테스트' : '🎧 일반 스트리밍 플레이어';
+            if (confirm(`'${tid}' 채널의 프로그램 유형을 [${modeName}]로 변경하시겠습니까?`)) {
+                changeTenantModeDirectly(tid, targetMode);
             }
         };
 
@@ -7428,27 +7648,91 @@
             }
         };
 
-        window.editTenantAction = async function(tid, currentName, currentPwd, currentStatus, currentUntil) {
-            const newName = prompt("관리자 이름 / 채널명 수정:", currentName);
-            if (newName === null) return;
-            const newPwd = prompt("관리자 비밀번호 수정:", currentPwd);
-            if (newPwd === null) return;
-            const newUntil = prompt("대여 만료일 수정 (무제한: unlimited, 또는 YYYY-MM-DD):", currentUntil);
-            if (newUntil === null) return;
-            const newStatus = (newUntil === 'unlimited' ? 'transferred' : 'active');
+        // ⚙️ 슈퍼 관리자 전용: 채널 전체 설정 모달 열기/닫기/저장
+        window.openEditTenantModal = function(tid) {
+            const tenant = (window._lastLoadedTenants || []).find(t => t.tenant_id === tid);
+            if (!tenant) {
+                alert("채널 정보를 찾을 수 없습니다.");
+                return;
+            }
+
+            document.getElementById('editModalTenantId').value = tenant.tenant_id;
+            document.getElementById('editModalTenantName').value = tenant.tenant_name || '';
+            document.getElementById('editModalTenantMode').value = getTenantModeFromData(tenant);
+            document.getElementById('editModalAdminPassword').value = tenant.admin_password || 'as0000';
+            document.getElementById('editModalStatus').value = tenant.status || 'active';
+            document.getElementById('editModalRentalUntil').value = tenant.rental_until || 'unlimited';
+            document.getElementById('editModalNote').value = stripModeTagFromNote(tenant.note || '');
+
+            const modal = document.getElementById('superTenantEditModal');
+            if (modal) modal.style.display = 'flex';
+        };
+
+        window.closeSuperTenantEditModal = function() {
+            const modal = document.getElementById('superTenantEditModal');
+            if (modal) modal.style.display = 'none';
+        };
+
+        window.handleSuperEditModalBackdropClick = function(e) {
+            if (e.target.id === 'superTenantEditModal') {
+                closeSuperTenantEditModal();
+            }
+        };
+
+        window.saveTenantFullEditAction = async function() {
+            const tid = document.getElementById('editModalTenantId').value;
+            const tname = document.getElementById('editModalTenantName').value.trim();
+            const tmode = document.getElementById('editModalTenantMode').value;
+            const tpwd = document.getElementById('editModalAdminPassword').value.trim();
+            const tstatus = document.getElementById('editModalStatus').value;
+            const tuntil = document.getElementById('editModalRentalUntil').value.trim() || 'unlimited';
+            const rawNote = document.getElementById('editModalNote').value.trim();
+            const finalNote = attachModeTagToNote(rawNote, tmode);
 
             if (!superPassword) {
                 superPassword = localStorage.getItem('sunoSuperPassword') || 'super5125';
             }
 
             try {
-                const res = await fetch(`${API_URL}?action=super_updateTenant&superPassword=${encodeURIComponent(superPassword)}&tenantId=${encodeURIComponent(tid)}&tenantName=${encodeURIComponent(newName)}&adminPassword=${encodeURIComponent(newPwd)}&rentalUntil=${encodeURIComponent(newUntil)}&status=${encodeURIComponent(newStatus)}`);
+                const res = await fetch(`${API_URL}?action=super_updateTenant&superPassword=${encodeURIComponent(superPassword)}&tenantId=${encodeURIComponent(tid)}&tenantName=${encodeURIComponent(tname)}&adminPassword=${encodeURIComponent(tpwd)}&status=${encodeURIComponent(tstatus)}&rentalUntil=${encodeURIComponent(tuntil)}&note=${encodeURIComponent(finalNote)}&mode=${encodeURIComponent(tmode)}`);
                 const data = await res.json();
                 if (data.status === "success") {
-                    alert("성공적으로 수정되었습니다.");
+                    alert(`✅ '${tid}' 채널의 모든 설정이 성공적으로 수정·저장되었습니다!`);
+                    localStorage.setItem('tenant_mode_' + tid, tmode);
+                    if (tid === currentTenant) {
+                        if (currentTenantInfo) currentTenantInfo.mode = tmode;
+                        updateDynamicBrandTitles(tmode === 'contest');
+                        renderList();
+                    }
+                    closeSuperTenantEditModal();
                     loadSuperTenantsList();
                 } else {
-                    alert(data.message || "수정 실패");
+                    alert(data.message || "수정 저장 실패");
+                }
+            } catch(e) {
+                alert("수정 통신 오류: " + e.message);
+            }
+        };
+
+        window.editTenantAction = function(tid) {
+            openEditTenantModal(tid);
+        };
+
+        window.deleteTenantAction = async function(tid) {
+            if (!confirm(`⚠️ 정말 '${tid}' 관리자 채널과 해당 채널의 전용 데이터베이스를 영구 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!`)) return;
+
+            if (!superPassword) {
+                superPassword = localStorage.getItem('sunoSuperPassword') || 'super5125';
+            }
+
+            try {
+                const res = await fetch(`${API_URL}?action=super_deleteTenant&superPassword=${encodeURIComponent(superPassword)}&tenantId=${encodeURIComponent(tid)}`);
+                const data = await res.json();
+                if (data.status === "success") {
+                    alert(`'${tid}' 채널이 영구 삭제되었습니다.`);
+                    loadSuperTenantsList();
+                } else {
+                    alert(data.message || "삭제 실패");
                 }
             } catch(e) {
                 alert("오류: " + e.message);
