@@ -413,6 +413,7 @@
             display: inline-block;
             white-space: nowrap;
             will-change: transform;
+            transform: translateZ(0);
             animation: marqueeScroll 18s linear infinite;
         }
         .url-input-marquee span {
@@ -642,7 +643,7 @@
             box-shadow: 
                 0 12px 30px -5px rgba(0, 0, 0, 0.45),
                 inset 0 1px 0 rgba(255, 255, 255, 0.15);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
             position: relative;
         }
 
@@ -3574,7 +3575,20 @@
         </div>
     </div>
 
-    
+    <!-- ⚖️ 저작권 및 서비스 이용 안내 푸터 -->
+    <footer class="footer" style="text-align: center; margin: 40px auto 30px; padding: 22px 16px; max-width: 960px; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 11px; color: #64748b; line-height: 1.6;">
+        <div style="margin-bottom: 6px; font-weight: 700; color: #94a3b8; font-size: 12px;">
+            ⚖️ 저작권 및 서비스 운영 안내
+        </div>
+        <div>
+            본 서비스는 각 플랫폼(YouTube, SoundCloud, Suno AI)의 공식 임베드 및 API 스트리밍을 기반으로 운영되며, 모든 음원 및 미디어의 권리는 원저작자에게 귀속됩니다.<br>
+            권리자의 정당한 요청이 있는 경우 해당 콘텐츠는 즉각 삭제 또는 제외 조치됩니다.
+        </div>
+        <div style="margin-top: 8px; font-size: 10px; color: #475569;">
+            © SoundPlayer-PC Streaming Platform. All rights reserved.
+        </div>
+    </footer>
+
     <!-- 👑 슈퍼 관리자 마스터 콘솔 모달 -->
     <div class="modal-overlay" id="superAdminModal" onclick="handleSuperModalBackdropClick(event)">
         <div class="modal-box super-modal-box">
@@ -4256,6 +4270,7 @@
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
                 });
         };
 
@@ -4503,12 +4518,28 @@
             }
         };
 
+                // 🧹 인라인 플레이어 리소스(Iframe/Audio) 안전 해제 및 메모리 누수 방지 헬퍼
+        function safelyClearPlayerContainer(el) {
+            if (!el) return;
+            el.querySelectorAll('iframe').forEach(ifr => {
+                try { ifr.src = 'about:blank'; } catch(e) {}
+            });
+            el.querySelectorAll('audio').forEach(aud => {
+                try {
+                    aud.pause();
+                    aud.src = '';
+                    aud.load();
+                } catch(e) {}
+            });
+            el.innerHTML = '';
+        }
+
         // 🛑 실시간 스트리밍 재생 목록 재생 완전 중지 함수 (마스터 콘솔 재생 시 호출)
         window.stopPlaylistPlayback = function() {
-            // 1. 모든 인라인 플레이어 컨테이너 닫기 및 DOM 비우기 (iframe/audio 사운드 즉각 제거)
+            // 1. 모든 인라인 플레이어 컨테이너 닫기 및 DOM 비우기 (iframe/audio 사운드 즉각 제거 및 메모리 정리)
             document.querySelectorAll('.player-container').forEach(el => {
                 el.style.display = 'none';
-                el.innerHTML = '';
+                safelyClearPlayerContainer(el);
             });
 
             // 2. [플레이어 닫기] 버튼 및 커버 아이콘을 기본 상태로 복구
@@ -4544,7 +4575,7 @@
 
             if (playerContainer.style.display === 'block') {
                 playerContainer.style.display = 'none';
-                playerContainer.innerHTML = '';
+                safelyClearPlayerContainer(playerContainer);
                 btn.classList.remove('active');
                 btn.innerText = '노래 듣기';
                 const cIcon = document.getElementById('cover_icon_' + id);
@@ -4563,10 +4594,10 @@
             // 🔇 목록 인라인 플레이어: 마스터 콘솔 연속 재생 간섭 방지 및 독립 재생
             isMasterConsoleActivePlayback = false;
 
-            // 다른 곡 재생 중이면 모두 닫기
+            // 다른 곡 재생 중이면 모두 닫기 (메모리 누수 방지 리셋)
             document.querySelectorAll('.player-container').forEach(el => {
                 el.style.display = 'none';
-                el.innerHTML = '';
+                safelyClearPlayerContainer(el);
             });
             document.querySelectorAll('.listen-btn').forEach(b => {
                 b.classList.remove('active');
@@ -5135,7 +5166,7 @@
 
                 card.innerHTML = `
                     <div class="preview-content-box">
-                        <img class="preview-cover-thumb" src="${coverUrl}" alt="앨범아트" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'50\' height=\'50\' fill=\'%23090d16\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%2300f2fe\' font-size=\'20\'>🎵</text></svg>'" />
+                        <img class="preview-cover-thumb" src="${coverUrl}" alt="앨범아트" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'><rect width=\'50\' height=\'50\' fill=\'%23090d16\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%2300f2fe\' font-size=\'20\'>🎵</text></svg>'" />
                         <div class="preview-meta-details">
                             <div class="preview-title-row">
                                 <span class="preview-song-title">${escapeHtml(title)}</span>
@@ -6595,11 +6626,13 @@
             img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23090d16"/><circle cx="50" cy="50" r="32" fill="%231e293b"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="%2300f2fe" font-size="28">🎧</text></svg>';
         }
 
+        const failedCoverUrls = new Set();
+
         async function resolveMissingTrackCovers(songList) {
             if (!songList || !Array.isArray(songList)) return;
             for (const song of songList) {
                 const key = getCleanCoverKey(song.url || '');
-                if (songCoverCache[key] || PRELOADED_COVERS[key]) continue;
+                if (songCoverCache[key] || PRELOADED_COVERS[key] || failedCoverUrls.has(key)) continue;
 
                 const pInfo = detectStreamingPlatform(song.url || '');
                 if (pInfo.platform === 'suno') {
@@ -6608,8 +6641,10 @@
                         if (data && data.coverUrl) {
                             saveSongCover(song.url, data.coverUrl);
                             updateCoverInDom(song.id, data.coverUrl);
+                        } else {
+                            failedCoverUrls.add(key);
                         }
-                    } catch(e) {}
+                    } catch(e) { failedCoverUrls.add(key); }
                 } else if (pInfo.platform === 'soundcloud') {
                     try {
                         let cleanUrl = String(song.url).trim();
@@ -6621,8 +6656,10 @@
                             scArtworkCache.set(key, thumb);
                             saveSongCover(song.url, thumb);
                             updateCoverInDom(song.id, thumb);
+                        } else {
+                            failedCoverUrls.add(key);
                         }
-                    } catch(e) {}
+                    } catch(e) { failedCoverUrls.add(key); }
                 }
             }
         }
@@ -6789,7 +6826,7 @@
             const endIndex = Math.min(startIndex + PLAYLIST_PAGE_SIZE, filteredSongs.length);
             const pageSongs = filteredSongs.slice(startIndex, endIndex);
 
-            listEl.innerHTML = '';
+            const frag = document.createDocumentFragment();
             pageSongs.forEach((song, pIndex) => {
                 const safeUrl = String(song.url || '').replace(/'/g, "\\'");
                 const safeTitle = String(song.title || '').replace(/'/g, "\\'");
@@ -6817,9 +6854,6 @@
                 const deleteBtnHtml = canEditOrDelete 
                     ? `<button type="button" onclick="deleteSong('${song.id}')" class="delete-btn" style="display:inline-block;">삭제</button>` 
                     : ``;
-
-                const originalIndex = songs.findIndex(s => String(s.id) === String(song.id));
-                const playTargetIndex = originalIndex >= 0 ? originalIndex : index;
 
                 const item = document.createElement('div');
                 item.className = 'song-card';
@@ -6858,11 +6892,18 @@
                         <div class="lyrics-popup-body" id="lyrics_text_${song.id}"></div>
                     </div>
                 `;
-                listEl.appendChild(item);
+                frag.appendChild(item);
             });
 
-            // 🖼️ 누락된 트랙 커버 실시간 백그라운드 분석 및 자동 갱신
-            resolveMissingTrackCovers(filteredSongs);
+            if (typeof listEl.replaceChildren === 'function') {
+                listEl.replaceChildren(frag);
+            } else {
+                listEl.innerHTML = '';
+                listEl.appendChild(frag);
+            }
+
+            // 🖼️ 누락된 트랙 커버 실시간 백그라운드 분석 (현재 노출 페이지 우선 최적화)
+            resolveMissingTrackCovers(pageSongs);
         }
 
         
