@@ -384,6 +384,35 @@
             box-shadow: none;
         }
 
+        
+        /* ✕ 등록 폼 취소 / 초기화 버튼 */
+        .register-cancel-btn {
+            background: rgba(239, 68, 68, 0.14);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            padding: 5px 13px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            user-select: none;
+        }
+        .register-cancel-btn:hover {
+            background: rgba(239, 68, 68, 0.28);
+            border-color: #ef4444;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+            transform: translateY(-1px);
+        }
+        .register-cancel-btn:active {
+            transform: translateY(0);
+        }
+
         .manual-toggle-btn:hover {
             color: #ffffff;
             border-color: #00f2fe;
@@ -3265,12 +3294,15 @@
     </div>
 
     <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 8px;">
-            <h3 style="margin-bottom: 0;">🎵 새로운 음악 / 트랙 등록하기</h3>
-            <button type="button" class="form-restore-btn" id="formRestoreBtn" onclick="restoreRecentlyDeletedSong()" title="최근 삭제한 내 곡 복구하기" style="display: none;">↩️ 삭제 복구</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 8px;">
+            <h3 style="margin: 0; padding: 0; border: none; font-size: 18px;">🎵 새로운 음악 / 트랙 등록하기</h3>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button type="button" class="form-restore-btn" id="formRestoreBtn" onclick="restoreRecentlyDeletedSong()" title="최근 삭제한 내 곡 복구하기" style="display: none;">↩️ 삭제 복구</button>
+                <button type="button" class="register-cancel-btn" id="registerCancelBtn" onclick="resetRegisterForm()" title="링크 주소 입력을 잘못했을 때 입력 내용 초기화 (취소)">✕ 취소</button>
+            </div>
         </div>
         <!-- 🔗 스트리밍 링크 입력 (원클릭 자동 분석) -->
-        <div class="input-group" style="margin-bottom: 10px;">
+        <div class="input-group" style="margin-bottom: 8px; margin-top: 4px;">
             <input type="text" id="sunoUrl" placeholder="스트리밍 링크를 붙여넣으세요 (Suno, 사운드클라우드, 유튜브)" oninput="handleUrlInputChange()" onpaste="handleUrlPaste(event)">
         </div>
 
@@ -4630,6 +4662,38 @@
         // ==========================================
         let currentPreviewData = null;
         let urlInspectDebounce = null;
+
+        
+        // ✕ 링크 주소 잘못 입력 시 초기화 (취소) 함수
+        window.resetRegisterForm = function() {
+            clearTimeout(urlInspectDebounce);
+            const urlInput = document.getElementById('sunoUrl');
+            if (urlInput) urlInput.value = '';
+
+            const titleInput = document.getElementById('songTitle');
+            if (titleInput) titleInput.value = '';
+
+            const authorInput = document.getElementById('authorName');
+            if (authorInput) authorInput.value = '';
+
+            const genreInput = document.getElementById('songGenre');
+            if (genreInput) genreInput.value = '';
+
+            const previewCard = document.getElementById('autoPreviewCard');
+            if (previewCard) {
+                previewCard.style.display = 'none';
+                previewCard.innerHTML = '';
+            }
+            currentPreviewData = null;
+
+            const manualWrap = document.getElementById('manualFieldsWrap');
+            if (manualWrap) manualWrap.style.display = 'none';
+            const manualBtn = document.getElementById('manualToggleBtn');
+            if (manualBtn) manualBtn.innerText = '✏️ 직접 입력/수정';
+
+            showPlayerToast('입력 내용이 취소(초기화)되었습니다', '✕');
+            if (urlInput) urlInput.focus();
+        };
 
         window.toggleManualFields = function() {
             const wrap = document.getElementById('manualFieldsWrap');
