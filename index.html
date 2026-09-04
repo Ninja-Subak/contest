@@ -3951,7 +3951,7 @@
                 return {
                     platform: 'soundcloud',
                     id: cleanScUrl,
-                    embedUrl: `https://w.soundcloud.com/player/?url=${encodeURIComponent(cleanScUrl)}&color=%2300f2fe&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`,
+                    embedUrl: `https://w.soundcloud.com/player/?url=${encodeURIComponent(cleanScUrl)}&color=%2300f2fe&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false`,
                     badge: 'SoundCloud',
                     color: '#f97316'
                 };
@@ -4076,27 +4076,12 @@
                 iframe.src = info.embedUrl;
                 setupYouTubeApi(iframe);
             }
-            // 3. SoundCloud 주소인 경우 -> SoundCloud 공식 위젯 표시
+            // 3. SoundCloud 주소인 경우 -> SoundCloud 공식 위젯 표시 (티저/추천 오버레이 차단 및 순정 수평 플레이어)
             else if (info.platform === 'soundcloud') {
-                iframe.src = info.embedUrl;
+                if (iframe.src !== info.embedUrl) {
+                    iframe.src = info.embedUrl;
+                }
                 setupSoundCloudWidget(iframe);
-                // oEmbed를 통한 추가 검증 및 안전성 보강
-                try {
-                    fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(info.id)}`)
-                        .then(function(r) { return r.json(); })
-                        .then(function(oData) {
-                            if (oData && oData.html) {
-                                const m = oData.html.match(/src="([^"]+)"/);
-                                if (m && m[1]) {
-                                    const safeSrc = m[1] + '&color=%2300f2fe&auto_play=true';
-                                    if (iframe.src !== safeSrc && !iframe.src.includes('api.soundcloud.com')) {
-                                        iframe.src = safeSrc;
-                                    }
-                                }
-                            }
-                        })
-                        .catch(function() {});
-                } catch(e) {}
             }
 
             // 가사 보기 창이 열려있다면 지금 재생 곡의 가사로 실시간 즉시 갱신
