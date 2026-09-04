@@ -758,8 +758,46 @@
             transform: none;
         }
 
-        .edit-btn { background: linear-gradient(135deg, #d97706, #f59e0b); color: white; display: none; box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
-        .delete-btn { background: linear-gradient(135deg, #b91c1c, #ef4444); color: white; display: none; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+        /* 🛠️ 은은하고 차분한 수정/삭제 보조 버튼 (메인 액션인 노래 듣기/가사 보기에 시선 집중) */
+        .edit-btn { 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.16); 
+            color: #94a3b8; 
+            display: none; 
+            box-shadow: none; 
+            padding: 8px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            border-radius: 9px;
+            transition: all 0.25s ease;
+        }
+        .edit-btn:hover { 
+            background: rgba(245, 158, 11, 0.12); 
+            border-color: rgba(245, 158, 11, 0.45); 
+            color: #fbbf24; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .delete-btn { 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.16); 
+            color: #94a3b8; 
+            display: none; 
+            box-shadow: none; 
+            padding: 8px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            border-radius: 9px;
+            transition: all 0.25s ease;
+        }
+        .delete-btn:hover { 
+            background: rgba(239, 68, 68, 0.12); 
+            border-color: rgba(239, 68, 68, 0.45); 
+            color: #f87171; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
 
         .vote-count { 
             font-weight: 800; 
@@ -881,11 +919,15 @@
             border: 1px solid rgba(0, 242, 254, 0.35);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 254, 0.15);
         }
-        .embed-frame-box iframe {
+        .embed-frame-box iframe,
+        .suno-embed-frame {
             width: 100%;
             height: 152px;
             border: none;
             display: block;
+            border-radius: 12px;
+            background: #090d16;
+            color-scheme: dark;
         }
 
         /* 📜 플레이어 상단 헤더 & 가사 보기 버튼 */
@@ -1280,7 +1322,7 @@
             justify-content: center;
             align-items: center;
             min-height: 160px;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
         }
         .master-embed-wrapper:hover {
             border-color: rgba(0, 242, 254, 0.75);
@@ -1292,6 +1334,8 @@
             border: none;
             display: block;
             border-radius: 12px;
+            background: #090d16;
+            color-scheme: dark;
         }
 
         /* 📜 마스터 가사 보기 버튼 (상단 헤더 배치) */
@@ -1693,7 +1737,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
             margin-bottom: 14px;
+        }
+        .contest-list-header h3 {
+            margin: 0;
+            white-space: nowrap;
         }
         .total-songs-badge {
             font-size: 12px;
@@ -1701,8 +1751,11 @@
             color: #00f2fe;
             background: rgba(0, 242, 254, 0.1);
             border: 1px solid rgba(0, 242, 254, 0.25);
-            padding: 3px 10px;
+            padding: 4px 10px;
             border-radius: 999px;
+            white-space: nowrap !important;
+            flex-shrink: 0;
+            line-height: 1.2;
         }
 
         .header-box { text-align: center; margin-bottom: 30px; position: relative; z-index: 1; }
@@ -2958,24 +3011,31 @@
         }
 
 
-        /* ↩️ 사용자 삭제 곡 복구 버튼 & 토스트 UI */
+                /* ↩️ 사용자 삭제 곡 복구 버튼 & 토스트 UI (한 줄 정렬 & 줄바꿈 완전 방지) */
         .contest-list-header-right {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
         .user-restore-btn {
             background: rgba(14, 165, 233, 0.12);
             border: 1px solid rgba(14, 165, 233, 0.35);
             color: #38bdf8;
-            padding: 3px 10px;
+            padding: 4px 10px;
             border-radius: 999px;
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 700;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            flex-direction: row;
+            white-space: nowrap !important;
+            word-break: keep-all;
+            flex-shrink: 0;
+            gap: 5px;
+            line-height: 1;
             transition: all 0.25s ease;
             outline: none;
             user-select: none;
@@ -2998,14 +3058,29 @@
             0%, 100% { box-shadow: 0 0 6px rgba(0, 242, 254, 0.25); }
             50% { box-shadow: 0 0 14px rgba(0, 242, 254, 0.6); }
         }
+        .user-restore-btn span {
+            display: inline-block;
+            white-space: nowrap !important;
+            line-height: 1;
+            vertical-align: middle;
+        }
+        .restore-icon {
+            font-size: 12px;
+            line-height: 1;
+        }
+        .restore-text {
+            white-space: nowrap !important;
+            line-height: 1;
+        }
         .restore-badge {
             background: #00f2fe;
             color: #0f172a;
-            font-size: 10px;
+            font-size: 10.5px;
             font-weight: 900;
-            padding: 1px 5px;
+            padding: 1.5px 6px;
             border-radius: 999px;
             line-height: 1;
+            white-space: nowrap !important;
         }
         .form-restore-btn {
             background: rgba(14, 165, 233, 0.15);
@@ -3020,6 +3095,8 @@
             align-items: center;
             gap: 4px;
             transition: all 0.2s ease;
+            white-space: nowrap !important;
+            flex-shrink: 0;
         }
         .form-restore-btn:hover {
             background: rgba(14, 165, 233, 0.28);
@@ -3116,8 +3193,10 @@
                 font-size: 12px;
             }
             .user-restore-btn {
-                padding: 2px 8px;
+                padding: 3px 8px;
                 font-size: 11px;
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
             }
         }
 
