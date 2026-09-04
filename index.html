@@ -4188,6 +4188,10 @@
         // 🏷️ 콘테스트 모드 / 일반 플레이어 모드에 따라 브랜드 명칭 동적 전환
         function updateDynamicBrandTitles(isContest) {
             document.title = isContest ? "Suno 노래 콘테스트" : "스트리밍 플레이어";
+            const bTitle = document.getElementById('tenantBadgeTitle');
+            if (bTitle) {
+                bTitle.innerText = isContest ? "SONG CONTEST" : "STREAMING PLAYER";
+            }
             const headerTitle = document.getElementById('mainHeaderTitle');
             if (headerTitle) {
                 headerTitle.innerHTML = isContest ? "🏆 Suno 노래 콘테스트" : "🎧 스트리밍 플레이어";
@@ -4228,9 +4232,14 @@
             }
         }
 
-        if (currentTenant !== 'default') {
-            const bSlug = document.getElementById('tenantBadgeSlug');
-            if (bSlug) bSlug.innerText = `// ${currentTenant.toUpperCase()}`;
+        const bSlug = document.getElementById('tenantBadgeSlug');
+        if (bSlug) {
+            const cachedName = localStorage.getItem('tenant_name_' + currentTenant);
+            if (cachedName) {
+                bSlug.innerText = `// ${cachedName}`;
+            } else if (currentTenant !== 'default') {
+                bSlug.innerText = `// ${currentTenant.toUpperCase()}`;
+            }
         }
         if (!showVotes) {
             document.body.classList.add('hide-votes');
@@ -4476,11 +4485,14 @@
                 const bTitle = document.getElementById('tenantBadgeTitle');
                 const bSlug = document.getElementById('tenantBadgeSlug');
                 if (currentTenantInfo && currentTenantInfo.tenant_name) {
-                    if (bTitle) bTitle.innerText = isContest ? `🏆 SONG CONTEST // ${currentTenantInfo.tenant_name.toUpperCase()}` : currentTenantInfo.tenant_name.toUpperCase();
-                    if (bSlug) bSlug.innerText = `// ${currentTenant.toUpperCase()}`;
-                } else if (isContest) {
-                    if (bTitle) bTitle.innerText = `🏆 SONG CONTEST`;
-                    if (bSlug) bSlug.innerText = `// ${currentTenant.toUpperCase()}`;
+                    localStorage.setItem('tenant_name_' + currentTenant, currentTenantInfo.tenant_name);
+                }
+                if (bTitle) {
+                    bTitle.innerText = isContest ? "SONG CONTEST" : "STREAMING PLAYER";
+                }
+                if (bSlug) {
+                    const displayName = (currentTenantInfo && currentTenantInfo.tenant_name) ? currentTenantInfo.tenant_name : (currentTenant !== 'default' ? currentTenant.toUpperCase() : 'DEFAULT');
+                    bSlug.innerText = `// ${displayName}`;
                 }
 
                 // 서버 투표 상태 또는 브라우저 로컬 1인 1투표 기록 동기화
