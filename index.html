@@ -2348,92 +2348,288 @@
         .footer { text-align: center; margin-top: 40px; padding: 25px 0; border-top: 1px solid rgba(255, 255, 255, 0.08); }
         .footer-credit { font-size: 11px; color: #64748b; margin: 0; letter-spacing: 0.05em; font-family: monospace; }
     
-        /* 👑 슈퍼 관리자 모달 스타일 */
-        .super-modal-box {
-            max-width: 980px !important;
-            max-height: 90vh;
-            border-color: rgba(236, 72, 153, 0.5) !important;
-            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85), 0 0 50px rgba(236, 72, 153, 0.35) !important;
+        /* 👑 슈퍼 관리자 모달 네온 & VIP 화려한 스타일 */
+        @keyframes superBorderGlow {
+            0% { filter: drop-shadow(0 0 18px rgba(236, 72, 153, 0.45)) drop-shadow(0 0 35px rgba(139, 92, 246, 0.3)); }
+            50% { filter: drop-shadow(0 0 28px rgba(56, 189, 248, 0.55)) drop-shadow(0 0 50px rgba(236, 72, 153, 0.45)); }
+            100% { filter: drop-shadow(0 0 18px rgba(236, 72, 153, 0.45)) drop-shadow(0 0 35px rgba(139, 92, 246, 0.3)); }
         }
+        @keyframes superCrownBounce {
+            0%, 100% { transform: scale(1) translateY(0); filter: drop-shadow(0 0 10px #fbbf24); }
+            50% { transform: scale(1.2) translateY(-2px) rotate(-6deg); filter: drop-shadow(0 0 20px #f43f5e) drop-shadow(0 0 10px #fbbf24); }
+        }
+        @keyframes superTextShine {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes neonPulseGreen {
+            0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 18px rgba(16, 185, 129, 0.8), 0 0 25px rgba(52, 211, 153, 0.5); }
+        }
+        @keyframes neonPulsePurple {
+            0%, 100% { box-shadow: 0 0 8px rgba(168, 85, 247, 0.4); }
+            50% { box-shadow: 0 0 18px rgba(168, 85, 247, 0.8), 0 0 25px rgba(192, 132, 252, 0.5); }
+        }
+
+        .super-modal-box {
+            max-width: 1100px !important;
+            max-height: 92vh;
+            position: relative;
+            background: radial-gradient(circle at 15% 10%, rgba(236, 72, 153, 0.16), transparent 45%),
+                        radial-gradient(circle at 85% 90%, rgba(56, 189, 248, 0.14), transparent 45%),
+                        radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.08), transparent 60%),
+                        rgba(10, 15, 32, 0.97) !important;
+            border: 1.5px solid rgba(236, 72, 153, 0.55) !important;
+            border-radius: 22px !important;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95),
+                        0 0 45px rgba(236, 72, 153, 0.4),
+                        0 0 85px rgba(139, 92, 246, 0.25),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+            backdrop-filter: blur(28px) !important;
+            animation: superBorderGlow 5s ease-in-out infinite alternate;
+        }
+
+        .super-vip-crown {
+            display: inline-block;
+            font-size: 24px;
+            animation: superCrownBounce 3s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        .super-vip-title-text {
+            background: linear-gradient(90deg, #ff7170, #f472b6, #c084fc, #38bdf8, #34d399, #fbbf24, #f472b6);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: superTextShine 6s linear infinite;
+            font-size: 19px !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.3px;
+        }
+
+        .super-vip-badge {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(139, 92, 246, 0.3));
+            border: 1px solid rgba(236, 72, 153, 0.6);
+            color: #f472b6;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            box-shadow: 0 0 14px rgba(236, 72, 153, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 📊 통계 카드 화려한 네온 글래스모피즘 */
+        .super-stat-card {
+            background: rgba(16, 24, 48, 0.7);
+            border-radius: 14px;
+            padding: 14px 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .super-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--card-accent, #38bdf8), transparent);
+        }
+        .super-stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 25px var(--card-glow, rgba(56, 189, 248, 0.3));
+            border-color: var(--card-accent, rgba(56, 189, 248, 0.5));
+        }
+        .super-stat-card.card-blue { --card-accent: #38bdf8; --card-glow: rgba(56, 189, 248, 0.4); background: linear-gradient(145deg, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.85)); }
+        .super-stat-card.card-green { --card-accent: #34d399; --card-glow: rgba(52, 211, 153, 0.4); background: linear-gradient(145deg, rgba(52, 211, 153, 0.12), rgba(15, 23, 42, 0.85)); }
+        .super-stat-card.card-purple { --card-accent: #c084fc; --card-glow: rgba(192, 132, 252, 0.4); background: linear-gradient(145deg, rgba(192, 132, 252, 0.12), rgba(15, 23, 42, 0.85)); }
+        .super-stat-card.card-gold { --card-accent: #fbbf24; --card-glow: rgba(251, 191, 36, 0.4); background: linear-gradient(145deg, rgba(251, 191, 36, 0.12), rgba(15, 23, 42, 0.85)); }
+
+        .super-stat-val {
+            font-size: 22px;
+            font-weight: 900;
+            margin-top: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        /* 📋 테이블 화려한 스타일 */
         .super-tenant-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
-            margin-top: 10px;
+            margin-top: 0;
             text-align: left;
         }
-        .super-tenant-table th {
-            background: rgba(255, 255, 255, 0.05);
-            color: #cbd5e1;
-            padding: 10px 12px;
-            font-weight: 700;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        .super-tenant-table thead th {
+            background: linear-gradient(180deg, rgba(26, 36, 64, 0.95), rgba(15, 23, 42, 0.98)) !important;
+            color: #93c5fd !important;
+            padding: 10px 10px !important;
+            font-weight: 800 !important;
+            font-size: 11.5px !important;
+            letter-spacing: 0.04em !important;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.4) !important;
             white-space: nowrap;
+            text-transform: uppercase;
         }
-        .super-tenant-table td {
-            padding: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        .super-tenant-table tbody td {
+            padding: 10px 10px !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
             color: #f1f5f9;
             vertical-align: middle;
             white-space: nowrap;
-        }
-        .super-tenant-table tr:hover td {
-            background: rgba(255, 255, 255, 0.03);
-        }
-        .super-tenant-clickable-cell {
-            cursor: pointer;
             transition: all 0.2s ease;
         }
+        .super-tenant-table tbody tr {
+            transition: all 0.2s ease;
+        }
+        .super-tenant-table tbody tr:hover td {
+            background: linear-gradient(90deg, rgba(236, 72, 153, 0.09), rgba(56, 189, 248, 0.09)) !important;
+        }
         .super-tenant-clickable-cell:hover {
-            background: rgba(56, 189, 248, 0.12) !important;
+            background: rgba(56, 189, 248, 0.16) !important;
         }
         .super-tenant-clickable-cell:hover b {
-            color: #7dd3fc !important;
-            text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+            color: #38bdf8 !important;
+            text-shadow: 0 0 12px rgba(56, 189, 248, 0.8) !important;
         }
-        .super-badge-active { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
-        .super-badge-transferred { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
-        .super-badge-paused { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
-        .super-badge-expired { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 11px; }
-        .super-mode-select {
-            padding: 4px 8px;
-            font-size: 11px;
-            font-weight: 800;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(14, 22, 44, 0.95);
-            color: #f8fafc;
-            cursor: pointer;
-            outline: none;
-            transition: all 0.2s;
+
+        /* 네온 배지 */
+        .super-badge-active {
+            background: rgba(16, 185, 129, 0.18) !important;
+            color: #34d399 !important;
+            border: 1px solid rgba(52, 211, 153, 0.5) !important;
+            padding: 3px 9px !important;
+            border-radius: 8px !important;
+            font-weight: 800 !important;
+            font-size: 11px !important;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.3) !important;
+            animation: neonPulseGreen 3s infinite alternate;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
-        .super-mode-select.is-contest {
-            background: rgba(236, 72, 153, 0.2);
-            border-color: rgba(236, 72, 153, 0.5);
-            color: #f472b6;
+        .super-badge-transferred {
+            background: rgba(168, 85, 247, 0.18) !important;
+            color: #c084fc !important;
+            border: 1px solid rgba(192, 132, 252, 0.5) !important;
+            padding: 3px 9px !important;
+            border-radius: 8px !important;
+            font-weight: 800 !important;
+            font-size: 11px !important;
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.3) !important;
+            animation: neonPulsePurple 3s infinite alternate;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
-        .super-mode-select.is-player {
-            background: rgba(56, 189, 248, 0.18);
-            border-color: rgba(56, 189, 248, 0.45);
-            color: #38bdf8;
+        .super-badge-paused {
+            background: rgba(245, 158, 11, 0.18) !important;
+            color: #fbbf24 !important;
+            border: 1px solid rgba(251, 191, 36, 0.5) !important;
+            padding: 3px 9px !important;
+            border-radius: 8px !important;
+            font-weight: 800 !important;
+            font-size: 11px !important;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.3) !important;
         }
+        .super-badge-expired {
+            background: rgba(239, 68, 68, 0.18) !important;
+            color: #f87171 !important;
+            border: 1px solid rgba(248, 113, 113, 0.5) !important;
+            padding: 3px 9px !important;
+            border-radius: 8px !important;
+            font-weight: 800 !important;
+            font-size: 11px !important;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3) !important;
+        }
+
+        /* 화려한 버튼들 */
         .super-action-btn {
-            padding: 5px 9px;
-            font-size: 11px;
-            font-weight: 700;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            margin-right: 4px;
-            transition: all 0.2s;
+            padding: 6px 11px !important;
+            font-size: 11.5px !important;
+            font-weight: 800 !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+            margin-right: 5px !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
         .super-action-btn:hover {
-            transform: translateY(-1px);
+            transform: translateY(-2px) scale(1.05) !important;
         }
-        .super-btn-jump { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
-        .super-btn-edit { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
-        .super-btn-pause { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
-        .super-btn-del { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+        .super-btn-jump {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(56, 189, 248, 0.35)) !important;
+            color: #38bdf8 !important;
+            border: 1px solid rgba(56, 189, 248, 0.6) !important;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.3) !important;
+        }
+        .super-btn-jump:hover {
+            background: #38bdf8 !important;
+            color: #04101e !important;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.8) !important;
+        }
+        .super-btn-edit {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(192, 132, 252, 0.35)) !important;
+            color: #c084fc !important;
+            border: 1px solid rgba(192, 132, 252, 0.6) !important;
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.3) !important;
+        }
+        .super-btn-edit:hover {
+            background: #c084fc !important;
+            color: #19052b !important;
+            box-shadow: 0 0 20px rgba(192, 132, 252, 0.8) !important;
+        }
+        .super-btn-pause {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(251, 191, 36, 0.35)) !important;
+            color: #fbbf24 !important;
+            border: 1px solid rgba(251, 191, 36, 0.6) !important;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.3) !important;
+        }
+        .super-btn-pause:hover {
+            background: #fbbf24 !important;
+            color: #1e1202 !important;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.8) !important;
+        }
+        .super-btn-del {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(244, 63, 94, 0.35)) !important;
+            color: #f87171 !important;
+            border: 1px solid rgba(248, 113, 113, 0.6) !important;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.3) !important;
+        }
+        .super-btn-del:hover {
+            background: #f43f5e !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.8) !important;
+        }
+
+        .super-mode-select {
+            padding: 5px 10px !important;
+            font-size: 11.5px !important;
+            font-weight: 800 !important;
+            border-radius: 10px !important;
+            cursor: pointer !important;
+            outline: none !important;
+            transition: all 0.2s !important;
+        }
+        .super-mode-select.is-contest {
+            background: rgba(236, 72, 153, 0.22) !important;
+            border: 1px solid rgba(236, 72, 153, 0.6) !important;
+            color: #f472b6 !important;
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.25) !important;
+        }
+        .super-mode-select.is-player {
+            background: rgba(56, 189, 248, 0.2) !important;
+            border: 1px solid rgba(56, 189, 248, 0.55) !important;
+            color: #38bdf8 !important;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.25) !important;
+        }
 
     
         /* ========================================================
@@ -3887,30 +4083,39 @@
     <div class="modal-overlay" id="superAdminModal" onclick="handleSuperModalBackdropClick(event)">
         <div class="modal-box super-modal-box">
             <div class="modal-top-fixed">
-                <div class="modal-header">
-                    <div class="modal-title" style="background: linear-gradient(135deg, #f472b6, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                        <span>👑</span>
-                        <span>슈퍼 관리자 마스터 콘솔 (다중 관리자 배포 & 대여 시스템)</span>
+                <div class="modal-header" style="padding-bottom: 14px; border-bottom: 1px solid rgba(236, 72, 153, 0.25);">
+                    <div class="modal-title" style="display: flex; align-items: center; gap: 10px;">
+                        <span class="super-vip-crown">👑</span>
+                        <span class="super-vip-title-text">슈퍼 관리자 마스터 콘솔</span>
+                        <span class="super-vip-badge">💎 VIP MASTER</span>
                     </div>
-                    <button type="button" onclick="closeSuperAdminModal()" class="modal-close-btn">✕</button>
+                    <button type="button" onclick="closeSuperAdminModal()" class="modal-close-btn" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; width: 34px; height: 34px; border-radius: 50%; font-size: 16px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='#fff'; this.style.transform='rotate(90deg)';" onmouseout="this.style.background='rgba(239, 68, 68, 0.15)'; this.style.color='#f87171'; this.style.transform='rotate(0deg)';">✕</button>
                 </div>
 
-                <div class="modal-stats-grid" style="grid-template-columns: repeat(4, 1fr);">
-                    <div class="stat-card">
-                        <div class="stat-label">총 발급 채널</div>
-                        <div class="stat-val" id="superTotalTenants">0개</div>
+                <div class="modal-stats-grid" style="grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px;">
+                    <div class="super-stat-card card-blue">
+                        <div class="stat-label" style="display: flex; align-items: center; justify-content: center; gap: 5px; color: #94a3b8; font-size: 12px; font-weight: 800;">
+                            <span>🌐</span> 총 발급 채널
+                        </div>
+                        <div class="super-stat-val" id="superTotalTenants" style="color: #38bdf8; text-shadow: 0 0 15px rgba(56, 189, 248, 0.6);">0개</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">정상 대여 채널</div>
-                        <div class="stat-val" id="superActiveRentals" style="color: #34d399;">0개</div>
+                    <div class="super-stat-card card-green">
+                        <div class="stat-label" style="display: flex; align-items: center; justify-content: center; gap: 5px; color: #94a3b8; font-size: 12px; font-weight: 800;">
+                            <span>🟢</span> 정상 대여 채널
+                        </div>
+                        <div class="super-stat-val" id="superActiveRentals" style="color: #34d399; text-shadow: 0 0 15px rgba(52, 211, 153, 0.6);">0개</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">영구 이관 채널</div>
-                        <div class="stat-val" id="superTransferred" style="color: #c084fc;">0개</div>
+                    <div class="super-stat-card card-purple">
+                        <div class="stat-label" style="display: flex; align-items: center; justify-content: center; gap: 5px; color: #94a3b8; font-size: 12px; font-weight: 800;">
+                            <span>🟣</span> 영구 이관 채널
+                        </div>
+                        <div class="super-stat-val" id="superTransferred" style="color: #c084fc; text-shadow: 0 0 15px rgba(192, 132, 252, 0.6);">0개</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">전체 등록 곡</div>
-                        <div class="stat-val" id="superTotalSongs">0곡</div>
+                    <div class="super-stat-card card-gold">
+                        <div class="stat-label" style="display: flex; align-items: center; justify-content: center; gap: 5px; color: #94a3b8; font-size: 12px; font-weight: 800;">
+                            <span>🎵</span> 전체 등록 곡
+                        </div>
+                        <div class="super-stat-val" id="superTotalSongs" style="color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.6);">0곡</div>
                     </div>
                 </div>
             </div>
@@ -3968,12 +4173,17 @@
                 </div>
 
                 <!-- 📋 전체 발급된 관리자 및 대여 목록 -->
+                <!-- 📋 전체 발급된 관리자 및 대여 목록 -->
                 <div>
-                    <div style="font-size: 15px; font-weight: 800; color: #e2e8f0; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                        <span>📋 전체 관리자(테넌트) 목록 및 운영 제어</span>
-                        <button type="button" onclick="loadSuperTenantsList()" style="background: rgba(255,255,255,0.08); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); border-radius: 6px; padding: 4px 12px; font-size: 11px; cursor: pointer; font-weight: 700;">🔄 새로고침</button>
+                    <div style="font-size: 15px; font-weight: 800; color: #e2e8f0; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="display: flex; align-items: center; gap: 7px; background: linear-gradient(90deg, #f8fafc, #93c5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            <span style="-webkit-text-fill-color: initial;">📋</span> 전체 관리자(테넌트) 목록 및 실시간 운영 제어
+                        </span>
+                        <button type="button" onclick="loadSuperTenantsList()" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.45); border-radius: 8px; padding: 5px 14px; font-size: 11.5px; cursor: pointer; font-weight: 800; box-shadow: 0 0 12px rgba(56, 189, 248, 0.25); transition: all 0.2s;" onmouseover="this.style.background='#38bdf8'; this.style.color='#04101e'; this.style.boxShadow='0 0 18px rgba(56, 189, 248, 0.6)';" onmouseout="this.style.background='rgba(56, 189, 248, 0.15)'; this.style.color='#38bdf8'; this.style.boxShadow='0 0 12px rgba(56, 189, 248, 0.25)';">
+                            🔄 실시간 새로고침
+                        </button>
                     </div>
-                    <div style="overflow-x: auto; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;">
+                    <div style="overflow-x: auto; background: rgba(11, 18, 38, 0.88); border: 1px solid rgba(139, 92, 246, 0.35); border-radius: 14px; box-shadow: 0 15px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);">
                         <table class="super-tenant-table" id="superTenantsTable">
                             <thead>
                                 <tr>
@@ -4671,9 +4881,6 @@
             localStorage.setItem('sunoShowEditDelete', showEditDelete);
             updateAdminUI();
             renderList();
-            if (typeof showPlayerToast === 'function') {
-                showPlayerToast(showEditDelete ? '수정/삭제 버튼이 활성화되었습니다 (ON)' : '수정/삭제 버튼이 숨겨졌습니다 (OFF)', '🛠️');
-            }
         };
 
         window.saveNoticeText = function() {
@@ -6052,7 +6259,12 @@
 
             fetch(`${API_URL}?action=updateSong&id=${id}&title=${encodeURIComponent(newTitle)}&author=${encodeURIComponent(newAuthor)}&genre=${encodeURIComponent(newGenre)}&url=${encodeURIComponent(newUrl)}&tenant=${encodeURIComponent(currentTenant)}`)
                 .then(res => res.json())
-                .then(() => { alert("수정되었습니다."); fetchAppData(); });
+                .then(() => { 
+                    if (!isAdmin) {
+                        alert("수정되었습니다."); 
+                    }
+                    fetchAppData(); 
+                });
         };
 
         window.deleteSong = function(id) {
@@ -6094,12 +6306,18 @@
                     removeMyRegisteredSongId(id);
                     updateRestoreButtonUI();
                     prefetchSoundCloudThumbnails();
-                    showUndoToast(deletedItem);
-                    alert(`"${song.title}" 곡이 삭제되었습니다.\n\n실수로 삭제하셨다면 상단의 [↩️ 복구] 버튼을 누르면 언제든 다시 복구할 수 있습니다.`); 
+                    if (!isAdmin) {
+                        showUndoToast(deletedItem);
+                        alert(`"${song.title}" 곡이 삭제되었습니다.\n\n실수로 삭제하셨다면 상단의 [↩️ 복구] 버튼을 누르면 언제든 다시 복구할 수 있습니다.`); 
+                    }
                     fetchAppData(); 
                 })
                 .catch(err => {
-                    alert("삭제 중 오류가 발생했습니다: " + err.message);
+                    if (!isAdmin) {
+                        alert("삭제 중 오류가 발생했습니다: " + err.message);
+                    } else {
+                        console.error("삭제 중 오류 발생:", err);
+                    }
                 });
         };
 
@@ -7768,21 +7986,22 @@
                     tr.innerHTML = `
                         <td onclick="selectTenantForEdit('${escapeHtml(t.tenant_id)}')" style="cursor: pointer;" class="super-tenant-clickable-cell" title="클릭하여 상단 입력창에서 채널 ID, 이름, 비밀번호, 만료일 등을 수정합니다">
                             <div style="display: flex; align-items: center; gap: 6px;">
-                                <b style="color: #38bdf8; text-decoration: underline dotted #38bdf8;">${escapeHtml(t.tenant_id)}</b>
-                                <span style="font-size: 10px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.3);">✏️ 수정</span>
+                                <span style="font-size: 13px;">⚡</span>
+                                <b style="color: #38bdf8; font-size: 13.5px; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);">${escapeHtml(t.tenant_id)}</b>
+                                <span style="font-size: 10px; font-weight: 800; background: rgba(56, 189, 248, 0.18); color: #38bdf8; padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.35);">✏️ 빠른수정</span>
                             </div>
-                            <span style="font-size: 11px; color: #cbd5e1;">${escapeHtml(t.tenant_name || '')}</span>
+                            <div style="font-size: 11.5px; color: #cbd5e1; margin-top: 3px; font-weight: 600;">${escapeHtml(t.tenant_name || '')}</div>
                         </td>
                         <td>
-                            <button type="button" class="super-action-btn" onclick="copyTenantLink('${escapeHtml(t.tenant_id)}', '${effectiveMode}')" style="background: rgba(255,255,255,0.08); color:#f1f5f9;" title="${tenantUrl}">
-                                📋 링크 복사
+                            <button type="button" class="super-action-btn" onclick="copyTenantLink('${escapeHtml(t.tenant_id)}', '${effectiveMode}')" style="background: rgba(255,255,255,0.06); color:#f8fafc; border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 2px 8px rgba(0,0,0,0.3);" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.borderColor='#38bdf8';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.borderColor='rgba(255,255,255,0.18)';" title="${tenantUrl}">
+                                🔗 링크 복사
                             </button>
                         </td>
                         <td>${modeSelectHtml}</td>
-                        <td><code style="background:rgba(0,0,0,0.3); padding:2px 6px; border-radius:4px; color:#fca5a5;">${escapeHtml(t.admin_password)}</code></td>
-                        <td><b style="color:#34d399;">${t.song_count}곡</b></td>
+                        <td><code style="background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.3); padding: 3px 8px; border-radius: 6px; color: #fca5a5; font-size: 12px; font-weight: 700; letter-spacing: 0.05em;">${escapeHtml(t.admin_password)}</code></td>
+                        <td><span style="display: inline-flex; align-items: center; gap: 4px; color:#34d399; font-weight: 900; background: rgba(52, 211, 153, 0.12); border: 1px solid rgba(52, 211, 153, 0.3); padding: 2px 8px; border-radius: 6px; font-size: 12px;">🎵 ${t.song_count}곡</span></td>
                         <td>${statusBadge}</td>
-                        <td style="font-size: 12px; color: #cbd5e1;">${t.rental_until === 'unlimited' ? '무제한' : escapeHtml(t.rental_until)}</td>
+                        <td style="font-size: 12px; font-weight: 700; color: #e2e8f0;">${t.rental_until === 'unlimited' ? '<span style="color:#c084fc;">♾️ 무제한</span>' : escapeHtml(t.rental_until)}</td>
                         <td style="white-space: nowrap;">
                             <button type="button" class="super-action-btn super-btn-jump" onclick="jumpToTenant('${escapeHtml(t.tenant_id)}', '${effectiveMode}')">🚀 접속</button>
                             <button type="button" class="super-action-btn super-btn-edit" onclick="openEditTenantModal('${escapeHtml(t.tenant_id)}')">⚙️ 설정</button>
