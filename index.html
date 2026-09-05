@@ -431,10 +431,10 @@
                 transform: translateX(-50%);
             }
         }
-        #sunoUrl:focus ~ .url-input-marquee,
         .url-marquee-group.has-value .url-input-marquee {
             opacity: 0 !important;
             visibility: hidden !important;
+            pointer-events: none;
         }
 
         /* 📄 실시간 스트리밍 재생 목록 10개 1페이지 상단/하단 페이지네이션 바 */
@@ -2226,18 +2226,21 @@
             box-shadow: 0 0 16px rgba(168, 85, 247, 1), 0 0 8px rgba(0, 242, 254, 0.9);
         }
         .result-row {
-            background: rgba(14, 22, 44, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 12px 16px;
+            background: rgba(16, 24, 46, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 10px 14px;
             display: flex;
-            flex-direction: column;
-            gap: 8px;
-            transition: all 0.2s;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            transition: all 0.2s ease;
         }
         .result-row:hover {
-            border-color: rgba(0, 242, 254, 0.3);
-            background: rgba(14, 20, 38, 0.85);
+            border-color: rgba(56, 189, 248, 0.4);
+            background: rgba(24, 34, 64, 0.9);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
         }
         .result-row-top {
             display: flex;
@@ -3742,7 +3745,7 @@
         </div>
         <!-- 🔗 스트리밍 링크 입력 (원클릭 자동 분석) -->
         <div class="input-group url-marquee-group" style="margin-bottom: 8px; margin-top: 4px; position: relative;">
-            <input type="text" id="sunoUrl" placeholder="" oninput="handleUrlInputChange(); updateUrlMarqueeState();" onpaste="handleUrlPaste(event)">
+            <input type="text" id="sunoUrl" placeholder="" oninput="handleUrlInputChange(); updateUrlMarqueeState();" onfocus="updateUrlMarqueeState();" onblur="updateUrlMarqueeState();" onpaste="handleUrlPaste(event)">
             <div class="url-input-marquee" id="sunoUrlMarquee" onclick="document.getElementById('sunoUrl').focus()">
                 <div class="marquee-track">
                     <span>🔗 스트리밍 링크를 붙여넣으세요 (Suno, 사운드클라우드, 유튜브, 유튜브 뮤직) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔗 스트리밍 링크를 붙여넣으세요 (Suno, 사운드클라우드, 유튜브, 유튜브 뮤직) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -4128,9 +4131,12 @@
         let hasVoted = false;
         let myVotedId = null;
         let isAdmin = localStorage.getItem('sunoAdminMode') === 'true';
+        let isSuperAdmin = localStorage.getItem('sunoSuperAdminMode') === 'true';
+        let superPassword = localStorage.getItem('sunoSuperPassword') || '';
         let showAuthor = localStorage.getItem('sunoShowAuthor') !== 'false';
         let showGenre = localStorage.getItem('sunoShowGenre') !== 'false';
         let showVotes = localStorage.getItem('sunoShowVotes') !== 'false';
+        let showEditDelete = localStorage.getItem('sunoShowEditDelete') === 'true';
         let isResultPublic = localStorage.getItem('sunoResultPublic') === 'true';
         window.getIsAdmin = function() { return isAdmin; };
         window.setIsAdmin = function(v) { isAdmin = !!v; localStorage.setItem('sunoAdminMode', isAdmin ? 'true' : 'false'); updateAdminUI(); };
@@ -4150,8 +4156,6 @@
         const explicitTenant = (urlParams.get('t') || urlParams.get('tenant') || urlParams.get('c') || pathTenant || '').trim().toLowerCase();
         let defaultTenantByMode = (urlParams.get('mode') === 'contest' || rawPath === 'contest') ? 'contest' : 'default';
         let currentTenant = explicitTenant || defaultTenantByMode;
-        let isSuperAdmin = localStorage.getItem('sunoSuperAdminMode') === 'true';
-        let superPassword = localStorage.getItem('sunoSuperPassword') || '';
         let currentTenantInfo = null;
 
         // 🏆 특정 관리자 전용 [노래 콘테스트] 모드 판별 함수 (슈퍼 관리자가 모드 부여 시에만 활성화)
@@ -4657,7 +4661,9 @@
             }
             updateAdminUI();
             renderList();
-            alert(showVotes ? "하트와 득표수 표시가 켜졌습니다 (ON).\n(화면에 하트와 투표 숫자가 표시됩니다.)" : "하트와 득표수 표시가 숨겨졌습니다 (OFF).\n(화면에서 하트와 투표 숫자가 감춰집니다.)");
+            if (typeof showPlayerToast === 'function') {
+                showPlayerToast(showVotes ? '하트와 득표수가 표시됩니다 (ON)' : '하트와 득표수가 숨겨졌습니다 (OFF)', '❤️');
+            }
         };
 
         window.toggleEditDeleteDisplay = function() {
@@ -4665,7 +4671,6 @@
             localStorage.setItem('sunoShowEditDelete', showEditDelete);
             updateAdminUI();
             renderList();
-            alert(showEditDelete ? "수정/삭제 버튼이 활성화(ON)되었습니다.\n(화면에 수정/삭제 버튼이 표시됩니다.)" : "수정/삭제 버튼이 비활성화(OFF)되었습니다.\n(화면에서 수정/삭제 버튼이 완전히 사라집니다.)");
             if (typeof showPlayerToast === 'function') {
                 showPlayerToast(showEditDelete ? '수정/삭제 버튼이 활성화되었습니다 (ON)' : '수정/삭제 버튼이 숨겨졌습니다 (OFF)', '🛠️');
             }
@@ -4955,7 +4960,8 @@
             const authorsSet = new Set(currentSongs.map(s => (s.author || '').trim()).filter(Boolean));
             const genresSet = new Set();
             currentSongs.forEach(s => {
-                cleanMusicGenres(s.genre).forEach(g => genresSet.add(g));
+                const rawG = s.genre || (sunoCache.has(s.url) && sunoCache.get(s.url).genre ? sunoCache.get(s.url).genre : '');
+                cleanMusicGenres(rawG).forEach(g => genresSet.add(g));
             });
 
             const totalVotes = currentSongs.reduce((sum, s) => sum + (Number(s.votes) || 0), 0);
@@ -4975,39 +4981,57 @@
             listEl.innerHTML = '';
 
             if (currentSongs.length === 0) {
-                listEl.innerHTML = '<p style="text-align:center; color:#94a3b8; padding:20px;">등록된 곡이 없습니다.</p>';
+                listEl.innerHTML = '<p style="text-align:center; color:#94a3b8; padding:30px;">등록된 트랙이 없습니다.</p>';
             } else {
                 currentSongs.forEach((song, index) => {
                     const pInfo = detectStreamingPlatform(song.url || '');
                     const cover = getSongCoverUrl(song);
 
-                    let rankBadge = `<div style="font-weight:900; color:#00f2fe; min-width:36px; font-size:13px;">#${index + 1}</div>`;
+                    let rankBadge = `<div style="font-weight:900; color:#38bdf8; min-width:36px; font-size:14px; text-align:center;">#${index + 1}</div>`;
                     if (isContest) {
-                        if (index === 0) rankBadge = `<div style="font-weight:900; color:#fbbf24; min-width:48px; font-size:13.5px;" title="1위">🥇 1위</div>`;
-                        else if (index === 1) rankBadge = `<div style="font-weight:900; color:#cbd5e1; min-width:48px; font-size:13.5px;" title="2위">🥈 2위</div>`;
-                        else if (index === 2) rankBadge = `<div style="font-weight:900; color:#f97316; min-width:48px; font-size:13.5px;" title="3위">🥉 3위</div>`;
-                        else rankBadge = `<div style="font-weight:800; color:#94a3b8; min-width:48px; font-size:13px;">${index + 1}위</div>`;
+                        if (index === 0) rankBadge = `<div style="font-weight:900; color:#fbbf24; min-width:56px; font-size:13px; text-align:center; background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.3); padding:3px 6px; border-radius:6px;" title="1위">🥇 1위</div>`;
+                        else if (index === 1) rankBadge = `<div style="font-weight:900; color:#cbd5e1; min-width:56px; font-size:13px; text-align:center; background:rgba(203,213,225,0.12); border:1px solid rgba(203,213,225,0.3); padding:3px 6px; border-radius:6px;" title="2위">🥈 2위</div>`;
+                        else if (index === 2) rankBadge = `<div style="font-weight:900; color:#f97316; min-width:56px; font-size:13px; text-align:center; background:rgba(249,115,22,0.12); border:1px solid rgba(249,115,22,0.3); padding:3px 6px; border-radius:6px;" title="3위">🥉 3위</div>`;
+                        else rankBadge = `<div style="font-weight:800; color:#94a3b8; min-width:56px; font-size:12.5px; text-align:center; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:3px 6px; border-radius:6px;">${index + 1}위</div>`;
                     }
 
+                    const rawGenre = song.genre || (sunoCache.has(song.url) && sunoCache.get(song.url).genre ? sunoCache.get(song.url).genre : '');
+                    const genreList = cleanMusicGenres(rawGenre);
+                    const genreBadgesHtml = genreList.length > 0 
+                        ? `<span style="display:inline-flex; gap:4px; flex-wrap:wrap; margin-left:4px;">` + 
+                          genreList.slice(0, 3).map(g => `<span style="font-size:10.5px; font-weight:700; color:#c084fc; background:rgba(192,132,252,0.12); border:1px solid rgba(192,132,252,0.25); padding:1px 6px; border-radius:4px;">#${escapeHtml(g)}</span>`).join('') + 
+                          `</span>`
+                        : '';
+
                     const votesBadge = isContest 
-                        ? `<span style="font-weight:900; color:#34d399; font-size:13px; background:rgba(16, 185, 129, 0.12); border:1px solid rgba(52, 211, 153, 0.3); padding:3px 9px; border-radius:8px; margin-right:4px;">❤️ ${song.votes || 0}표</span>`
+                        ? `<span style="font-weight:900; color:#34d399; font-size:13px; background:rgba(16, 185, 129, 0.15); border:1px solid rgba(52, 211, 153, 0.35); padding:4px 10px; border-radius:8px; white-space:nowrap; box-shadow:0 0 10px rgba(16, 185, 129, 0.2);">❤️ ${song.votes || 0}표</span>`
                         : ``;
 
                     const row = document.createElement('div');
                     row.className = 'result-row';
-                    row.style.display = 'flex';
-                    row.style.alignItems = 'center';
-                    row.style.gap = '12px';
-                    row.style.padding = '10px 14px';
                     row.innerHTML = `
-                        ${rankBadge}
-                        <img src="${cover}" alt="커버" style="width:38px; height:38px; border-radius:7px; object-fit:cover; border:1px solid rgba(0,242,254,0.3);" onerror="handleCoverError(this, '${song.url}')" />
-                        <div style="flex:1; min-width:0;">
-                            <div style="font-size:14px; font-weight:800; color:#ffffff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(song.title)}</div>
-                            <div style="font-size:12px; color:#94a3b8;">아티스트: <b style="color:#cbd5e1;">${escapeHtml(song.author || '아티스트')}</b> ${song.genre ? '· <span style="color:#c084fc;">#' + escapeHtml(song.genre) + '</span>' : ''}</div>
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+                            ${rankBadge}
+                            <img src="${cover}" alt="커버" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 4px 10px rgba(0,0,0,0.35);" onerror="handleCoverError(this, '${song.url}')" />
+                            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px;">
+                                <div style="font-size: 14.5px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.2px;">
+                                    ${escapeHtml(song.title)}
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    <span>아티스트: <b style="color: #cbd5e1; font-weight: 700;">${escapeHtml(song.author || '익명')}</b></span>
+                                    ${genreBadgesHtml}
+                                </div>
+                            </div>
                         </div>
-                        ${votesBadge}
-                        <span style="font-size:11px; font-weight:800; color:${pInfo.color || '#38bdf8'}; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);">${pInfo.badge}</span>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                            ${votesBadge}
+                            <span style="font-size: 11px; font-weight: 800; color: ${pInfo.color || '#38bdf8'}; background: rgba(255,255,255,0.06); padding: 4px 9px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); white-space: nowrap;">
+                                ${pInfo.badge}
+                            </span>
+                            <button type="button" onclick="closeVoteResultsModal(); toggleInlinePlayer('${song.id}');" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; font-size: 11px; font-weight: 800; padding: 4px 9px; border-radius: 6px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#38bdf8'; this.style.color='#000';" onmouseout="this.style.background='rgba(56, 189, 248, 0.15)'; this.style.color='#38bdf8';" title="이 트랙 바로 재생">
+                                ▶ 재생
+                            </button>
+                        </div>
                     `;
                     listEl.appendChild(row);
                 });
@@ -5678,7 +5702,11 @@
         window.resetRegisterForm = function() {
             clearTimeout(urlInspectDebounce);
             const urlInput = document.getElementById('sunoUrl');
-            if (urlInput) urlInput.value = '';
+            if (urlInput) {
+                urlInput.value = '';
+                urlInput.blur();
+            }
+            updateUrlMarqueeState();
 
             const titleInput = document.getElementById('songTitle');
             if (titleInput) titleInput.value = '';
@@ -5702,7 +5730,6 @@
             if (manualBtn) manualBtn.innerText = '✏️ 직접 입력/수정';
 
             showPlayerToast('입력 내용이 취소(초기화)되었습니다', '✕');
-            if (urlInput) urlInput.focus();
         };
 
         window.toggleManualFields = function() {
@@ -5736,6 +5763,7 @@
 
         window.handleUrlPaste = function(e) {
             setTimeout(() => {
+                updateUrlMarqueeState();
                 const urlInput = document.getElementById('sunoUrl');
                 if (urlInput && urlInput.value.trim()) {
                     inspectStreamingUrlAndPreview(urlInput.value.trim());
@@ -5906,7 +5934,12 @@
                     document.getElementById('authorName').value = '';
                     document.getElementById('songTitle').value = '';
                     if (document.getElementById('songGenre')) document.getElementById('songGenre').value = '';
-                    document.getElementById('sunoUrl').value = '';
+                    const sunoUrlInput = document.getElementById('sunoUrl');
+                    if (sunoUrlInput) {
+                        sunoUrlInput.value = '';
+                        sunoUrlInput.blur();
+                    }
+                    updateUrlMarqueeState();
                     const previewCard = document.getElementById('autoPreviewCard');
                     if (previewCard) { previewCard.style.display = 'none'; previewCard.innerHTML = ''; }
                     currentPreviewData = null;
@@ -8316,6 +8349,7 @@
         };
 
         fetchAppData();
+        updateUrlMarqueeState();
     </script>
 </body>
 </html>
