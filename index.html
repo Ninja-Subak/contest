@@ -3810,6 +3810,29 @@
                     <span>SOUNDCLOUD</span>
                 </div>
             </div>
+            <!-- 🎧 수노(Suno) AI 전용 플레이어 박스 (auth.suno.com 리디렉션 루프 완벽 방지 & 고음질 즉시 재생) -->
+            <div class="master-suno-box" id="masterSunoBox" style="display: none; width: 100%; min-height: 140px; align-items: center; gap: 14px; padding: 12px 16px; background: #090d16; border-radius: 12px; box-sizing: border-box;">
+                <div class="master-suno-cover-wrap" style="position: relative; width: 110px; height: 110px; min-width: 110px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(236, 72, 153, 0.45); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6); background: #000; flex-shrink: 0;">
+                    <img id="masterSunoCoverImg" src="" alt="Suno Cover" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+                    <div style="position: absolute; bottom: 4px; left: 4px; background: rgba(10, 15, 29, 0.88); border: 1px solid rgba(236, 72, 153, 0.6); color: #f472b6; font-size: 8px; font-weight: 800; padding: 1px 5px; border-radius: 4px; backdrop-filter: blur(4px);">
+                        🎵 SUNO AI
+                    </div>
+                </div>
+                <div class="master-suno-info" style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                        <div style="min-width: 0;">
+                            <div id="masterSunoTitle" style="font-weight: 800; font-size: 16px; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">노래 제목</div>
+                            <div id="masterSunoAuthor" style="font-size: 13px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">아티스트</div>
+                        </div>
+                        <a id="masterSunoExternalLink" href="#" target="_blank" rel="noopener noreferrer" title="새 탭에서 Suno 공식 곡 페이지 열기" style="font-size: 11px; color: #38bdf8; text-decoration: none; padding: 4px 10px; border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 6px; white-space: nowrap; background: rgba(56, 189, 248, 0.08);">
+                            🔗 Suno 원본 ↗
+                        </a>
+                    </div>
+                    <audio id="masterSunoAudio" controls playsinline preload="auto" style="width: 100%; height: 40px; margin-top: 4px; border-radius: 8px; outline: none;">
+                        브라우저가 오디오 재생을 지원하지 않습니다.
+                    </audio>
+                </div>
+            </div>
             <iframe id="masterPlayerIframe" 
                     class="master-embed-iframe" 
                     src="" 
@@ -5409,8 +5432,8 @@
 
             // 4. Suno 공식 임베드 및 기타 iframe 오디오 즉각 중지 (초기 정지 상태 리셋)
             const masterIframe = document.getElementById('masterPlayerIframe');
-            if (masterIframe && masterIframe.src && masterIframe.src !== 'about:blank') {
-                if (!pausedByApi || currentActivePlatform === 'suno') {
+            if (masterIframe && masterIframe.src && masterIframe.src !== 'about:blank' && currentActivePlatform !== 'suno') {
+                if (!pausedByApi) {
                     try {
                         masterIframe.src = masterIframe.src;
                     } catch(e) {}
@@ -5558,19 +5581,15 @@
             try {
                 const data = await resolveSunoTrack(sunoUrl);
                 const displayTitle = data.title || title || '노래 재생';
-                const coverImg = data.coverUrl || 'https://suno.com/favicon.ico';
                 const songId = data.songId;
-                const audioUrl = data.audioUrl;
+                const coverImg = data.coverUrl || (songId ? `https://cdn2.suno.ai/image_large_${songId}.jpeg` : 'https://suno.com/favicon.ico');
+                const audioUrl = data.audioUrl || (songId ? `https://d2lwuy8qc234o3.cloudfront.net/1/clip/${songId}.m4a` : '');
                 const proxyAudioUrl = `https://contest-omega-pink.vercel.app/api/resolve?url=${encodeURIComponent(sunoUrl)}&stream=1`;
                 const embedUrl = data.embedUrl || `https://suno.com/embed/${songId}`;
                 const authorText = author || (song ? song.author : '아티스트');
 
-                // 🎵 Suno 공식 임베드 플레이어로 화면 표시 (원상복구)
-                playerContainer.innerHTML = `
-                    <div class="embed-frame-box" id="embed_box_${id}" style="margin-top: 8px;">
-                        <iframe src="${embedUrl}" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
-                    </div>
-                `;
+                // ⚡ auth.suno.com 리디렉션 루프 에러를 원천 차단하고 고음질 직접 재생 인앱 플레이어로 연결
+                switchToInAppAudio(id, encodeURIComponent(audioUrl), encodeURIComponent(proxyAudioUrl), encodeURIComponent(coverImg), encodeURIComponent(displayTitle), encodeURIComponent(authorText), encodeURIComponent(embedUrl), sunoUrl);
 
                 btn.classList.add('active');
                 btn.innerText = '플레이어 닫기';
@@ -5585,33 +5604,8 @@
             }
         };
 
-        // 📻 Suno 공식 임베드 플레이어로 전환 함수
-        window.switchToEmbed = function(id, encEmbedUrl, encAudioUrl, encProxyAudioUrl, encCoverImg, encTitle, encAuthor) {
-            if (typeof stopMasterPlayback === 'function') stopMasterPlayback();
-            const container = document.getElementById(`player_${id}`) || document.getElementById(`card_${id}`);
-            if (!container) return;
-            const embedUrl = decodeURIComponent(encEmbedUrl || '');
-            const audioUrl = decodeURIComponent(encAudioUrl || '');
-            const proxyAudioUrl = decodeURIComponent(encProxyAudioUrl || '');
-            const coverImg = decodeURIComponent(encCoverImg || '');
-            const displayTitle = decodeURIComponent(encTitle || '');
-            const authorText = decodeURIComponent(encAuthor || '');
-
-            container.innerHTML = `
-                <div class="embed-frame-box" id="embed_box_${id}" style="margin-top: 8px;">
-                    <iframe src="${embedUrl}" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
-                </div>
-                <div class="player-footer-tools" id="footer_tools_${id}" style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding:0 4px; font-size:11px; color:#94a3b8;">
-                    <span>✨ Suno 공식 임베드</span>
-                    <button type="button" class="switch-player-btn" onclick="switchToInAppAudio('${id}', '${encodeURIComponent(audioUrl)}', '${encodeURIComponent(proxyAudioUrl)}', '${encodeURIComponent(coverImg)}', '${encodeURIComponent(displayTitle)}', '${encodeURIComponent(authorText)}', '${encodeURIComponent(embedUrl)}')" style="font-size: 11px; padding: 4px 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #38bdf8; cursor: pointer;">
-                        ⚡ 즉시 재생 플레이어로 전환
-                    </button>
-                </div>
-            `;
-        };
-
-        // ⚡ 즉시 재생 인앱 오디오 플레이어로 복귀 함수
-        window.switchToInAppAudio = function(id, encAudioUrl, encProxyAudioUrl, encCoverImg, encTitle, encAuthor, encEmbedUrl) {
+        // ⚡ 고음질 인앱 오디오 플레이어 (auth.suno.com 리디렉션 에러 원천 차단 & 즉시 재생)
+        window.switchToInAppAudio = function(id, encAudioUrl, encProxyAudioUrl, encCoverImg, encTitle, encAuthor, encEmbedUrl, rawSunoUrl) {
             if (typeof stopMasterPlayback === 'function') stopMasterPlayback();
             const card = document.getElementById(`player_${id}`) || document.getElementById(`card_${id}`);
             if (!card) return;
@@ -5620,21 +5614,21 @@
             const coverImg = decodeURIComponent(encCoverImg || '');
             const displayTitle = decodeURIComponent(encTitle || '');
             const authorText = decodeURIComponent(encAuthor || '');
-            const embedUrl = decodeURIComponent(encEmbedUrl || '');
+            const originUrl = rawSunoUrl || decodeURIComponent(encEmbedUrl || '').replace('/embed/', '/song/');
 
             card.innerHTML = `
                 <div class="player-top-header">
                     <div class="player-header">
-                        <img src="${coverImg}" alt="커버" class="player-cover">
+                        <img src="${coverImg}" alt="커버" class="player-cover" onerror="this.onerror=null;this.src='https://suno.com/favicon.ico';">
                         <div class="player-meta">
-                            <span class="player-badge">IN-APP PLAYER</span>
-                            <div class="player-track-name">${displayTitle}</div>
-                            <div class="player-author" style="font-size:12px; color:var(--text-sub); display: ${showAuthor ? 'block' : 'none'};">아티스트: ${authorText}</div>
+                            <span class="player-badge">🎵 SUNO AI PLAYER</span>
+                            <div class="player-track-name">${escapeHtml(displayTitle)}</div>
+                            <div class="player-author" style="font-size:12px; color:var(--text-sub); display: ${showAuthor ? 'block' : 'none'};">아티스트: ${escapeHtml(authorText)}</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="audio-wrapper">
+                <div class="audio-wrapper" style="margin-top: 8px;">
                     <audio id="audio_el_${id}" controls autoplay playsinline webkit-playsinline preload="auto" style="width:100%; border-radius:10px;">
                         <source src="${audioUrl}" type="audio/mp4">
                         <source src="${proxyAudioUrl}" type="audio/mp4">
@@ -5642,11 +5636,11 @@
                     </audio>
                 </div>
 
-                <div class="player-footer-tools" id="footer_tools_${id}">
-                    <span>📱 모바일 인앱 플레이어 (앱 튕김 방지)</span>
-                    <button type="button" class="switch-player-btn" onclick="switchToEmbed('${id}', '${embedUrl}', '${audioUrl}', '${proxyAudioUrl}', '${coverImg}', '${encTitle}', '${encAuthor}')">
-                        📻 Suno 공식 플레이어로 전환
-                    </button>
+                <div class="player-footer-tools" id="footer_tools_${id}" style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding:0 4px; font-size:11px; color:#94a3b8;">
+                    <span>⚡ 고음질 스트리밍 (리디렉션 에러 없는 직접 재생)</span>
+                    <a href="${originUrl}" target="_blank" rel="noopener noreferrer" style="font-size: 11px; padding: 4px 10px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; color: #38bdf8; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                        🔗 Suno 원본 페이지 열기 ↗
+                    </a>
                 </div>
             `;
 
@@ -5659,6 +5653,11 @@
                     }
                 });
             }
+        };
+
+        // 📻 레거시 호환용
+        window.switchToEmbed = function(id, encEmbedUrl, encAudioUrl, encProxyAudioUrl, encCoverImg, encTitle, encAuthor) {
+            window.switchToInAppAudio(id, encAudioUrl, encProxyAudioUrl, encCoverImg, encTitle, encAuthor, encEmbedUrl);
         };
 
         // 📜 가사 보기 팝업 창 펼치기/접기 함수 (목록 카드 전용)
@@ -6553,7 +6552,12 @@
                     setMasterDotPlaying(false);
                     // 오직 마스터 콘솔 영역에서 재생된 경우에만 연속 재생 실행
                     if (isMasterConsoleActivePlayback && isContinuousPlayEnabled && masterRepeatMode !== 'off') {
-                        playMasterNextTrack();
+                        if (masterRepeatMode === 'one') {
+                            e.target.currentTime = 0;
+                            e.target.play().catch(function() {});
+                        } else {
+                            playMasterNextTrack(true);
+                        }
                     }
                 }
             }
@@ -6684,34 +6688,90 @@
             const iframe = document.getElementById('masterPlayerIframe');
             if (!iframe) return;
 
-            // 1. Suno 사이트 주소인 경우 -> 처음부터 Suno 공식 플레이어로 화면 표시
+            // 1. Suno 사이트 주소인 경우 -> 고음질 직접 스트리밍 플레이어 표출 (auth.suno.com 리디렉션 루프 완벽 방지)
             if (info.platform === 'suno') {
                 hideMasterScArtwork();
+                iframe.style.display = 'none';
+                iframe.src = 'about:blank';
+
+                const sunoBox = document.getElementById('masterSunoBox');
+                const coverImg = document.getElementById('masterSunoCoverImg');
+                const titleEl = document.getElementById('masterSunoTitle');
+                const authorEl = document.getElementById('masterSunoAuthor');
+                const extLink = document.getElementById('masterSunoExternalLink');
+                const audioEl = document.getElementById('masterSunoAudio');
+
+                if (sunoBox) sunoBox.style.display = 'flex';
+                if (titleEl) titleEl.innerText = song.title || 'Suno Music';
+                if (authorEl) authorEl.innerText = song.author || 'Suno Creator';
+                if (extLink) extLink.href = song.url || '#';
+
                 let songId = song.songId || info.id;
-                if (songId) {
-                    const embedSrc = `https://suno.com/embed/${songId}`;
-                    if (iframe.src !== embedSrc) iframe.src = embedSrc;
-                } else if (song.url) {
+                let audioUrl = song.audio_url || '';
+                let coverUrl = songId ? `https://cdn2.suno.ai/image_large_${songId}.jpeg` : '';
+                let proxyUrl = `https://contest-omega-pink.vercel.app/api/resolve?url=${encodeURIComponent(song.url || '')}&stream=1`;
+
+                if (!audioUrl || !songId) {
                     try {
                         const data = await resolveSunoTrack(song.url);
-                        if (data && data.songId) {
-                            song.songId = data.songId;
-                            const embedSrc = `https://suno.com/embed/${data.songId}`;
-                            if (iframe.src !== embedSrc) iframe.src = embedSrc;
+                        if (data) {
+                            if (data.songId) song.songId = data.songId;
+                            if (data.audioUrl) song.audio_url = data.audioUrl;
+                            songId = data.songId || songId;
+                            audioUrl = data.audioUrl || audioUrl;
+                            if (data.coverUrl) coverUrl = data.coverUrl;
+                            if (data.title && !song.title) song.title = data.title;
+                            if (data.author && !song.author) song.author = data.author;
+                            if (titleEl) titleEl.innerText = song.title;
+                            if (authorEl) authorEl.innerText = song.author;
                         }
                     } catch (e) {
                         console.error("Master Song Resolve Error:", e);
                     }
                 }
+
+                if (!coverUrl && songId) {
+                    coverUrl = `https://cdn2.suno.ai/image_large_${songId}.jpeg`;
+                }
+                if (coverImg) coverImg.src = coverUrl || 'https://suno.com/favicon.ico';
+
+                if (audioEl) {
+                    const directUrl = audioUrl || (songId ? `https://d2lwuy8qc234o3.cloudfront.net/1/clip/${songId}.m4a` : '');
+                    const targetAudioSrc = directUrl || proxyUrl;
+                    if (audioEl.src !== targetAudioSrc) {
+                        audioEl.src = targetAudioSrc;
+                    }
+                    audioEl.onerror = function() {
+                        if (audioEl.src !== proxyUrl) {
+                            audioEl.src = proxyUrl;
+                            if (fromMasterControl || isMasterConsoleActivePlayback) {
+                                audioEl.play().catch(e => {});
+                            }
+                        }
+                    };
+                    if (fromMasterControl || isMasterConsoleActivePlayback) {
+                        audioEl.play().catch(e => {});
+                    }
+                }
             } 
             // 2. YouTube / YouTube Music 주소인 경우 -> YouTube 공식 임베드 표시
             else if (info.platform === 'youtube') {
+                const sunoBox = document.getElementById('masterSunoBox');
+                if (sunoBox) sunoBox.style.display = 'none';
+                const audioEl = document.getElementById('masterSunoAudio');
+                if (audioEl) audioEl.pause();
+                iframe.style.display = 'block';
                 hideMasterScArtwork();
                 iframe.src = info.embedUrl;
                 setupYouTubeApi(iframe);
             }
             // 3. SoundCloud 주소인 경우 -> SoundCloud 공식 위젯 표시 (티저/추천 오버레이 차단 및 순정 수평 플레이어)
             else if (info.platform === 'soundcloud') {
+                const sunoBox = document.getElementById('masterSunoBox');
+                if (sunoBox) sunoBox.style.display = 'none';
+                const audioEl = document.getElementById('masterSunoAudio');
+                if (audioEl) audioEl.pause();
+                iframe.style.display = 'block';
                 showMasterScArtwork(info.id || song.url);
                 if (iframe.src !== info.embedUrl) {
                     iframe.src = info.embedUrl;
