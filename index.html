@@ -5709,6 +5709,7 @@
 
             // 3. 오디오 직접 스트리밍 링크 (.mp3, .m4a 등)
             if (pInfo.platform === 'audio') {
+                playerContainer.style.display = 'block';
                 const displayTitle = (song ? song.title : title) || '오디오 스트림';
                 const authorText = (song ? song.author : author) || '오디오';
                 const coverImg = (song && song.coverUrl) || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23090d16"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2310b981" font-size="34">🎵</text></svg>';
@@ -5733,6 +5734,7 @@
 
             // ⚡ audioUrl이 즉시 파악되면 비동기 대기 없이 즉각 인앱 플레이어를 띄워 모바일 클릭 제스처 유지!
             if (audioUrl) {
+                playerContainer.style.display = 'block';
                 switchToInAppAudio(id, encodeURIComponent(audioUrl), encodeURIComponent(proxyAudioUrl), encodeURIComponent(coverImg), encodeURIComponent(displayTitle), encodeURIComponent(authorText), encodeURIComponent(embedUrl), sunoUrl);
                 btn.classList.add('active');
                 btn.innerText = '플레이어 닫기';
@@ -5770,6 +5772,7 @@
                 audioUrl = data.audioUrl || (songId ? `https://d2lwuy8qc234o3.cloudfront.net/1/clip/${songId}.m4a` : '');
                 authorText = data.author || authorText;
 
+                playerContainer.style.display = 'block';
                 switchToInAppAudio(id, encodeURIComponent(audioUrl), encodeURIComponent(proxyAudioUrl), encodeURIComponent(coverImg), encodeURIComponent(displayTitle), encodeURIComponent(authorText), encodeURIComponent(embedUrl), sunoUrl);
                 btn.classList.add('active');
                 btn.innerText = '플레이어 닫기';
@@ -5789,19 +5792,22 @@
             if (typeof stopMasterPlayback === 'function') stopMasterPlayback();
             const card = document.getElementById(`player_${id}`) || document.getElementById(`card_${id}`);
             if (!card) return;
+            card.style.display = 'block';
             const audioUrl = decodeURIComponent(encAudioUrl || '');
             const proxyAudioUrl = decodeURIComponent(encProxyAudioUrl || '');
             const coverImg = decodeURIComponent(encCoverImg || '');
             const displayTitle = decodeURIComponent(encTitle || '');
             const authorText = decodeURIComponent(encAuthor || '');
             const originUrl = rawSunoUrl || decodeURIComponent(encEmbedUrl || '').replace('/embed/', '/song/');
+            const isSuno = !rawSunoUrl || /suno\.(com|ai)|d2lwuy8qc234o3\.cloudfront\.net|[0-9a-f]{8}-[0-9a-f]{4}/i.test(rawSunoUrl);
+            const badgeText = isSuno ? '🎵 SUNO AI 전용 플레이어' : '🎵 고음질 오디오 스트리밍';
 
             card.innerHTML = `
                 <div class="player-top-header">
                     <div class="player-header">
                         <img src="${coverImg}" alt="커버" class="player-cover" onerror="this.onerror=null;this.src='https://suno.com/favicon.ico';">
                         <div class="player-meta">
-                            <span class="player-badge">🎵 HIGH-RES AUDIO</span>
+                            <span class="player-badge">${badgeText}</span>
                             <div class="player-track-name">${escapeHtml(displayTitle)}</div>
                             <div class="player-author" style="font-size:12px; color:var(--text-sub); display: ${showAuthor ? 'block' : 'none'};">아티스트: ${escapeHtml(authorText)}</div>
                         </div>
@@ -5832,6 +5838,12 @@
                 };
                 aEl.play().catch(function() {});
             }
+
+            setTimeout(() => {
+                try {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } catch(e) {}
+            }, 60);
         };
 
         // 📻 레거시 호환용
