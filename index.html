@@ -101,6 +101,121 @@
                 0 0 45px rgba(147, 51, 234, 0.25);
         }
 
+        /* 🌟 새로운 음악 / 트랙 등록하기 밝은 테마 카드 (Bright Premium Theme) */
+        .card.register-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f8faff 55%, #f1f5f9 100%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.95) !important;
+            box-shadow: 
+                0 20px 45px -10px rgba(0, 0, 0, 0.38),
+                0 0 0 1px rgba(255, 255, 255, 0.8),
+                inset 0 1px 2px rgba(255, 255, 255, 1),
+                0 0 35px rgba(255, 255, 255, 0.22) !important;
+            color: #1e293b;
+        }
+        .card.register-card::before {
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.8), rgba(129, 140, 248, 0.8), transparent) !important;
+            height: 2px !important;
+        }
+        .card.register-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(56, 189, 248, 0.7) !important;
+            box-shadow: 
+                0 28px 55px -12px rgba(0, 0, 0, 0.45),
+                0 0 0 1px rgba(56, 189, 248, 0.5),
+                inset 0 1px 2px rgba(255, 255, 255, 1),
+                0 0 45px rgba(56, 189, 248, 0.28) !important;
+        }
+        .card.register-card #registerCardTitle {
+            color: #0f172a !important;
+            font-weight: 800;
+        }
+        .card.register-card .register-card-header {
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+        .card.register-card .register-info-hint {
+            color: #475569 !important;
+            font-weight: 500;
+        }
+        .card.register-card .register-cancel-btn {
+            background: #fee2e2 !important;
+            color: #dc2626 !important;
+            border: 1px solid #fca5a5 !important;
+        }
+        .card.register-card .register-cancel-btn:hover {
+            background: #fecaca !important;
+            color: #b91c1c !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.25) !important;
+        }
+        .card.register-card .form-restore-btn {
+            background: #ecfdf5 !important;
+            color: #047857 !important;
+            border: 1px solid #a7f3d0 !important;
+        }
+        .card.register-card .form-restore-btn:hover {
+            background: #d1fae5 !important;
+            color: #065f46 !important;
+        }
+        .card.register-card #registerChannelBanner {
+            background: #eff6ff !important;
+            border: 1px solid #bfdbfe !important;
+        }
+        .card.register-card #registerChannelBanner span {
+            color: #475569 !important;
+        }
+        .card.register-card #registerChannelName {
+            color: #1d4ed8 !important;
+        }
+        .card.register-card #registerChannelSelect {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        .card.register-card input[type="text"],
+        .card.register-card input {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border: 1.5px solid #cbd5e1 !important;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+        }
+        .card.register-card input[type="text"]:focus,
+        .card.register-card input:focus {
+            border-color: #0284c7 !important;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 3px rgba(2, 132, 199, 0.2) !important;
+        }
+        .card.register-card input::placeholder {
+            color: #94a3b8 !important;
+        }
+        .card.register-card .url-input-marquee span {
+            color: #64748b !important;
+            font-weight: 500;
+        }
+        .card.register-card .manual-toggle-btn {
+            background: #ffffff !important;
+            border: 1.5px solid #cbd5e1 !important;
+            color: #334155 !important;
+        }
+        .card.register-card .manual-toggle-btn:hover {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-color: #94a3b8 !important;
+        }
+        .card.register-card .manual-fields-wrap {
+            background: #f8fafc !important;
+            border: 1px dashed #cbd5e1 !important;
+        }
+        .card.register-card .auto-preview-card {
+            background: #ffffff !important;
+            border: 1.5px solid #bae6fd !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), inset 0 0 10px rgba(56, 189, 248, 0.05) !important;
+        }
+        .card.register-card .preview-song-title {
+            color: #0f172a !important;
+        }
+        .card.register-card .preview-loading-box {
+            color: #0284c7 !important;
+        }
+
         h2, h3 { 
             margin-top: 0; 
             color: #ffffff; 
@@ -4016,24 +4131,24 @@
         </div>
     </div>
 
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 8px;">
-            <h3 id="registerCardTitle" style="margin: 0; padding: 0; border: none; font-size: 18px;">🎵 새로운 음악 / 트랙 등록하기</h3>
+    <div class="card register-card" id="registerCardSection">
+        <div class="register-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+            <h3 id="registerCardTitle" style="margin: 0; padding: 0; border: none; font-size: 18px; color: #0f172a;">🎵 새로운 음악 / 트랙 등록하기</h3>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <button type="button" class="form-restore-btn" id="formRestoreBtn" onclick="restoreRecentlyDeletedSong()" title="최근 삭제한 내 곡 복구하기" style="display: none;">↩️ 삭제 복구</button>
                 <button type="button" class="register-cancel-btn" id="registerCancelBtn" onclick="resetRegisterForm()" title="링크 주소 입력을 잘못했을 때 입력 내용 초기화 (취소)">✕ 취소</button>
             </div>
         </div>
         <!-- 📡 등록 대상 채널 표시 및 슈퍼 관리자 채널 전환 바 -->
-        <div id="registerChannelBanner" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; padding: 7px 12px; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.28); border-radius: 8px; font-size: 13px;">
+        <div id="registerChannelBanner" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; padding: 7px 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 13px;">
             <div style="display: flex; align-items: center; gap: 6px;">
                 <span style="font-size: 14px;">📡</span>
-                <span style="color: #94a3b8; font-size: 12px;">등록 대상 채널:</span>
-                <b id="registerChannelName" style="color: #60a5fa; font-weight: 700;">기본 메인 채널 (default)</b>
+                <span style="color: #475569; font-size: 12px;">등록 대상 채널:</span>
+                <b id="registerChannelName" style="color: #1d4ed8; font-weight: 700;">기본 메인 채널 (default)</b>
             </div>
             <div id="registerChannelSwitchWrap" style="display: none; align-items: center; gap: 6px;">
-                <span style="font-size: 11px; color: #cbd5e1; font-weight: 600;">👑 채널 즉시 전환:</span>
-                <select id="registerChannelSelect" onchange="handleTargetChannelChange(this.value)" style="background: #0f172a; color: #f8fafc; border: 1px solid #38bdf8; border-radius: 6px; padding: 3px 8px; font-size: 12px; outline: none; cursor: pointer;">
+                <span style="font-size: 11px; color: #334155; font-weight: 600;">👑 채널 즉시 전환:</span>
+                <select id="registerChannelSelect" onchange="handleTargetChannelChange(this.value)" style="background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 6px; padding: 3px 8px; font-size: 12px; outline: none; cursor: pointer;">
                 </select>
             </div>
         </div>
@@ -4052,7 +4167,7 @@
 
         <!-- ✏️ 직접 입력/수정 토글 버튼 & 접이식 패널 -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span style="font-size: 12px; color: #94a3b8;">💡 링크만 넣으면 아티스트·제목·장르가 자동 분석됩니다</span>
+            <span class="register-info-hint" style="font-size: 12px; color: #475569;">💡 링크만 넣으면 아티스트·제목·장르가 자동 분석됩니다</span>
             <button type="button" class="manual-toggle-btn" id="manualToggleBtn" onclick="toggleManualFields()">✏️ 직접 입력/수정</button>
         </div>
 
@@ -7058,104 +7173,10 @@
             });
         }
 
-        // ⏱️ 마스터 콘솔 수노(Suno) 트랙 실시간 타이머 및 자동 이어 듣기 컨트롤러
-        let sunoPlaybackTimer = null;
-        let sunoCurrentSeconds = 0;
-        let sunoTargetDuration = 180;
-
-        function formatTimeSec(sec) {
-            const m = Math.floor(sec / 60);
-            const s = Math.floor(sec % 60);
-            return `${m}:${s < 10 ? '0' : ''}${s}`;
-        }
-
-        function updateSunoTimeIndicator(elapsed, duration, isPlaying = true) {
-            const indicator = document.getElementById('masterTrackIndicator');
-            const song = (songs && songs[currentMasterSongIndex]) ? songs[currentMasterSongIndex] : null;
-            const title = song ? (song.title || '제목 없음') : '';
-            if (indicator) {
-                const timeStr = `${formatTimeSec(elapsed)} / ${formatTimeSec(duration)}`;
-                const autoBadge = isContinuousPlayEnabled ? '<span style="color:#10b981; margin-left:4px;" title="자동 이어 듣기 대기 중">🔁 이어듣기</span>' : '';
-                const playIcon = isPlaying ? '▶' : '⏸';
-                indicator.innerHTML = `${currentMasterSongIndex + 1}번 트랙 (${escapeHtml(title)}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[${playIcon} ${timeStr}${autoBadge}]</span>`;
-            }
-        }
-
-        function clearSunoTimeIndicator() {
-            const indicator = document.getElementById('masterTrackIndicator');
-            const song = (songs && songs[currentMasterSongIndex]) ? songs[currentMasterSongIndex] : null;
-            if (indicator && song) {
-                indicator.innerText = `${currentMasterSongIndex + 1}번 트랙 (${song.title || '제목 없음'})`;
-            }
-        }
-
-        function startSunoMasterPlayback() {
-            if (currentActivePlatform !== 'suno') return;
-            isMasterConsoleActivePlayback = true;
-            setMasterDotPlaying(true);
-            if (typeof stopPlaylistPlayback === 'function') {
-                stopPlaylistPlayback();
-            }
-
-            const song = (songs && songs[currentMasterSongIndex]) ? songs[currentMasterSongIndex] : null;
-            let targetDur = 0;
-            if (song && typeof song.duration === 'number' && song.duration > 10) {
-                targetDur = Math.floor(song.duration);
-            } else if (song) {
-                const sId = song.songId || (song.url ? (song.url.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i) || [])[1] : '');
-                targetDur = getCachedSunoDuration(sId) || 180;
-            } else {
-                targetDur = 180;
-            }
-            sunoTargetDuration = targetDur;
-
-            if (sunoPlaybackTimer) {
-                clearInterval(sunoPlaybackTimer);
-                sunoPlaybackTimer = null;
-            }
-
-            updateSunoTimeIndicator(sunoCurrentSeconds, sunoTargetDuration, true);
-
-            sunoPlaybackTimer = setInterval(() => {
-                if (!isMasterAudioPlaying) return;
-
-                sunoCurrentSeconds++;
-                updateSunoTimeIndicator(sunoCurrentSeconds, sunoTargetDuration, true);
-
-                if (sunoCurrentSeconds >= sunoTargetDuration) {
-                    clearInterval(sunoPlaybackTimer);
-                    sunoPlaybackTimer = null;
-                    sunoCurrentSeconds = 0;
-                    clearSunoTimeIndicator();
-                    console.log('[Master Console] Suno track playback completed naturally!');
-                    handleMasterTrackEnded('suno');
-                }
-            }, 1000);
-        }
-
-        function pauseSunoMasterPlayback() {
-            if (sunoPlaybackTimer) {
-                clearInterval(sunoPlaybackTimer);
-                sunoPlaybackTimer = null;
-            }
-            setMasterDotPlaying(false);
-            updateSunoTimeIndicator(sunoCurrentSeconds, sunoTargetDuration, false);
-        }
-
-        function stopSunoMasterPlayback() {
-            if (sunoPlaybackTimer) {
-                clearInterval(sunoPlaybackTimer);
-                sunoPlaybackTimer = null;
-            }
-            sunoCurrentSeconds = 0;
-            clearSunoTimeIndicator();
-        }
-
         // 🏁 마스터 콘솔 전 플랫폼 통합 트랙 종료 및 자동 이어 듣기 격발 핸들러
         window.handleMasterTrackEnded = function(platform) {
             console.log(`[Master Console] Track finished on platform: ${platform}`);
             setMasterDotPlaying(false);
-            stopSunoMasterPlayback();
 
             // 1. 자동 이어 듣기 OFF 상태이면 그대로 정지
             if (!isContinuousPlayEnabled || masterRepeatMode === 'off') {
@@ -7190,14 +7211,19 @@
             // 상단 인디케이터 및 카운터 갱신
             const indicator = document.getElementById('masterTrackIndicator');
             if (indicator) {
-                indicator.innerText = `${index + 1}번 트랙 (${song.title || '제목 없음'})`;
+                const autoBadge = isContinuousPlayEnabled ? '<span style="color:#10b981; font-size:11px; margin-left:6px; font-weight:700;" title="자동 이어 듣기 켜짐">[🔁 이어듣기 ON]</span>' : '';
+                indicator.innerHTML = `${index + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[${info.badge || 'STREAM'}]</span>${autoBadge}`;
             }
             updateMasterCounter(index, songs ? songs.length : 0);
 
-            // 마스터 콘솔에서 재생 시 즉시 점멸 활성화
+            // 마스터 콘솔에서 재생 시 점멸 제어
             if (fromMasterControl) {
                 isMasterConsoleActivePlayback = true;
-                setMasterDotPlaying(true);
+                if (info.platform !== 'suno') {
+                    setMasterDotPlaying(true);
+                } else {
+                    setMasterDotPlaying(false);
+                }
             } else {
                 setMasterDotPlaying(false);
             }
@@ -7240,19 +7266,9 @@
                         console.error("Master Song Resolve Error:", e);
                     }
                 }
-
-                stopSunoMasterPlayback();
-                setMasterDotPlaying(false);
-                if (fromMasterControl) {
-                    if (indicator) {
-                        const autoBadge = isContinuousPlayEnabled ? '<span style="color:#10b981; margin-left:4px;" title="자동 이어 듣기 대기">🔁 이어듣기</span>' : '';
-                        indicator.innerHTML = `${index + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[▶ 화면 터치 시 재생${autoBadge}]</span>`;
-                    }
-                }
             }
             // 2. 일반 직접 오디오 파일 (.mp3, .m4a 등)
             else if (info.platform === 'audio') {
-                stopSunoMasterPlayback();
                 hideMasterScArtwork();
                 iframe.style.display = 'none';
                 iframe.src = 'about:blank';
@@ -7278,6 +7294,19 @@
                 }
 
                 if (audioEl) {
+                    if (!audioEl._hasEndedListener) {
+                        audioEl._hasEndedListener = true;
+                        audioEl.addEventListener('play', () => {
+                            isMasterConsoleActivePlayback = true;
+                            setMasterDotPlaying(true);
+                        });
+                        audioEl.addEventListener('pause', () => {
+                            setMasterDotPlaying(false);
+                        });
+                        audioEl.addEventListener('ended', () => {
+                            handleMasterTrackEnded('audio');
+                        });
+                    }
                     if (audioEl.src !== song.url) audioEl.src = song.url;
                     if (fromMasterControl || isMasterConsoleActivePlayback) {
                         audioEl.play().catch(e => {});
@@ -7286,7 +7315,6 @@
             } 
             // 3. YouTube / YouTube Music 주소인 경우 -> YouTube 공식 임베드 표시
             else if (info.platform === 'youtube') {
-                stopSunoMasterPlayback();
                 const sunoBox = document.getElementById('masterSunoBox');
                 if (sunoBox) sunoBox.style.display = 'none';
                 const audioEl = document.getElementById('masterSunoAudio');
@@ -7300,7 +7328,6 @@
             }
             // 4. SoundCloud 주소인 경우 -> SoundCloud 공식 위젯 표시 (티저/추천 오버레이 차단 및 순정 수평 플레이어)
             else if (info.platform === 'soundcloud') {
-                stopSunoMasterPlayback();
                 const sunoBox = document.getElementById('masterSunoBox');
                 if (sunoBox) sunoBox.style.display = 'none';
                 const audioEl = document.getElementById('masterSunoAudio');
@@ -7428,44 +7455,15 @@
         // 📜 마스터 콘솔 가사 보기 제어 함수
         // ==========================================
         
-        // 🎧 마스터 콘솔 임베드 프레임 클릭 감지 (Suno/SoundCloud/YouTube 내부 재생 클릭 시 점멸 활성화 및 재생목록 중지)
-        let masterIframeCheckTimer = null;
-        function startMasterIframeFocusMonitor() {
-            if (masterIframeCheckTimer) return;
-            masterIframeCheckTimer = setInterval(() => {
-                const activeEl = document.activeElement;
-                const masterIframe = document.getElementById('masterPlayerIframe');
-                if (activeEl && activeEl === masterIframe) {
-                    if (!isMasterAudioPlaying) {
-                        if (currentActivePlatform === 'suno') {
-                            startSunoMasterPlayback();
-                        } else {
-                            isMasterConsoleActivePlayback = true;
-                            setMasterDotPlaying(true);
-                        }
-                    }
-                }
-            }, 250);
-        }
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', startMasterIframeFocusMonitor);
-        } else {
-            startMasterIframeFocusMonitor();
-        }
-
+        // 🎧 마스터 콘솔 임베드 프레임 클릭 감지 (재생 목록과 상호 배타적 단독 재생 보장)
         window.addEventListener('blur', function() {
             setTimeout(() => {
                 const activeEl = document.activeElement;
                 const masterIframe = document.getElementById('masterPlayerIframe');
                 if (activeEl === masterIframe) {
-                    if (currentActivePlatform === 'suno') {
-                        startSunoMasterPlayback();
-                    } else {
-                        isMasterConsoleActivePlayback = true;
-                        if (typeof stopPlaylistPlayback === 'function') {
-                            stopPlaylistPlayback();
-                        }
-                        setMasterDotPlaying(true);
+                    isMasterConsoleActivePlayback = true;
+                    if (typeof stopPlaylistPlayback === 'function') {
+                        stopPlaylistPlayback();
                     }
                 } else if (activeEl && (activeEl.classList?.contains('suno-embed-frame') || activeEl.closest?.('.player-container'))) {
                     if (typeof stopMasterPlayback === 'function') {
@@ -7479,14 +7477,9 @@
             const masterEmbedBox = document.getElementById('masterEmbedWrapper');
             if (masterEmbedBox) {
                 masterEmbedBox.addEventListener('pointerdown', function() {
-                    if (currentActivePlatform === 'suno') {
-                        startSunoMasterPlayback();
-                    } else {
-                        isMasterConsoleActivePlayback = true;
-                        if (typeof stopPlaylistPlayback === 'function') {
-                            stopPlaylistPlayback();
-                        }
-                        setMasterDotPlaying(true);
+                    isMasterConsoleActivePlayback = true;
+                    if (typeof stopPlaylistPlayback === 'function') {
+                        stopPlaylistPlayback();
                     }
                 });
             }
@@ -7626,7 +7619,6 @@
             if (isAutoFromEnd) {
                 if (!isContinuousPlayEnabled || masterRepeatMode === 'off') {
                     setMasterDotPlaying(false);
-                    stopSunoMasterPlayback();
                     return;
                 }
                 if (masterRepeatMode === 'one' && currentMasterSongIndex >= 0) {
@@ -7637,7 +7629,6 @@
 
             // 항상 마스터 콘솔 활성 재생 상태 유지
             isMasterConsoleActivePlayback = true;
-            stopSunoMasterPlayback();
 
             // 🔀 셔플 모드 활성화 시 랜덤 트랙 이동
             if (isMasterShuffle && list.length > 1) {
@@ -7681,7 +7672,6 @@
             const list = (typeof songs !== 'undefined' && songs && songs.length > 0) ? songs : (window.songs || []);
             if (!list || list.length === 0) return;
             isMasterConsoleActivePlayback = true;
-            stopSunoMasterPlayback();
             let prevIdx = (currentMasterSongIndex - 1 + list.length) % list.length;
             if (prevIdx < 0) prevIdx = 0;
             loadMasterSong(prevIdx, true);
@@ -7736,25 +7726,6 @@
                     } catch(e) {}
                 });
             }
-            // 4. Suno 공식 임베드 타이머 10초 앞으로 연동
-            if (currentActivePlatform === 'suno') {
-                sunoCurrentSeconds += 10;
-                if (sunoCurrentSeconds >= sunoTargetDuration) {
-                    handleMasterTrackEnded('suno');
-                } else {
-                    updateSunoTimeIndicator(sunoCurrentSeconds, sunoTargetDuration);
-                }
-                const frameBox = document.getElementById('masterEmbedWrapper');
-                if (frameBox) {
-                    frameBox.style.boxShadow = '0 0 25px rgba(0, 242, 254, 0.7)';
-                    frameBox.style.borderColor = '#00f2fe';
-                    setTimeout(function() {
-                        frameBox.style.boxShadow = '';
-                        frameBox.style.borderColor = '';
-                    }, 1200);
-                }
-                handled = true;
-            }
             // 햅틱 피드백
             const btn = document.getElementById('masterForwardBtn');
             if (btn) {
@@ -7787,9 +7758,6 @@
                 if (typeof showPlayerToast === 'function') {
                     showPlayerToast('노래 자동 이어 듣기가 켜졌습니다 (ON)', '🔁');
                 }
-                if (currentActivePlatform === 'suno' && isMasterAudioPlaying) {
-                    updateSunoTimeIndicator(sunoCurrentSeconds, sunoTargetDuration);
-                }
             } else {
                 masterRepeatMode = 'off';
                 if (badge) {
@@ -7806,9 +7774,15 @@
                 if (typeof showPlayerToast === 'function') {
                     showPlayerToast('노래 자동 이어 듣기가 꺼졌습니다 (OFF)', '⏹');
                 }
-                if (currentActivePlatform === 'suno') {
-                    updateSunoTimeIndicator(sunoCurrentSeconds, sunoTargetDuration);
-                }
+            }
+
+            // 상단 인디케이터 배지 즉시 동기화
+            const indicator = document.getElementById('masterTrackIndicator');
+            const song = (songs && songs[currentMasterSongIndex]) ? songs[currentMasterSongIndex] : null;
+            if (indicator && song) {
+                const info = detectStreamingPlatform(song.url || '');
+                const autoBadge = isContinuousPlayEnabled ? '<span style="color:#10b981; font-size:11px; margin-left:6px; font-weight:700;" title="자동 이어 듣기 켜짐">[🔁 이어듣기 ON]</span>' : '';
+                indicator.innerHTML = `${currentMasterSongIndex + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[${info.badge || 'STREAM'}]</span>${autoBadge}`;
             }
         };
 
