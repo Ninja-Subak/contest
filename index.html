@@ -125,12 +125,27 @@
                 inset 0 1px 2px rgba(255, 255, 255, 1),
                 0 0 45px rgba(56, 189, 248, 0.28) !important;
         }
+        .card.register-card .register-card-header {
+            border-bottom: none !important;
+            padding-bottom: 0 !important;
+            margin-bottom: 12px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+        }
         .card.register-card #registerCardTitle {
             color: #0f172a !important;
-            font-weight: 800;
-        }
-        .card.register-card .register-card-header {
-            border-bottom: 1px solid #e2e8f0 !important;
+            font-weight: 800 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            font-size: 17px !important;
+            line-height: 1 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
         }
         .card.register-card .register-info-hint {
             color: #475569 !important;
@@ -140,6 +155,15 @@
             background: #fee2e2 !important;
             color: #dc2626 !important;
             border: 1px solid #fca5a5 !important;
+            padding: 4px 12px !important;
+            font-size: 12px !important;
+            line-height: 1 !important;
+            height: 28px !important;
+            box-sizing: border-box !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin: 0 !important;
         }
         .card.register-card .register-cancel-btn:hover {
             background: #fecaca !important;
@@ -4132,24 +4156,18 @@
     </div>
 
     <div class="card register-card" id="registerCardSection">
-        <div class="register-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
-            <h3 id="registerCardTitle" style="margin: 0; padding: 0; border: none; font-size: 18px; color: #0f172a;">🎵 새로운 음악 / 트랙 등록하기</h3>
-            <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="register-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <h3 id="registerCardTitle" style="margin: 0; padding: 0; border: none; font-size: 17px; color: #0f172a; line-height: 1; display: inline-flex; align-items: center; gap: 6px;">🎵 새로운 음악 / 트랙 등록하기</h3>
+            <div style="display: inline-flex; align-items: center; gap: 8px;">
                 <button type="button" class="form-restore-btn" id="formRestoreBtn" onclick="restoreRecentlyDeletedSong()" title="최근 삭제한 내 곡 복구하기" style="display: none;">↩️ 삭제 복구</button>
                 <button type="button" class="register-cancel-btn" id="registerCancelBtn" onclick="resetRegisterForm()" title="링크 주소 입력을 잘못했을 때 입력 내용 초기화 (취소)">✕ 취소</button>
             </div>
         </div>
-        <!-- 📡 등록 대상 채널 표시 및 슈퍼 관리자 채널 전환 바 -->
-        <div id="registerChannelBanner" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; padding: 7px 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 13px;">
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-size: 14px;">📡</span>
-                <span style="color: #475569; font-size: 12px;">등록 대상 채널:</span>
-                <b id="registerChannelName" style="color: #1d4ed8; font-weight: 700;">기본 메인 채널 (default)</b>
-            </div>
-            <div id="registerChannelSwitchWrap" style="display: none; align-items: center; gap: 6px;">
-                <span style="font-size: 11px; color: #334155; font-weight: 600;">👑 채널 즉시 전환:</span>
-                <select id="registerChannelSelect" onchange="handleTargetChannelChange(this.value)" style="background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 6px; padding: 3px 8px; font-size: 12px; outline: none; cursor: pointer;">
-                </select>
+        <!-- 📡 등록 대상 채널 표시 및 슈퍼 관리자 채널 전환 바 (사용자 요청으로 비표출 처리) -->
+        <div id="registerChannelBanner" style="display: none !important;">
+            <b id="registerChannelName">기본 메인 채널 (default)</b>
+            <div id="registerChannelSwitchWrap" style="display: none;">
+                <select id="registerChannelSelect" onchange="handleTargetChannelChange(this.value)"></select>
             </div>
         </div>
         <!-- 🔗 스트리밍 링크 입력 (원클릭 자동 분석) -->
@@ -4191,25 +4209,6 @@
                 </button>
                 <span class="total-songs-badge" id="totalSongsBadge">총 0곡</span>
             </div>
-        </div>
-
-        <!-- ◀ 1 / 3 ▶ 상단 페이지네이션 바 (재생목록 채널 카드 제일 위) -->
-        <div class="playlist-pagination-bar top" id="playlistPaginationTop">
-            <button type="button" class="page-nav-btn prev" id="pagePrevBtnTop" onclick="changePlaylistPage(-1)" title="이전 페이지" aria-label="이전 페이지">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M15 19l-7-7 7-7"/>
-                </svg>
-            </button>
-            <div class="page-nav-indicator" title="현재 페이지 / 전체 페이지">
-                <span class="page-nav-current" id="pageNavCurrentTop">1</span>
-                <span class="page-nav-divider">/</span>
-                <span class="page-nav-total" id="pageNavTotalTop">1</span>
-            </div>
-            <button type="button" class="page-nav-btn next" id="pageNextBtnTop" onclick="changePlaylistPage(1)" title="다음 페이지" aria-label="다음 페이지">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 5l7 7-7 7"/>
-                </svg>
-            </button>
         </div>
 
         <!-- 🔍 실시간 검색 & 카테고리 필터 바 (제작자, 제목, 음악 장르) -->
@@ -4255,6 +4254,25 @@
                 <span id="searchResultText"></span>
                 <button type="button" class="search-reset-btn" onclick="clearSearch()">검색 결과</button>
             </div>
+        </div>
+
+        <!-- ◀ 1 / 3 ▶ 상단 페이지네이션 바 (재생목록 첫 번째 곡 카드 바로 위) -->
+        <div class="playlist-pagination-bar top" id="playlistPaginationTop">
+            <button type="button" class="page-nav-btn prev" id="pagePrevBtnTop" onclick="changePlaylistPage(-1)" title="이전 페이지" aria-label="이전 페이지">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <div class="page-nav-indicator" title="현재 페이지 / 전체 페이지">
+                <span class="page-nav-current" id="pageNavCurrentTop">1</span>
+                <span class="page-nav-divider">/</span>
+                <span class="page-nav-total" id="pageNavTotalTop">1</span>
+            </div>
+            <button type="button" class="page-nav-btn next" id="pageNextBtnTop" onclick="changePlaylistPage(1)" title="다음 페이지" aria-label="다음 페이지">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 5l7 7-7 7"/>
+                </svg>
+            </button>
         </div>
 
         <div id="contestList">
@@ -5718,6 +5736,9 @@
 
         // 🛑 마스터 콘솔 재생 완전 중지 함수 (재생 목록 재생 시 호출)
         window.stopMasterPlayback = function() {
+            if (typeof clearSunoCompletionWatchdog === 'function') {
+                clearSunoCompletionWatchdog();
+            }
             isMasterConsoleActivePlayback = false;
             if (typeof setMasterDotPlaying === 'function') {
                 setMasterDotPlaying(false);
@@ -6364,8 +6385,6 @@
             if (manualWrap) manualWrap.style.display = 'none';
             const manualBtn = document.getElementById('manualToggleBtn');
             if (manualBtn) manualBtn.innerText = '✏️ 직접 입력/수정';
-
-            showPlayerToast('입력 내용이 취소(초기화)되었습니다', '✕');
         };
 
         window.toggleManualFields = function() {
@@ -7173,10 +7192,48 @@
             });
         }
 
+        // ⏱️ 마스터 콘솔 Suno 트랙 곡 길이 기반 트랙 종료 및 자동 이어듣기 타이머 컨트롤러
+        let sunoCompletionTimer = null;
+
+        window.clearSunoCompletionWatchdog = function() {
+            if (sunoCompletionTimer) {
+                clearTimeout(sunoCompletionTimer);
+                sunoCompletionTimer = null;
+            }
+        };
+
+        window.startSunoCompletionWatchdog = function() {
+            clearSunoCompletionWatchdog();
+            const song = (songs && songs[currentMasterSongIndex]) ? songs[currentMasterSongIndex] : null;
+            let dur = (song && typeof song.duration === 'number' && song.duration > 10) ? Math.floor(song.duration) : 0;
+            if (!dur && song) {
+                let sid = song.songId;
+                if (!sid && song.url) {
+                    const m = String(song.url).match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+                    if (m) sid = m[1];
+                }
+                if (sid) {
+                    dur = getCachedSunoDuration(sid);
+                }
+            }
+            if (!dur || dur < 10) dur = 180; // 기본 3분 폴백
+
+            setMasterDotPlaying(true);
+            isMasterConsoleActivePlayback = true;
+
+            console.log(`[Master Console] Suno track completion watchdog armed: ${dur}s for track ${currentMasterSongIndex + 1} (${song ? song.title : ''})`);
+            sunoCompletionTimer = setTimeout(() => {
+                console.log(`[Master Console] Suno track elapsed ${dur}s -> firing handleMasterTrackEnded('suno')`);
+                sunoCompletionTimer = null;
+                handleMasterTrackEnded('suno');
+            }, dur * 1000);
+        };
+
         // 🏁 마스터 콘솔 전 플랫폼 통합 트랙 종료 및 자동 이어 듣기 격발 핸들러
         window.handleMasterTrackEnded = function(platform) {
             console.log(`[Master Console] Track finished on platform: ${platform}`);
             setMasterDotPlaying(false);
+            clearSunoCompletionWatchdog();
 
             // 1. 자동 이어 듣기 OFF 상태이면 그대로 정지
             if (!isContinuousPlayEnabled || masterRepeatMode === 'off') {
@@ -7196,6 +7253,7 @@
         let isMasterConsoleActivePlayback = false;
 
         window.loadMasterSong = async function(index, fromMasterControl = false) {
+            clearSunoCompletionWatchdog();
             if (fromMasterControl) {
                 isMasterConsoleActivePlayback = true;
             }
@@ -7265,6 +7323,10 @@
                     } catch (e) {
                         console.error("Master Song Resolve Error:", e);
                     }
+                }
+
+                if (fromMasterControl) {
+                    startSunoCompletionWatchdog();
                 }
             }
             // 2. 일반 직접 오디오 파일 (.mp3, .m4a 등)
@@ -7455,13 +7517,20 @@
         // 📜 마스터 콘솔 가사 보기 제어 함수
         // ==========================================
         
-        // 🎧 마스터 콘솔 임베드 프레임 클릭 감지 (재생 목록과 상호 배타적 단독 재생 보장)
+        // 🎧 마스터 콘솔 임베드 프레임 클릭 감지 (재생 목록과 상호 배타적 단독 재생 보장 및 Suno 자동 이어듣기 감지)
         window.addEventListener('blur', function() {
             setTimeout(() => {
                 const activeEl = document.activeElement;
                 const masterIframe = document.getElementById('masterPlayerIframe');
                 if (activeEl === masterIframe) {
                     isMasterConsoleActivePlayback = true;
+                    if (currentActivePlatform === 'suno') {
+                        if (typeof startSunoCompletionWatchdog === 'function') {
+                            startSunoCompletionWatchdog();
+                        }
+                    } else {
+                        setMasterDotPlaying(true);
+                    }
                     if (typeof stopPlaylistPlayback === 'function') {
                         stopPlaylistPlayback();
                     }
@@ -7478,6 +7547,13 @@
             if (masterEmbedBox) {
                 masterEmbedBox.addEventListener('pointerdown', function() {
                     isMasterConsoleActivePlayback = true;
+                    if (currentActivePlatform === 'suno') {
+                        if (typeof startSunoCompletionWatchdog === 'function') {
+                            startSunoCompletionWatchdog();
+                        }
+                    } else {
+                        setMasterDotPlaying(true);
+                    }
                     if (typeof stopPlaylistPlayback === 'function') {
                         stopPlaylistPlayback();
                     }
