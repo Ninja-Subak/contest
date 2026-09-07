@@ -1499,34 +1499,7 @@
             background: rgba(0, 242, 254, 0.18) !important;
             box-shadow: 0 0 15px rgba(0, 242, 254, 0.35);
         }
-        /* ⚡ 마스터 콘솔 중앙 메인 재생 / 일시정지 네온 버튼 */
-        .master-play-btn {
-            background: linear-gradient(135deg, rgba(0, 242, 254, 0.22), rgba(79, 70, 229, 0.28)) !important;
-            border: 1.5px solid rgba(0, 242, 254, 0.65) !important;
-            color: #00f2fe !important;
-            padding: 8px 18px !important;
-            border-radius: 12px !important;
-            box-shadow: 0 0 16px rgba(0, 242, 254, 0.3) !important;
-        }
-        .master-play-btn:hover {
-            border-color: #00f2fe !important;
-            background: linear-gradient(135deg, rgba(0, 242, 254, 0.35), rgba(79, 70, 229, 0.45)) !important;
-            box-shadow: 0 0 25px rgba(0, 242, 254, 0.65) !important;
-            transform: translateY(-2px) scale(1.05) !important;
-        }
-        .master-play-btn.is-playing {
-            border-color: #10b981 !important;
-            color: #10b981 !important;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(0, 242, 254, 0.2)) !important;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.45) !important;
-        }
-        .master-play-btn.pulse-cue {
-            animation: masterPlayPulse 1.4s infinite alternate;
-        }
-        @keyframes masterPlayPulse {
-            0% { box-shadow: 0 0 10px rgba(0, 242, 254, 0.4); transform: scale(1); }
-            100% { box-shadow: 0 0 25px rgba(0, 242, 254, 0.9); transform: scale(1.06); }
-        }
+
         .master-ctrl-lbl {
             font-size: 12px;
             font-weight: 700;
@@ -4014,23 +3987,14 @@
                 </svg>
             </button>
 
-            <!-- 3. ⚡ 메인 재생 / 일시정지 (Play / Pause) -->
-            <button type="button" class="master-ctrl-btn master-play-btn" id="masterPlayBtn" onclick="toggleMasterPlayPause()" title="재생 / 일시정지 (Play / Pause)" aria-label="재생">
-                <span id="masterPlayIconWrap">
-                    <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
-                        <path d="M8 5v14l11-7z"/>
-                    </svg>
-                </span>
-            </button>
-
-            <!-- 4. 다음 곡 -->
+            <!-- 3. 다음 곡 -->
             <button type="button" class="master-ctrl-btn" id="masterNextBtn" onclick="playMasterNextTrack()" title="다음 곡 (Next)" aria-label="다음 곡">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                     <path d="M5.5 18.5l9-6.5-9-6.5v13zM15.5 6H18v12h-2.5z"/>
                 </svg>
             </button>
 
-            <!-- 5. 반복 모드 (전체/1곡) -->
+            <!-- 4. 반복 모드 (전체/1곡) -->
             <button type="button" class="master-ctrl-btn active" id="masterRepeatBtn" onclick="toggleContinuousPlay()" title="노래 자동 이어 듣기 (연속 듣기) - 클릭하여 켜기/끄기" aria-label="반복 모드">
                 <span id="masterRepeatIconWrap">
                     <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
@@ -5495,6 +5459,34 @@
             }
         };
 
+        // ⏱️ 수노(Suno) 트랙 고유 재생시간(초) 정밀 캐시 및 인지 데이터
+        const KNOWN_SUNO_DURATIONS = {
+            '2c0a4955-9fe9-4211-8f52-9fc927baa191': 160, // 내가 뭐라고
+            'dd8d15e2-03d0-4094-ad54-a847adb132c9': 252, // 안절부절
+            'ebe029fa-7342-4d12-b13a-097b11b5e6b5': 240, // 나쁜 쪽은 나로 해
+            '9f2225c4-19e1-4224-a3f3-e2a08fa16318': 200, // One More Check
+            '417453dc-2126-4cb7-8dfe-0cc557a96363': 142  // 구미호 클럽
+        };
+
+        function getCachedSunoDuration(songId) {
+            if (!songId) return 0;
+            if (KNOWN_SUNO_DURATIONS[songId]) return KNOWN_SUNO_DURATIONS[songId];
+            try {
+                const cache = JSON.parse(localStorage.getItem('suno_duration_cache') || '{}');
+                if (cache[songId]) return Number(cache[songId]);
+            } catch(e) {}
+            return 0;
+        }
+
+        function setCachedSunoDuration(songId, duration) {
+            if (!songId || !duration) return;
+            try {
+                const cache = JSON.parse(localStorage.getItem('suno_duration_cache') || '{}');
+                cache[songId] = Math.floor(duration);
+                localStorage.setItem('suno_duration_cache', JSON.stringify(cache));
+            } catch(e) {}
+        }
+
         // 🔍 수노 짧은 링크(단축 URL)를 실제 재생 주소로 변환하는 다계층 리졸버 함수
         async function resolveSunoTrack(sunoUrl) {
             if (!sunoUrl) throw new Error("유효하지 않은 Suno 주소입니다.");
@@ -5531,6 +5523,16 @@
                             result = vData;
                             if (vData.duration) {
                                 result.duration = Number(vData.duration);
+                            } else if (vData.lyrics) {
+                                const dm = String(vData.lyrics).match(/duration["\\]*\s*:\s*([0-9.]+)/i);
+                                if (dm) result.duration = parseFloat(dm[1]);
+                            }
+                            if (!result.duration && vData.songId) {
+                                const cd = getCachedSunoDuration(vData.songId);
+                                if (cd) result.duration = cd;
+                            }
+                            if (result.duration && result.songId) {
+                                setCachedSunoDuration(result.songId, result.duration);
                             }
                             break;
                         }
@@ -5550,6 +5552,16 @@
                             result = gData;
                             if (gData.duration) {
                                 result.duration = Number(gData.duration);
+                            } else if (gData.lyrics) {
+                                const dm = String(gData.lyrics).match(/duration["\\]*\s*:\s*([0-9.]+)/i);
+                                if (dm) result.duration = parseFloat(dm[1]);
+                            }
+                            if (!result.duration && gData.songId) {
+                                const cd = getCachedSunoDuration(gData.songId);
+                                if (cd) result.duration = cd;
+                            }
+                            if (result.duration && result.songId) {
+                                setCachedSunoDuration(result.songId, result.duration);
                             }
                         }
                     }
@@ -5560,6 +5572,7 @@
 
             // 3계층: 로컬 UUID 정규식 기반 대체 (주소에 이미 UUID가 포함되어 있는 경우)
             if (!result && songIdFromUrl) {
+                const fallbackDur = getCachedSunoDuration(songIdFromUrl) || 180;
                 result = {
                     success: true,
                     songId: songIdFromUrl,
@@ -5567,7 +5580,7 @@
                     cdnUrl: `https://cdn1.suno.ai/${songIdFromUrl}.mp3`,
                     embedUrl: `https://suno.com/embed/${songIdFromUrl}`,
                     coverUrl: `https://cdn2.suno.ai/image_large_${songIdFromUrl}.jpeg`,
-                    duration: 210
+                    duration: fallbackDur
                 };
             }
 
@@ -5575,7 +5588,9 @@
                 if (!result.songId) result.songId = songIdFromUrl;
                 if (!result.audioUrl) result.audioUrl = `https://d2lwuy8qc234o3.cloudfront.net/1/clip/${songIdFromUrl}.m4a`;
                 if (!result.coverUrl) result.coverUrl = `https://cdn2.suno.ai/image_large_${songIdFromUrl}.jpeg`;
-                if (!result.duration) result.duration = 210;
+                if (!result.duration) {
+                    result.duration = getCachedSunoDuration(songIdFromUrl) || 180;
+                }
             }
 
             if (result) {
@@ -5686,13 +5701,32 @@
                 if (masterCard) {
                     masterCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
-                if (currentActivePlatform === 'suno') {
-                    startSunoMasterPlayback();
-                } else if (typeof toggleMasterPlayPause === 'function') {
-                    toggleMasterPlayPause(true);
-                }
-                if (list[songIdx] && typeof showPlayerToast === 'function') {
-                    showPlayerToast(`🎧 마스터 콘솔 재생: ${list[songIdx].title || (songIdx + 1) + '번 트랙'}`, '🎧');
+                const targetSong = list[songIdx];
+                const pInfo = detectStreamingPlatform(targetSong ? targetSong.url : '');
+                if (pInfo.platform === 'youtube') {
+                    if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+                        try { ytPlayer.playVideo(); } catch(e) {}
+                    }
+                    if (typeof showPlayerToast === 'function') {
+                        showPlayerToast(`🎧 마스터 콘솔 재생: ${targetSong.title || (songIdx + 1) + '번 트랙'}`, '🎧');
+                    }
+                } else if (pInfo.platform === 'soundcloud') {
+                    if (scWidget && typeof scWidget.play === 'function') {
+                        try { scWidget.play(); } catch(e) {}
+                    }
+                    if (typeof showPlayerToast === 'function') {
+                        showPlayerToast(`🎧 마스터 콘솔 재생: ${targetSong.title || (songIdx + 1) + '번 트랙'}`, '🎧');
+                    }
+                } else if (pInfo.platform === 'audio') {
+                    const audioEl = document.getElementById('masterSunoAudio');
+                    if (audioEl) audioEl.play().catch(e => {});
+                    if (typeof showPlayerToast === 'function') {
+                        showPlayerToast(`🎧 마스터 콘솔 재생: ${targetSong.title || (songIdx + 1) + '번 트랙'}`, '🎧');
+                    }
+                } else if (pInfo.platform === 'suno') {
+                    if (typeof showPlayerToast === 'function') {
+                        showPlayerToast(`🎧 ${targetSong.title} - 화면의 수노 플레이어(▶)를 터치하세요!`, '🎧');
+                    }
                 }
             }
         };
@@ -6841,89 +6875,6 @@
             if (spectrum) {
                 spectrum.style.opacity = isPlaying ? '1' : '0.35';
             }
-            if (typeof updateMasterPlayBtnUI === 'function') {
-                updateMasterPlayBtnUI(isPlaying);
-            }
-        };
-
-        // ⚡ 마스터 콘솔 중앙 재생 / 일시정지 UI 동기화
-        window.updateMasterPlayBtnUI = function(isPlaying) {
-            const btn = document.getElementById('masterPlayBtn');
-            const iconWrap = document.getElementById('masterPlayIconWrap');
-            if (!btn || !iconWrap) return;
-
-            if (isPlaying) {
-                btn.classList.remove('pulse-cue');
-                btn.classList.add('is-playing');
-                btn.setAttribute('title', '일시정지 (Pause)');
-                iconWrap.innerHTML = `
-                    <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
-                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                    </svg>
-                `;
-            } else {
-                btn.classList.remove('is-playing');
-                btn.setAttribute('title', '재생 (Play)');
-                iconWrap.innerHTML = `
-                    <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
-                        <path d="M8 5v14l11-7z"/>
-                    </svg>
-                `;
-            }
-        };
-
-        // ⚡ 마스터 콘솔 메인 재생 / 일시정지 토글 함수
-        window.toggleMasterPlayPause = function(forcePlay = null) {
-            const list = (typeof songs !== 'undefined' && songs && songs.length > 0) ? songs : (window.songs || []);
-            if (!list || list.length === 0) return;
-
-            if (currentMasterSongIndex < 0) {
-                currentMasterSongIndex = 0;
-            }
-
-            const shouldPlay = (forcePlay !== null) ? !!forcePlay : !isMasterAudioPlaying;
-            isMasterConsoleActivePlayback = true;
-
-            if (shouldPlay) {
-                setMasterDotPlaying(true);
-                if (currentActivePlatform === 'suno') {
-                    startSunoMasterPlayback();
-                    const frameBox = document.getElementById('masterEmbedWrapper');
-                    if (frameBox) {
-                        frameBox.style.boxShadow = '0 0 25px rgba(0, 242, 254, 0.7)';
-                        frameBox.style.borderColor = '#00f2fe';
-                        setTimeout(() => { frameBox.style.boxShadow = ''; frameBox.style.borderColor = ''; }, 1000);
-                    }
-                } else if (currentActivePlatform === 'soundcloud') {
-                    if (scWidget && typeof scWidget.play === 'function') {
-                        scWidget.play();
-                    }
-                } else if (currentActivePlatform === 'youtube') {
-                    if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
-                        try { ytPlayer.playVideo(); } catch(e) {}
-                    }
-                } else if (currentActivePlatform === 'audio') {
-                    const audioEl = document.getElementById('masterSunoAudio');
-                    if (audioEl) audioEl.play().catch(e => {});
-                }
-            } else {
-                setMasterDotPlaying(false);
-                if (currentActivePlatform === 'suno') {
-                    pauseSunoMasterPlayback();
-                } else if (currentActivePlatform === 'soundcloud') {
-                    if (scWidget && typeof scWidget.pause === 'function') {
-                        scWidget.pause();
-                    }
-                } else if (currentActivePlatform === 'youtube') {
-                    if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
-                        try { ytPlayer.pauseVideo(); } catch(e) {}
-                    }
-                } else if (currentActivePlatform === 'audio') {
-                    const audioEl = document.getElementById('masterSunoAudio');
-                    if (audioEl) audioEl.pause();
-                }
-            }
-            updateMasterPlayBtnUI(shouldPlay);
         };
 
         // 🎧 웹 오디오 실제 사운드 재생/일시정지 실시간 연동 (상호 배타적 단독 재생)
@@ -7086,10 +7037,18 @@
             if (!songs || !Array.isArray(songs)) return;
             songs.forEach(song => {
                 if (song.url && /suno\.com/i.test(song.url)) {
+                    // Check local cache for immediate duration mapping
+                    const uuidM = String(song.url).match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+                    const sid = song.songId || (uuidM ? uuidM[1] : '');
+                    if (sid && !song.duration) {
+                        const cd = getCachedSunoDuration(sid);
+                        if (cd) song.duration = cd;
+                    }
                     resolveSunoTrack(song.url).then(data => {
                         if (data) {
                             if (data.songId && !song.songId) song.songId = data.songId;
                             if (data.duration && !song.duration) song.duration = Number(data.duration);
+                            if (data.songId && song.duration) setCachedSunoDuration(data.songId, song.duration);
                             if (data.title && (!song.title || song.title === '새로운 노래 등록' || song.title === '제목 없음')) {
                                 song.title = data.title;
                             }
@@ -7102,7 +7061,7 @@
         // ⏱️ 마스터 콘솔 수노(Suno) 트랙 실시간 타이머 및 자동 이어 듣기 컨트롤러
         let sunoPlaybackTimer = null;
         let sunoCurrentSeconds = 0;
-        let sunoTargetDuration = 210;
+        let sunoTargetDuration = 180;
 
         function formatTimeSec(sec) {
             const m = Math.floor(sec / 60);
@@ -7138,13 +7097,17 @@
                 stopPlaylistPlayback();
             }
 
-            const playBtn = document.getElementById('masterPlayBtn');
-            if (playBtn) playBtn.classList.remove('pulse-cue');
-
             const song = (songs && songs[currentMasterSongIndex]) ? songs[currentMasterSongIndex] : null;
-            sunoTargetDuration = (song && typeof song.duration === 'number' && song.duration > 10) 
-                ? Math.floor(song.duration) 
-                : 210;
+            let targetDur = 0;
+            if (song && typeof song.duration === 'number' && song.duration > 10) {
+                targetDur = Math.floor(song.duration);
+            } else if (song) {
+                const sId = song.songId || (song.url ? (song.url.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i) || [])[1] : '');
+                targetDur = getCachedSunoDuration(sId) || 180;
+            } else {
+                targetDur = 180;
+            }
+            sunoTargetDuration = targetDur;
 
             if (sunoPlaybackTimer) {
                 clearInterval(sunoPlaybackTimer);
@@ -7258,6 +7221,10 @@
                 }
 
                 if (songId) {
+                    if (!song.duration) {
+                        const cd = getCachedSunoDuration(songId);
+                        if (cd) song.duration = cd;
+                    }
                     const embedSrc = `https://suno.com/embed/${songId}`;
                     if (iframe.src !== embedSrc) iframe.src = embedSrc;
                 } else if (song.url) {
@@ -7277,11 +7244,9 @@
                 stopSunoMasterPlayback();
                 setMasterDotPlaying(false);
                 if (fromMasterControl) {
-                    const playBtn = document.getElementById('masterPlayBtn');
-                    if (playBtn) playBtn.classList.add('pulse-cue');
                     if (indicator) {
-                        const autoBadge = isContinuousPlayEnabled ? '<span style="color:#10b981; margin-left:4px;" title="자동 이어 듣기 대기">🔁 이어듣기 대기</span>' : '';
-                        indicator.innerHTML = `${index + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[▶ 터치하여 재생${autoBadge}]</span>`;
+                        const autoBadge = isContinuousPlayEnabled ? '<span style="color:#10b981; margin-left:4px;" title="자동 이어 듣기 대기">🔁 이어듣기</span>' : '';
+                        indicator.innerHTML = `${index + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[▶ 화면 터치 시 재생${autoBadge}]</span>`;
                     }
                 }
             }
@@ -7694,10 +7659,19 @@
             if (nextIdx < 0) nextIdx = 0;
             loadMasterSong(nextIdx, true);
             if (list[nextIdx] && typeof showPlayerToast === 'function') {
-                const toastIcon = isAutoFromEnd ? '🔁' : '⏭';
-                const toastMsg = isAutoFromEnd 
+                const toastIcon = isAutoFromEnd ? '🔁' : (isMasterShuffle ? '🔀' : '⏭');
+                const pInfo = detectStreamingPlatform(list[nextIdx].url || '');
+                let toastMsg = isAutoFromEnd 
                     ? `🔁 자동 이어 듣기: ${list[nextIdx].title || (nextIdx + 1) + '번 트랙'}`
                     : `⏭ 다음 곡 재생: ${list[nextIdx].title || (nextIdx + 1) + '번 트랙'}`;
+                if (pInfo.platform === 'suno') {
+                    const card = document.getElementById('masterPlayerCard');
+                    if (card) {
+                        card.style.borderColor = '#00f2fe';
+                        card.style.boxShadow = '0 0 25px rgba(0, 242, 254, 0.7)';
+                        setTimeout(() => { card.style.borderColor = ''; card.style.boxShadow = ''; }, 2500);
+                    }
+                }
                 showPlayerToast(toastMsg, toastIcon);
             }
         };
