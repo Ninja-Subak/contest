@@ -570,7 +570,8 @@
                 transform: translateX(-50%);
             }
         }
-        .url-marquee-group.has-value .url-input-marquee {
+        .url-marquee-group.has-value .url-input-marquee,
+        .url-marquee-group:focus-within .url-input-marquee {
             opacity: 0 !important;
             visibility: hidden !important;
             pointer-events: none;
@@ -3596,33 +3597,7 @@
             box-shadow: 0 0 15px rgba(0, 242, 254, 0.35) !important;
         }
 
-        .master-suno-notice {
-            display: none;
-            text-align: center;
-            margin: 12px auto 0 auto !important;
-            font-size: 13px !important;
-            color: #38bdf8 !important;
-            font-weight: 600 !important;
-            padding: 7px 18px !important;
-            background: rgba(56, 189, 248, 0.08) !important;
-            border: 1px solid rgba(56, 189, 248, 0.25) !important;
-            border-radius: 20px !important;
-            max-width: fit-content !important;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
-            letter-spacing: -0.2px !important;
-            animation: fadeIn 0.3s ease !important;
-            cursor: pointer !important;
-            user-select: none !important;
-            transition: all 0.2s ease !important;
-        }
-        .master-suno-notice:hover {
-            background: rgba(56, 189, 248, 0.16) !important;
-            border-color: rgba(56, 189, 248, 0.5) !important;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3) !important;
-        }
-        .master-suno-notice .notice-icon {
-            margin-right: 6px;
-        }
+
 
         /* 📱 모바일 (스마트폰): 4개 버튼 크기 적정 확대 및 편안한 터치감 */
         @media (max-width: 640px) {
@@ -4201,7 +4176,7 @@
             <audio id="masterSunoAudio" playsinline preload="auto" style="display: none;"></audio>
         </div>
 
-        <!-- 🎮 5종 트랙 컨트롤러 순수 아이콘 바 (셔플, 이전 곡, 메인 재생/일시정지, 다음 곡, 반복) -->
+        <!-- 🎮 4종 트랙 컨트롤러 순수 아이콘 바 (셔플, 이전 곡, 다음 곡, 반복) -->
         <div class="master-controls-bar">
             <!-- 1. 셔플 (무작위 곡) -->
             <button type="button" class="master-ctrl-btn" id="masterShuffleBtn" onclick="playMasterShuffleTrack()" title="셔플 (무작위 재생)" aria-label="셔플">
@@ -4215,15 +4190,6 @@
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                     <path d="M6 6h2.5v12H6zm3.5 6l9 6.5V5.5z"/>
                 </svg>
-            </button>
-
-            <!-- 3. 메인 재생 / 일시정지 -->
-            <button type="button" class="master-ctrl-btn" id="masterPlayBtn" onclick="toggleMasterConsolePlayback()" title="재생 / 일시정지" aria-label="재생">
-                <span id="masterPlayIconWrap">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                        <path d="M8 5v14l11-7z"/>
-                    </svg>
-                </span>
             </button>
 
             <!-- 4. 다음 곡 -->
@@ -4243,11 +4209,6 @@
             </button>
         </div>
 
-        <!-- 💡 수노(Suno) 트랙 전용 재생 안내 바 -->
-        <div id="masterSunoNotice" class="master-suno-notice" onclick="highlightMasterSunoPlayer()" style="display: none;" title="클릭 시 상단 Suno 플레이어가 강조됩니다">
-            <span class="notice-icon">📢</span>
-            <span class="notice-text">Suno 전용 플레이어에서는 위 화면의 재생바를 사용해 주세요.</span>
-        </div>
 
         <!-- 마스터 가사 팝업 창 -->
         <div class="lyrics-popup-box" id="masterLyricsBox" style="display:none; margin-top:18px;">
@@ -4278,7 +4239,7 @@
         </div>
         <!-- 🔗 스트리밍 링크 입력 (원클릭 자동 분석) -->
         <div class="input-group url-marquee-group" style="margin-bottom: 8px; margin-top: 4px; position: relative;">
-            <input type="text" id="sunoUrl" placeholder="여기에 스트리밍 링크를 붙여 넣으세요" oninput="handleUrlInputChange(); updateUrlMarqueeState();" onfocus="updateUrlMarqueeState();" onblur="updateUrlMarqueeState();" onpaste="handleUrlPaste(event)">
+            <input type="text" id="sunoUrl" placeholder="" oninput="handleUrlInputChange(); updateUrlMarqueeState();" onfocus="updateUrlMarqueeState();" onblur="updateUrlMarqueeState();" onpaste="handleUrlPaste(event)">
             <div class="url-input-marquee" id="sunoUrlMarquee" onclick="document.getElementById('sunoUrl').focus()">
                 <div class="marquee-track">
                     <span>🔗 여기에 스트리밍 링크를 붙여 넣으세요 (Suno, 사운드클라우드, 유튜브, 유튜브 뮤직) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔗 여기에 스트리밍 링크를 붙여 넣으세요 (Suno, 사운드클라우드, 유튜브, 유튜브 뮤직) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -6528,7 +6489,7 @@
             const input = document.getElementById('sunoUrl');
             const group = input ? input.closest('.url-marquee-group') : null;
             if (group && input) {
-                if (input.value && input.value.trim().length > 0) {
+                if ((input.value && input.value.trim().length > 0) || document.activeElement === input) {
                     group.classList.add('has-value');
                 } else {
                     group.classList.remove('has-value');
@@ -7702,8 +7663,7 @@ window.toggleMasterConsolePlayback = function() {
 
                 hideMasterScArtwork();
                 const audioEl = document.getElementById('masterSunoAudio');
-                const sNotice = document.getElementById('masterSunoNotice');
-                if (sNotice) sNotice.style.display = 'block';
+                
                 const playBtn = document.getElementById('masterPlayBtn');
                 if (playBtn) playBtn.setAttribute('title', 'Suno 전용 플레이어에서는 위 화면의 재생바를 사용해 주세요');
                 if (audioEl) { audioEl.pause(); audioEl.currentTime = 0; }
@@ -7756,8 +7716,7 @@ window.toggleMasterConsolePlayback = function() {
             }
             // 2. 비-Suno 플랫폼 전환 시 Suno 전용 안내 바 숨김
             else {
-                const sNotice = document.getElementById('masterSunoNotice');
-                if (sNotice) sNotice.style.display = 'none';
+                
                 const playBtn = document.getElementById('masterPlayBtn');
                 if (playBtn) playBtn.setAttribute('title', '재생 / 일시정지');
             }
