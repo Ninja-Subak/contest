@@ -7567,9 +7567,7 @@ window.toggleMasterConsolePlayback = function() {
                     }, 200);
                 }
             }
-            if (typeof showPlayerToast === 'function') {
-                showPlayerToast('Suno 전용 플레이어에서는 위 화면의 재생바를 사용해 주세요', '📢');
-            }
+
             if (typeof highlightMasterSunoPlayer === 'function') {
                 highlightMasterSunoPlayer();
             }
@@ -7640,9 +7638,7 @@ window.toggleMasterConsolePlayback = function() {
                     indicator.innerHTML = `${currentMasterSongIndex + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[${info.badge || 'STREAM'}]</span> <span style="color:#94a3b8; font-size:11px; margin-left:6px; font-weight:700;">[⏹ 재생 완료 / 대기 상태]</span>`;
                 }
 
-                if (typeof showPlayerToast === 'function') {
-                    showPlayerToast(`⏹ 한 곡 재생이 완료되어 대기 상태가 되었습니다. (${song ? song.title : ''})`, '⏹');
-                }
+
                 return;
             }
 
@@ -7695,8 +7691,15 @@ window.toggleMasterConsolePlayback = function() {
             const iframe = document.getElementById('masterPlayerIframe');
             if (!iframe) return;
 
-            // 1. Suno 사이트 주소인 경우 -> 공식 전용 수노 임베드 플레이어로 완벽 재생
+            // 1. Suno 사이트 주소인 경우 -> 공식 전용 수노 임베드 플레이어로 로드
             if (info.platform === 'suno') {
+                // ℹ️ Suno는 브라우저 보안 및 플랫폼 정책상 외부 자동 재생이 불가하므로 상단 플레이어 직접 재생 대기 상태로 유지
+                isMasterConsoleActivePlayback = false;
+                window.isMasterConsoleActivePlayback = false;
+                setMasterDotPlaying(false);
+                updateMasterPlayBtnUI(false);
+                clearSunoCompletionWatchdog();
+
                 hideMasterScArtwork();
                 const audioEl = document.getElementById('masterSunoAudio');
                 const sNotice = document.getElementById('masterSunoNotice');
@@ -7728,9 +7731,7 @@ window.toggleMasterConsolePlayback = function() {
                     iframe.src = targetEmbed;
                 }
 
-                if (fromMasterControl || isMasterConsoleActivePlayback) {
-                    startSunoCompletionWatchdog();
-                }
+                // Suno는 상단 플레이어 클릭 시 triggerMasterConsolePlaybackStarted()에서 watchdog 가동
 
                 // 비동기 메타데이터 보강 (백그라운드)
                 if (song.url && (!songId || !song.duration)) {
@@ -8196,9 +8197,7 @@ window.toggleMasterConsolePlayback = function() {
                     attempts++;
                 } while (nextIdx === currentMasterSongIndex && attempts < 10);
                 loadMasterSong(nextIdx, true);
-                if (list[nextIdx] && typeof showPlayerToast === 'function') {
-                    showPlayerToast(`🔀 셔플 다음 곡: ${list[nextIdx].title || (nextIdx + 1) + '번 트랙'}`, '🔀');
-                }
+
                 return;
             }
 
@@ -8206,15 +8205,8 @@ window.toggleMasterConsolePlayback = function() {
             let nextIdx = (currentMasterSongIndex + 1) % list.length;
             if (nextIdx < 0) nextIdx = 0;
             loadMasterSong(nextIdx, true);
-            if (list[nextIdx] && typeof showPlayerToast === 'function') {
-                const toastIcon = isAutoFromEnd ? '🔁' : (isMasterShuffle ? '🔀' : '⏭');
+            if (list[nextIdx]) {
                 const pInfo = detectStreamingPlatform(list[nextIdx].url || '');
-                let toastMsg = isAutoFromEnd 
-                    ? `🔁 자동 이어 듣기: ${list[nextIdx].title || (nextIdx + 1) + '번 트랙'}`
-                    : `⏭ 다음 곡 재생: ${list[nextIdx].title || (nextIdx + 1) + '번 트랙'}`;
-                if (pInfo.platform === 'suno') {
-                    toastMsg += ' (위 화면의 재생바를 사용해 주세요)';
-                }
                 if (pInfo.platform === 'suno') {
                     const card = document.getElementById('masterPlayerCard');
                     if (card) {
@@ -8223,7 +8215,6 @@ window.toggleMasterConsolePlayback = function() {
                         setTimeout(() => { card.style.borderColor = ''; card.style.boxShadow = ''; }, 2500);
                     }
                 }
-                showPlayerToast(toastMsg, toastIcon);
             }
         };
 
@@ -8235,9 +8226,7 @@ window.toggleMasterConsolePlayback = function() {
             let prevIdx = (currentMasterSongIndex - 1 + list.length) % list.length;
             if (prevIdx < 0) prevIdx = 0;
             loadMasterSong(prevIdx, true);
-            if (list[prevIdx] && typeof showPlayerToast === 'function') {
-                showPlayerToast(`⏮ 이전 곡 재생: ${list[prevIdx].title || (prevIdx + 1) + '번 트랙'}`, '⏮');
-            }
+
         };
 
         // 🔀 셔플 (무작위 재생) ON / OFF 순수 토글 함수
@@ -8252,9 +8241,7 @@ window.toggleMasterConsolePlayback = function() {
                 btn.setAttribute('title', isMasterShuffle ? '셔플 (무작위 재생) 켜짐 - 클릭하여 끄기' : '셔플 (무작위 재생) 꺼짐 - 클릭하여 켜기');
                 try { btn.blur(); } catch(e) {}
             }
-            if (typeof showPlayerToast === 'function') {
-                showPlayerToast(isMasterShuffle ? '무작위 셔플 재생이 켜졌습니다 (ON)' : '무작위 셔플 재생이 꺼졌습니다 (OFF)', '🔀');
-            }
+
         };
 
         // ⏩ 빨리감기 (10초 앞으로)
@@ -8315,9 +8302,7 @@ window.toggleMasterConsolePlayback = function() {
                     repeatBtn.classList.add('active');
                     try { repeatBtn.blur(); } catch(e) {}
                 }
-                if (typeof showPlayerToast === 'function') {
-                    showPlayerToast('노래 자동 이어 듣기가 켜졌습니다 (ON)', '🔁');
-                }
+
             } else {
                 masterRepeatMode = 'off';
                 window.masterRepeatMode = 'off';
@@ -8332,9 +8317,7 @@ window.toggleMasterConsolePlayback = function() {
                     repeatBtn.classList.remove('active');
                     try { repeatBtn.blur(); } catch(e) {}
                 }
-                if (typeof showPlayerToast === 'function') {
-                    showPlayerToast('노래 자동 이어 듣기가 꺼졌습니다 (OFF)', '⏹');
-                }
+
             }
 
             // 상단 인디케이터 배지 즉시 동기화
