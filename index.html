@@ -2978,21 +2978,22 @@
             width: 100%;
             min-height: 140px;
             align-items: center;
-            gap: 14px;
-            padding: 12px 16px;
+            gap: 16px;
+            padding: 14px 18px;
             background: #090d16;
             border-radius: 12px;
             box-sizing: border-box;
+            user-select: none;
         }
         .master-suno-cover-wrap {
             position: relative;
-            width: 110px;
-            height: 110px;
-            min-width: 110px;
-            border-radius: 10px;
+            width: 112px;
+            height: 112px;
+            min-width: 112px;
+            border-radius: 12px;
             overflow: hidden;
-            border: 1px solid rgba(236, 72, 153, 0.45);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 242, 254, 0.45);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
             background: #000;
             flex-shrink: 0;
         }
@@ -3004,29 +3005,31 @@
         }
         .master-suno-badge {
             position: absolute;
-            bottom: 4px;
-            left: 4px;
-            background: rgba(10, 15, 29, 0.88);
-            border: 1px solid rgba(236, 72, 153, 0.6);
-            color: #f472b6;
-            font-size: 8px;
+            bottom: 5px;
+            left: 5px;
+            background: rgba(10, 15, 29, 0.9);
+            border: 1px solid rgba(0, 242, 254, 0.6);
+            color: #00f2fe;
+            font-size: 8.5px;
             font-weight: 800;
-            padding: 1px 5px;
+            padding: 2px 6px;
             border-radius: 4px;
             backdrop-filter: blur(4px);
+            letter-spacing: 0.5px;
         }
         .master-suno-info {
             flex: 1;
             min-width: 0;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            justify-content: center;
+            gap: 12px;
         }
         .master-suno-header-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 8px;
+            gap: 12px;
         }
         .master-suno-text-wrap {
             min-width: 0;
@@ -3034,11 +3037,12 @@
         }
         .master-suno-title {
             font-weight: 800;
-            font-size: 16px;
-            color: #f8fafc;
+            font-size: 18px;
+            color: #ffffff;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            letter-spacing: -0.2px;
         }
         .master-suno-author {
             font-size: 13px;
@@ -3046,24 +3050,95 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-top: 3px;
         }
-        .master-suno-ext-link {
-            font-size: 11px;
-            color: #38bdf8;
-            text-decoration: none;
-            padding: 4px 10px;
-            border: 1px solid rgba(56, 189, 248, 0.35);
+        .master-suno-brand-tag {
+            font-size: 13px;
+            font-weight: 900;
+            color: #cbd5e1;
+            letter-spacing: 2px;
+            padding: 3px 8px;
             border-radius: 6px;
-            white-space: nowrap;
-            background: rgba(56, 189, 248, 0.08);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             flex-shrink: 0;
+            user-select: none;
         }
-        #masterSunoAudio {
+        .master-suno-playback-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             width: 100%;
-            height: 40px;
-            margin-top: 4px;
-            border-radius: 8px;
-            outline: none;
+        }
+        .master-suno-play-circle {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #0d1527;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 16px rgba(255, 255, 255, 0.4);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-shrink: 0;
+            padding: 0;
+        }
+        .master-suno-play-circle:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 24px rgba(0, 242, 254, 0.8);
+            background: #00f2fe;
+            color: #000000;
+        }
+        .master-suno-play-circle:active {
+            transform: scale(0.94);
+        }
+        .master-suno-time {
+            font-size: 12px;
+            font-weight: 700;
+            color: #94a3b8;
+            font-variant-numeric: tabular-nums;
+            min-width: 32px;
+            text-align: center;
+            user-select: none;
+        }
+        .master-suno-slider-wrap {
+            position: relative;
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 999px;
+            overflow: visible;
+            display: flex;
+            align-items: center;
+        }
+        .master-suno-slider-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00f2fe, #a855f7);
+            border-radius: 999px;
+            pointer-events: none;
+            box-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+        }
+        .master-suno-slider {
+            position: absolute;
+            top: -6px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            margin: 0;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 5;
+        }
+        .master-suno-slider-wrap:hover .master-suno-slider {
+            opacity: 1;
         }
         .master-inapp-player {
             width: 100%;
@@ -3543,29 +3618,39 @@
                 height: 22px !important;
             }
             .master-suno-box {
-                padding: 10px 10px !important;
+                padding: 10px 12px !important;
                 gap: 10px !important;
-                min-height: 100px !important;
+                min-height: 110px !important;
             }
             .master-suno-cover-wrap {
-                width: 78px !important;
-                height: 78px !important;
-                min-width: 78px !important;
+                width: 80px !important;
+                height: 80px !important;
+                min-width: 80px !important;
                 border-radius: 8px !important;
             }
             .master-suno-title {
-                font-size: 14px !important;
+                font-size: 15px !important;
             }
             .master-suno-author {
-                font-size: 11px !important;
+                font-size: 11.5px !important;
             }
-            .master-suno-ext-link {
+            .master-suno-brand-tag {
                 font-size: 10px !important;
-                padding: 2px 7px !important;
+                letter-spacing: 1px !important;
+                padding: 2px 6px !important;
             }
-            #masterSunoAudio {
+            .master-suno-play-circle {
+                width: 36px !important;
                 height: 36px !important;
-                margin-top: 2px !important;
+                min-width: 36px !important;
+            }
+            .master-suno-play-circle svg {
+                width: 16px !important;
+                height: 16px !important;
+            }
+            .master-suno-time {
+                font-size: 10.5px !important;
+                min-width: 28px !important;
             }
         }
 
@@ -4079,7 +4164,7 @@
                     <span>SOUNDCLOUD</span>
                 </div>
             </div>
-            <!-- 🎧 고음질 스트리밍 전용 플레이어 박스 (오디오 스트림 전용) -->
+            <!-- 🎧 수노(Suno) 공식 전용 프리미엄 플레이어 박스 -->
             <div class="master-suno-box" id="masterSunoBox" style="display: none;">
                 <div class="master-suno-cover-wrap">
                     <img id="masterSunoCoverImg" src="" alt="Suno Cover" />
@@ -4093,13 +4178,22 @@
                             <div id="masterSunoTitle" class="master-suno-title">노래 제목</div>
                             <div id="masterSunoAuthor" class="master-suno-author">아티스트</div>
                         </div>
-                        <a id="masterSunoExternalLink" class="master-suno-ext-link" href="#" target="_blank" rel="noopener noreferrer" title="새 탭에서 원본 페이지 열기">
-                            🔗 Suno 원본 ↗
-                        </a>
+                        <div class="master-suno-brand-tag">SUNO</div>
                     </div>
-                    <audio id="masterSunoAudio" controls playsinline preload="auto">
-                        브라우저가 오디오 재생을 지원하지 않습니다.
-                    </audio>
+                    <div class="master-suno-playback-row">
+                        <button type="button" class="master-suno-play-circle" id="masterSunoPlayBtn" onclick="toggleMasterConsolePlayback()" title="재생 / 일시정지" aria-label="재생">
+                            <svg id="masterSunoPlayIcon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                        <span class="master-suno-time" id="masterSunoCurTime">0:00</span>
+                        <div class="master-suno-slider-wrap">
+                            <div class="master-suno-slider-fill" id="masterSunoSliderFill"></div>
+                            <input type="range" class="master-suno-slider" id="masterSunoSlider" min="0" max="100" value="0" step="0.1" oninput="handleMasterSunoSeek(this.value)" onchange="handleMasterSunoSeekCommit(this.value)" aria-label="재생 탐색">
+                        </div>
+                        <span class="master-suno-time" id="masterSunoTotalTime">0:00</span>
+                    </div>
+                    <audio id="masterSunoAudio" playsinline preload="auto" style="display: none;"></audio>
                 </div>
             </div>
             <iframe id="masterPlayerIframe" 
@@ -4108,7 +4202,7 @@
                     allow="autoplay; encrypted-media; fullscreen"
                     loading="lazy">
             </iframe>
-            <!-- ⚡ 마스터 콘솔 Suno 최초 재생 감지용 100% 투명 클릭 인터셉터 오버레이 (대기 상태에서 클릭 포착 후 재생 연동) -->
+            <!-- ⚡ 마스터 콘솔 Suno 최초 재생 감지용 100% 투명 클릭 인터셉터 오버레이 -->
             <div id="masterIframeClickInterceptor"
                  onclick="handleMasterIframeInterceptorClick(event)"
                  title="클릭하여 재생"
@@ -5858,9 +5952,12 @@
                     } catch(e) {}
                 }
             }
+            if (typeof updateMasterSunoPlayBtnUI === 'function') {
+                updateMasterSunoPlayBtnUI(false);
+            }
         };
 
-                // 🧹 인라인 플레이어 리소스(Iframe/Audio) 안전 해제 및 메모리 누수 방지 헬퍼
+        // 🧹 인라인 플레이어 리소스(Iframe/Audio) 안전 해제 및 메모리 누수 방지 헬퍼
         function safelyClearPlayerContainer(el) {
             if (!el) return;
             el.querySelectorAll('iframe').forEach(ifr => {
@@ -5934,15 +6031,11 @@
                     if (typeof showPlayerToast === 'function') {
                         showPlayerToast(`🎧 마스터 콘솔 재생: ${targetSong.title || (songIdx + 1) + '번 트랙'}`, '🎧');
                     }
-                } else if (pInfo.platform === 'audio') {
+                } else if (pInfo.platform === 'audio' || pInfo.platform === 'suno') {
                     const audioEl = document.getElementById('masterSunoAudio');
                     if (audioEl) audioEl.play().catch(e => {});
                     if (typeof showPlayerToast === 'function') {
                         showPlayerToast(`🎧 마스터 콘솔 재생: ${targetSong.title || (songIdx + 1) + '번 트랙'}`, '🎧');
-                    }
-                } else if (pInfo.platform === 'suno') {
-                    if (typeof showPlayerToast === 'function') {
-                        showPlayerToast(`🎧 ${targetSong.title} - 화면의 수노 플레이어(▶)를 터치하세요!`, '🎧');
                     }
                 }
             }
@@ -7123,12 +7216,7 @@
             }
         }, true);
         document.addEventListener('ended', function(e) {
-            if (e.target && e.target.tagName === 'AUDIO') {
-                const isMasterAudio = e.target.closest && e.target.closest('#masterPlayerCard');
-                if (isMasterAudio) {
-                    handleMasterTrackEnded('audio');
-                }
-            }
+            // masterSunoAudio has its own direct 'ended' listener via bindMasterSunoAudioEvents
         }, true);
 
         // 🎵 특정 곡 마스터 콘솔에 로드
@@ -7277,53 +7365,134 @@
             });
         }
 
-        // ⚡ 마스터 콘솔 Suno iframe 100% 투명 클릭 인터셉터 핸들러
+        // ⚡ 마스터 콘솔 Suno iframe 클릭 인터셉터 (더미 보조용)
         window.handleMasterIframeInterceptorClick = function(e) {
             if (e) {
                 try { e.preventDefault(); e.stopPropagation(); } catch(err) {}
             }
-            console.log('[Master Console] Suno iframe click interceptor fired!');
             const interceptor = document.getElementById('masterIframeClickInterceptor');
             if (interceptor) {
                 interceptor.style.pointerEvents = 'none';
                 interceptor.style.display = 'none';
             }
-            isMasterConsoleActivePlayback = true;
-            setMasterDotPlaying(true);
-            if (typeof stopPlaylistPlayback === 'function') {
-                stopPlaylistPlayback();
-            }
+            toggleMasterConsolePlayback();
+        };
 
-            const iframe = document.getElementById('masterPlayerIframe');
-            if (iframe && iframe.src && iframe.src !== 'about:blank') {
-                let cur = iframe.src.replace(/[\?&]autoplay=[^&]+/g, '');
-                let sep = cur.includes('?') ? '&' : '?';
-                iframe.src = cur + sep + 'autoplay=1';
+        // ⏱️ 초 단위 시간 포맷터 (MM:SS)
+        function formatTimeSec(sec) {
+            if (!sec || isNaN(sec) || sec < 0) return '0:00';
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        // 🎛️ 마스터 콘솔 Suno 재생/일시정지 버튼 아이콘 UI 동기화 함수
+        function updateMasterSunoPlayBtnUI(isPlaying) {
+            const btn = document.getElementById('masterSunoPlayBtn');
+            const icon = document.getElementById('masterSunoPlayIcon');
+            if (!btn || !icon) return;
+            if (isPlaying) {
+                icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; // ❚❚ Pause
+                btn.setAttribute('title', '일시정지');
+                btn.setAttribute('aria-label', '일시정지');
+            } else {
+                icon.innerHTML = '<path d="M8 5v14l11-7z"/>'; // ▶ Play
+                btn.setAttribute('title', '재생');
+                btn.setAttribute('aria-label', '재생');
             }
-            if (currentActivePlatform === 'suno') {
-                startSunoCompletionWatchdog();
+        }
+
+        // 🎚️ 마스터 콘솔 Suno 프로그레스 바 실시간 드래그 탐색 핸들러
+        let isUserSeekingMasterSuno = false;
+
+        window.handleMasterSunoSeek = function(val) {
+            isUserSeekingMasterSuno = true;
+            const a = document.getElementById('masterSunoAudio');
+            if (a && a.duration) {
+                const targetSec = (parseFloat(val) / 100) * a.duration;
+                const curEl = document.getElementById('masterSunoCurTime');
+                const fillEl = document.getElementById('masterSunoSliderFill');
+                if (curEl) curEl.innerText = formatTimeSec(targetSec);
+                if (fillEl) fillEl.style.width = `${val}%`;
             }
         };
+
+        window.handleMasterSunoSeekCommit = function(val) {
+            const a = document.getElementById('masterSunoAudio');
+            if (a && a.duration) {
+                a.currentTime = (parseFloat(val) / 100) * a.duration;
+            }
+            setTimeout(() => { isUserSeekingMasterSuno = false; }, 100);
+        };
+
+        // 🎧 마스터 콘솔 HTML5/Suno 오디오 이벤트 바인딩 함수 (단 1회만 등록)
+        function bindMasterSunoAudioEvents() {
+            const audioEl = document.getElementById('masterSunoAudio');
+            if (!audioEl || audioEl._hasMasterEventsBound) return;
+            audioEl._hasMasterEventsBound = true;
+
+            audioEl.addEventListener('play', () => {
+                isMasterConsoleActivePlayback = true;
+                setMasterDotPlaying(true);
+                updateMasterSunoPlayBtnUI(true);
+                if (typeof stopPlaylistPlayback === 'function') {
+                    stopPlaylistPlayback();
+                }
+            });
+
+            audioEl.addEventListener('pause', () => {
+                updateMasterSunoPlayBtnUI(false);
+                setMasterDotPlaying(false);
+            });
+
+            audioEl.addEventListener('timeupdate', () => {
+                if (!isUserSeekingMasterSuno && audioEl.duration) {
+                    const pct = (audioEl.currentTime / audioEl.duration) * 100;
+                    const curEl = document.getElementById('masterSunoCurTime');
+                    const totalEl = document.getElementById('masterSunoTotalTime');
+                    const fillEl = document.getElementById('masterSunoSliderFill');
+                    const sliderEl = document.getElementById('masterSunoSlider');
+                    if (curEl) curEl.innerText = formatTimeSec(audioEl.currentTime);
+                    if (totalEl && (!totalEl.innerText || totalEl.innerText === '0:00')) {
+                        totalEl.innerText = formatTimeSec(audioEl.duration);
+                    }
+                    if (fillEl) fillEl.style.width = `${pct}%`;
+                    if (sliderEl) sliderEl.value = pct;
+                }
+            });
+
+            audioEl.addEventListener('loadedmetadata', () => {
+                const totalEl = document.getElementById('masterSunoTotalTime');
+                if (totalEl && audioEl.duration) {
+                    totalEl.innerText = formatTimeSec(audioEl.duration);
+                }
+            });
+
+            // 🏁 트랙 재생 완료 시 NATIVE ENDED 격발!
+            audioEl.addEventListener('ended', () => {
+                console.log('[Master Console] Audio track finished naturally!');
+                handleMasterTrackEnded(currentActivePlatform);
+            });
+
+            audioEl.addEventListener('error', (e) => {
+                console.warn('[Master Console] Suno audio error, trying backup CDN:', e);
+                const curSrc = audioEl.src;
+                if (curSrc && curSrc.includes('.m4a')) {
+                    const sidMatch = curSrc.match(/clip\/([0-9a-f\-]+)\.m4a/i);
+                    if (sidMatch && sidMatch[1]) {
+                        audioEl.src = `https://cdn1.suno.ai/${sidMatch[1]}.mp3`;
+                        if (isMasterConsoleActivePlayback) {
+                            audioEl.play().catch(()=>{});
+                        }
+                    }
+                }
+            });
+        }
 
         // 🎛️ 마스터 콘솔 라이브 닷 / 통합 토글 재생 제어기
         window.toggleMasterConsolePlayback = function() {
             if (currentActivePlatform === 'soundcloud') {
                 toggleSoundCloudPlayback();
-                return;
-            }
-            if (currentActivePlatform === 'audio') {
-                const a = document.getElementById('masterSunoAudio');
-                if (a) {
-                    if (a.paused) {
-                        a.play().catch(e => {});
-                        isMasterConsoleActivePlayback = true;
-                        setMasterDotPlaying(true);
-                    } else {
-                        a.pause();
-                        isMasterConsoleActivePlayback = false;
-                        setMasterDotPlaying(false);
-                    }
-                }
                 return;
             }
             if (currentActivePlatform === 'youtube') {
@@ -7341,129 +7510,66 @@
                 }
                 return;
             }
-            if (currentActivePlatform === 'suno') {
-                const iframe = document.getElementById('masterPlayerIframe');
-                const interceptor = document.getElementById('masterIframeClickInterceptor');
-                if (!isMasterConsoleActivePlayback) {
-                    // 대기 상태 -> 재생 시작
-                    isMasterConsoleActivePlayback = true;
-                    setMasterDotPlaying(true);
-                    if (interceptor) {
-                        interceptor.style.pointerEvents = 'none';
-                        interceptor.style.display = 'none';
+            // Suno 및 일반 오디오 플랫폼
+            const a = document.getElementById('masterSunoAudio');
+            if (a) {
+                if (a.paused || a.ended) {
+                    if (a.ended || (a.duration && a.currentTime >= a.duration - 0.2)) {
+                        a.currentTime = 0;
                     }
-                    if (iframe && iframe.src) {
-                        let cur = iframe.src.replace(/[\?&]autoplay=[^&]+/g, '');
-                        let sep = cur.includes('?') ? '&' : '?';
-                        iframe.src = cur + sep + 'autoplay=1';
-                    }
-                    startSunoCompletionWatchdog();
+                    a.play().then(() => {
+                        isMasterConsoleActivePlayback = true;
+                        setMasterDotPlaying(true);
+                        updateMasterSunoPlayBtnUI(true);
+                    }).catch(e => {
+                        console.warn('Playback error:', e);
+                    });
                 } else {
-                    // 재생 중 -> 정지 / 대기
+                    a.pause();
                     isMasterConsoleActivePlayback = false;
                     setMasterDotPlaying(false);
-                    clearSunoCompletionWatchdog();
-                    if (iframe && iframe.src) {
-                        let cur = iframe.src.replace(/[\?&]autoplay=[^&]+/g, '');
-                        iframe.src = 'about:blank';
-                        setTimeout(() => {
-                            if (!isMasterConsoleActivePlayback && iframe) {
-                                iframe.src = cur;
-                                if (interceptor) {
-                                    interceptor.style.display = 'block';
-                                    interceptor.style.pointerEvents = 'auto';
-                                }
-                            }
-                        }, 250);
-                    }
+                    updateMasterSunoPlayBtnUI(false);
                 }
             }
         };
 
-        // ⏱️ 마스터 콘솔 Suno 트랙 곡 길이 기반 트랙 종료 및 자동 이어듣기 타이머 컨트롤러
-        let sunoCompletionTimer = null;
-
         window.clearSunoCompletionWatchdog = function() {
-            if (sunoCompletionTimer) {
-                clearTimeout(sunoCompletionTimer);
-                sunoCompletionTimer = null;
-            }
+            // 호환용 no-op
         };
 
         window.startSunoCompletionWatchdog = function() {
-            clearSunoCompletionWatchdog();
-            const song = (songs && songs[currentMasterSongIndex]) ? songs[currentMasterSongIndex] : null;
-            let dur = 0;
-            if (song) {
-                dur = parseDurationSeconds(song.duration);
-                if (!dur || dur < 10) {
-                    const meta = (typeof lookupSunoTrackMeta === 'function') ? lookupSunoTrackMeta(song.url) : null;
-                    if (meta && meta.duration) {
-                        dur = parseDurationSeconds(meta.duration);
-                        song.duration = dur;
-                    }
-                }
-                if (!dur || dur < 10) {
-                    let sid = song.songId;
-                    if (!sid && song.url) {
-                        const m = String(song.url).match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-                        if (m) sid = m[1];
-                    }
-                    if (sid) {
-                        const cd = getCachedSunoDuration(sid);
-                        if (cd) dur = parseDurationSeconds(cd);
-                    }
-                }
-            }
-            if (!dur || dur < 10) dur = 180; // 기본 3분 폴백
-
-            setMasterDotPlaying(true);
-            isMasterConsoleActivePlayback = true;
-
-            console.log(`[Master Console] Suno track completion watchdog armed: ${dur}s for track ${currentMasterSongIndex + 1} (${song ? song.title : ''})`);
-            sunoCompletionTimer = setTimeout(() => {
-                console.log(`[Master Console] Suno track elapsed ${dur}s -> firing handleMasterTrackEnded('suno')`);
-                sunoCompletionTimer = null;
-                handleMasterTrackEnded('suno');
-            }, dur * 1000);
+            // 호환용 no-op
         };
 
         // 🏁 마스터 콘솔 전 플랫폼 통합 트랙 종료 및 자동 이어 듣기 격발 핸들러
+        let lastMasterTrackEndedTime = 0;
         window.handleMasterTrackEnded = function(platform) {
+            const now = Date.now();
+            if (now - lastMasterTrackEndedTime < 800) {
+                console.log(`[Master Console] Debounced duplicate track ended event from ${platform}`);
+                return;
+            }
+            lastMasterTrackEndedTime = now;
             console.log(`[Master Console] Track finished on platform: ${platform}`);
-            clearSunoCompletionWatchdog();
 
-            // 1. 자동 이어 듣기 OFF 상태 (대기 모드): Suno 내부 반복 루프 및 모든 음원 재생 즉각 차단/정지
+            // 1. 자동 이어 듣기 OFF 상태 (대기 모드): 모든 음원 재생 즉각 차단/완전 정지
             if (!isContinuousPlayEnabled || masterRepeatMode === 'off') {
                 isMasterConsoleActivePlayback = false;
                 setMasterDotPlaying(false);
 
-                // Suno 내부 loopOnEnded 방지: iframe src를 즉각 리셋하여 무한 반복 재생 오디오 완전 소멸
-                const masterIframe = document.getElementById('masterPlayerIframe');
-                const interceptor = document.getElementById('masterIframeClickInterceptor');
-                if (masterIframe && masterIframe.src && masterIframe.src !== 'about:blank') {
-                    const curSrc = masterIframe.src.replace(/[\?&]autoplay=[^&]+/g, '');
-                    masterIframe.src = 'about:blank';
-                    setTimeout(() => {
-                        if (!isMasterConsoleActivePlayback && masterIframe) {
-                            masterIframe.src = curSrc;
-                            if (interceptor && currentActivePlatform === 'suno') {
-                                interceptor.style.display = 'block';
-                                interceptor.style.pointerEvents = 'auto';
-                            }
-                        }
-                    }, 250);
-                } else if (interceptor && currentActivePlatform === 'suno') {
-                    interceptor.style.display = 'block';
-                    interceptor.style.pointerEvents = 'auto';
-                }
-
-                // 일반 HTML5 오디오 정지
+                // HTML5 오디오 정지 및 0:00 초기화
                 const audioEl = document.getElementById('masterSunoAudio');
                 if (audioEl) {
                     audioEl.pause();
                     audioEl.currentTime = 0;
                 }
+                updateMasterSunoPlayBtnUI(false);
+                const curEl = document.getElementById('masterSunoCurTime');
+                const fillEl = document.getElementById('masterSunoSliderFill');
+                const sliderEl = document.getElementById('masterSunoSlider');
+                if (curEl) curEl.innerText = '0:00';
+                if (fillEl) fillEl.style.width = '0%';
+                if (sliderEl) sliderEl.value = 0;
 
                 // YouTube 정지
                 if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
@@ -7535,26 +7641,15 @@
 
             const interceptor = document.getElementById('masterIframeClickInterceptor');
 
-            // 1. Suno 사이트 주소인 경우 -> 처음부터 Suno 공식 전용 플레이어(embed)로 화면 표시
+            // 1. Suno 사이트 주소인 경우 -> 공식 전용 고음질 스트리밍 플레이어로 화면 표시 및 사운드 제어
             if (info.platform === 'suno') {
                 hideMasterScArtwork();
+                iframe.style.display = 'none';
+                iframe.src = 'about:blank';
+                if (interceptor) { interceptor.style.display = 'none'; interceptor.style.pointerEvents = 'none'; }
+
                 const sunoBox = document.getElementById('masterSunoBox');
-                if (sunoBox) sunoBox.style.display = 'none';
-                const audioEl = document.getElementById('masterSunoAudio');
-                if (audioEl) audioEl.pause();
-                iframe.style.display = 'block';
-
-                const shouldAutoplay = Boolean(fromMasterControl || isMasterConsoleActivePlayback);
-
-                if (interceptor) {
-                    if (shouldAutoplay) {
-                        interceptor.style.pointerEvents = 'none';
-                        interceptor.style.display = 'none';
-                    } else {
-                        interceptor.style.display = 'block';
-                        interceptor.style.pointerEvents = 'auto';
-                    }
-                }
+                if (sunoBox) sunoBox.style.display = 'flex';
 
                 let songId = song.songId || info.id;
                 if (!songId && song.url) {
@@ -7563,6 +7658,9 @@
                         songId = meta.songId;
                         song.songId = meta.songId;
                         if (!song.duration) song.duration = meta.duration;
+                        if (meta.title && (!song.title || song.title === '새로운 노래 등록' || song.title === '제목 없음')) {
+                            song.title = meta.title;
+                        }
                     }
                 }
                 if (!songId && song.url) {
@@ -7570,42 +7668,76 @@
                     if (m) songId = m[1];
                 }
 
-                if (songId) {
-                    if (!song.duration) {
-                        const cd = getCachedSunoDuration(songId);
-                        if (cd) song.duration = cd;
-                    }
-                    const embedSrc = `https://suno.com/embed/${songId}${shouldAutoplay ? '?autoplay=1' : ''}`;
-                    if (iframe.src !== embedSrc) {
-                        iframe.src = embedSrc;
-                    } else if (shouldAutoplay) {
-                        iframe.src = 'about:blank';
-                        setTimeout(() => { if (iframe) iframe.src = embedSrc; }, 40);
-                    }
+                const audioEl = document.getElementById('masterSunoAudio');
+                const coverImg = document.getElementById('masterSunoCoverImg');
+                const titleEl = document.getElementById('masterSunoTitle');
+                const authorEl = document.getElementById('masterSunoAuthor');
 
-                    if (shouldAutoplay) {
-                        startSunoCompletionWatchdog();
+                let streamUrl = songId 
+                    ? `https://d2lwuy8qc234o3.cloudfront.net/1/clip/${songId}.m4a` 
+                    : (song.audioUrl || song.cdnUrl || song.url);
+                let coverSrc = songId 
+                    ? `https://cdn2.suno.ai/image_large_${songId}.jpeg` 
+                    : (song.coverUrl || '');
+
+                if (titleEl) titleEl.innerText = song.title || 'Suno 트랙';
+                if (authorEl) authorEl.innerText = song.author || 'Ninja Subak';
+                if (coverImg) {
+                    coverImg.src = coverSrc || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23090d16"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2300f2fe" font-size="34">🎵</text></svg>';
+                }
+
+                const totalEl = document.getElementById('masterSunoTotalTime');
+                if (totalEl) {
+                    const knownDur = (song && song.duration) ? parseDurationSeconds(song.duration) : 0;
+                    totalEl.innerText = knownDur ? formatTimeSec(knownDur) : '0:00';
+                }
+
+                bindMasterSunoAudioEvents();
+
+                if (audioEl) {
+                    audioEl.volume = currentMasterVolume;
+                    if (audioEl.src !== streamUrl) {
+                        audioEl.src = streamUrl;
                     }
-                } else if (song.url) {
-                    try {
-                        const data = await resolveSunoTrack(song.url);
+                    audioEl.currentTime = 0;
+                    const curEl = document.getElementById('masterSunoCurTime');
+                    const fillEl = document.getElementById('masterSunoSliderFill');
+                    const sliderEl = document.getElementById('masterSunoSlider');
+                    if (curEl) curEl.innerText = '0:00';
+                    if (fillEl) fillEl.style.width = '0%';
+                    if (sliderEl) sliderEl.value = 0;
+
+                    const shouldAutoplay = Boolean(fromMasterControl || isMasterConsoleActivePlayback);
+                    if (shouldAutoplay) {
+                        isMasterConsoleActivePlayback = true;
+                        setMasterDotPlaying(true);
+                        updateMasterSunoPlayBtnUI(true);
+                        audioEl.play().catch(err => {
+                            console.warn('Master Suno audio play deferred:', err);
+                        });
+                    } else {
+                        updateMasterSunoPlayBtnUI(false);
+                        setMasterDotPlaying(false);
+                    }
+                }
+
+                // 비동기 메타데이터 보강 (백그라운드)
+                if (song.url && (!songId || !song.duration)) {
+                    resolveSunoTrack(song.url).then(data => {
                         if (data && data.songId) {
-                            song.songId = data.songId;
-                            if (data.duration) song.duration = data.duration;
-                            const embedSrc = `https://suno.com/embed/${data.songId}${shouldAutoplay ? '?autoplay=1' : ''}`;
-                            if (iframe.src !== embedSrc) {
-                                iframe.src = embedSrc;
-                            } else if (shouldAutoplay) {
-                                iframe.src = 'about:blank';
-                                setTimeout(() => { if (iframe) iframe.src = embedSrc; }, 40);
+                            if (!song.songId) song.songId = data.songId;
+                            if (data.duration && !song.duration) song.duration = data.duration;
+                            if (data.audioUrl && audioEl && audioEl.src !== data.audioUrl && audioEl.paused) {
+                                audioEl.src = data.audioUrl;
                             }
-                            if (shouldAutoplay) {
-                                startSunoCompletionWatchdog();
+                            if (data.coverUrl && coverImg && !coverImg.src.includes('suno.ai')) {
+                                coverImg.src = data.coverUrl;
+                            }
+                            if (totalEl && data.duration) {
+                                totalEl.innerText = formatTimeSec(data.duration);
                             }
                         }
-                    } catch (e) {
-                        console.error("Master Song Resolve Error:", e);
-                    }
+                    }).catch(()=>{});
                 }
             }
             // 2. 일반 직접 오디오 파일 (.mp3, .m4a 등)
@@ -7617,41 +7749,41 @@
 
                 const sunoBox = document.getElementById('masterSunoBox');
                 const coverImg = document.getElementById('masterSunoCoverImg');
-                const badgeTag = document.getElementById('masterSunoBadgeTag');
                 const titleEl = document.getElementById('masterSunoTitle');
                 const authorEl = document.getElementById('masterSunoAuthor');
-                const extLink = document.getElementById('masterSunoExternalLink');
                 const audioEl = document.getElementById('masterSunoAudio');
 
                 if (sunoBox) sunoBox.style.display = 'flex';
                 if (titleEl) titleEl.innerText = song.title || '오디오 스트림';
                 if (authorEl) authorEl.innerText = song.author || '오디오 트랙';
-                if (badgeTag) badgeTag.innerText = '🎵 DIRECT AUDIO';
-                if (extLink) {
-                    extLink.href = song.url || '#';
-                    extLink.innerHTML = '🔗 스트림 열기 ↗';
-                }
                 if (coverImg) {
                     coverImg.src = song.coverUrl || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23090d16"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2310b981" font-size="34">🎵</text></svg>';
                 }
 
+                bindMasterSunoAudioEvents();
+
                 if (audioEl) {
-                    if (!audioEl._hasEndedListener) {
-                        audioEl._hasEndedListener = true;
-                        audioEl.addEventListener('play', () => {
-                            isMasterConsoleActivePlayback = true;
-                            setMasterDotPlaying(true);
-                        });
-                        audioEl.addEventListener('pause', () => {
-                            setMasterDotPlaying(false);
-                        });
-                        audioEl.addEventListener('ended', () => {
-                            handleMasterTrackEnded('audio');
-                        });
+                    audioEl.volume = currentMasterVolume;
+                    if (audioEl.src !== song.url) {
+                        audioEl.src = song.url;
                     }
-                    if (audioEl.src !== song.url) audioEl.src = song.url;
-                    if (fromMasterControl || isMasterConsoleActivePlayback) {
+                    audioEl.currentTime = 0;
+                    const curEl = document.getElementById('masterSunoCurTime');
+                    const fillEl = document.getElementById('masterSunoSliderFill');
+                    const sliderEl = document.getElementById('masterSunoSlider');
+                    if (curEl) curEl.innerText = '0:00';
+                    if (fillEl) fillEl.style.width = '0%';
+                    if (sliderEl) sliderEl.value = 0;
+
+                    const shouldAutoplay = Boolean(fromMasterControl || isMasterConsoleActivePlayback);
+                    if (shouldAutoplay) {
+                        isMasterConsoleActivePlayback = true;
+                        setMasterDotPlaying(true);
+                        updateMasterSunoPlayBtnUI(true);
                         audioEl.play().catch(e => {});
+                    } else {
+                        updateMasterSunoPlayBtnUI(false);
+                        setMasterDotPlaying(false);
                     }
                 }
             } 
