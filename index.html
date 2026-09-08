@@ -4172,10 +4172,10 @@
         </div>
         <!-- 🔗 스트리밍 링크 입력 (원클릭 자동 분석) -->
         <div class="input-group url-marquee-group" style="margin-bottom: 8px; margin-top: 4px; position: relative;">
-            <input type="text" id="sunoUrl" placeholder="" oninput="handleUrlInputChange(); updateUrlMarqueeState();" onfocus="updateUrlMarqueeState();" onblur="updateUrlMarqueeState();" onpaste="handleUrlPaste(event)">
+            <input type="text" id="sunoUrl" placeholder="여기에 스트리밍 링크를 붙여 넣으세요" oninput="handleUrlInputChange(); updateUrlMarqueeState();" onfocus="updateUrlMarqueeState();" onblur="updateUrlMarqueeState();" onpaste="handleUrlPaste(event)">
             <div class="url-input-marquee" id="sunoUrlMarquee" onclick="document.getElementById('sunoUrl').focus()">
                 <div class="marquee-track">
-                    <span>🔗 스트리밍 링크를 붙여넣으세요 (Suno, 사운드클라우드, 유튜브, 유튜브 뮤직) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔗 스트리밍 링크를 붙여넣으세요 (Suno, 사운드클라우드, 유튜브, 유튜브 뮤직) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    <span>🔗 여기에 스트리밍 링크를 붙여 넣으세요 (Suno, 사운드클라우드, 유튜브, 유튜브 뮤직) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔗 여기에 스트리밍 링크를 붙여 넣으세요 (Suno, 사운드클라우드, 유튜브, 유튜브 뮤직) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                 </div>
             </div>
         </div>
@@ -7370,8 +7370,7 @@
             // 상단 인디케이터 및 카운터 갱신
             const indicator = document.getElementById('masterTrackIndicator');
             if (indicator) {
-                const autoBadge = isContinuousPlayEnabled ? '<span style="color:#10b981; font-size:11px; margin-left:6px; font-weight:700;" title="자동 이어 듣기 켜짐">[🔁 이어듣기 ON]</span>' : '';
-                indicator.innerHTML = `${index + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[${info.badge || 'STREAM'}]</span>${autoBadge}`;
+                indicator.innerHTML = `${index + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[${info.badge || 'STREAM'}]</span>`;
             }
             updateMasterCounter(index, songs ? songs.length : 0);
 
@@ -7417,7 +7416,12 @@
                         if (cd) song.duration = cd;
                     }
                     const embedSrc = `https://suno.com/embed/${songId}${shouldAutoplay ? '?autoplay=1' : ''}`;
-                    if (iframe.src !== embedSrc) iframe.src = embedSrc;
+                    if (iframe.src !== embedSrc) {
+                        iframe.src = embedSrc;
+                    } else if (shouldAutoplay) {
+                        iframe.src = 'about:blank';
+                        setTimeout(() => { if (iframe) iframe.src = embedSrc; }, 40);
+                    }
 
                     if (shouldAutoplay) {
                         startSunoCompletionWatchdog();
@@ -7429,7 +7433,12 @@
                             song.songId = data.songId;
                             if (data.duration) song.duration = data.duration;
                             const embedSrc = `https://suno.com/embed/${data.songId}${shouldAutoplay ? '?autoplay=1' : ''}`;
-                            if (iframe.src !== embedSrc) iframe.src = embedSrc;
+                            if (iframe.src !== embedSrc) {
+                                iframe.src = embedSrc;
+                            } else if (shouldAutoplay) {
+                                iframe.src = 'about:blank';
+                                setTimeout(() => { if (iframe) iframe.src = embedSrc; }, 40);
+                            }
                             if (shouldAutoplay) {
                                 startSunoCompletionWatchdog();
                             }
@@ -7627,68 +7636,110 @@
         // 📜 마스터 콘솔 가사 보기 제어 함수
         // ==========================================
         
-        // 🎧 마스터 콘솔 임베드 프레임 클릭 감지 (재생 목록과 상호 배타적 단독 재생 보장 및 Suno 자동 이어듣기 감지)
+        // 🎧 마스터 콘솔 임베드 프레임 클릭 및 인터랙션 감지 (재생 목록과 상호 배타적 단독 재생 보장 및 Suno 자동 이어듣기 감지)
+        let isMouseOverMasterConsole = false;
+        let lastPointerX = 0, lastPointerY = 0;
+
+        window.addEventListener('mousemove', function(e) {
+            lastPointerX = e.clientX;
+            lastPointerY = e.clientY;
+        }, { passive: true, capture: true });
+
+        window.addEventListener('pointermove', function(e) {
+            lastPointerX = e.clientX;
+            lastPointerY = e.clientY;
+        }, { passive: true, capture: true });
+
+        window.addEventListener('touchstart', function(e) {
+            if (e.touches && e.touches[0]) {
+                lastPointerX = e.touches[0].clientX;
+                lastPointerY = e.touches[0].clientY;
+                const masterIframe = document.getElementById('masterPlayerIframe');
+                if (masterIframe && masterIframe.style.display !== 'none') {
+                    const r = masterIframe.getBoundingClientRect();
+                    if (lastPointerX >= (r.left - 20) && lastPointerX <= (r.right + 20) &&
+                        lastPointerY >= (r.top - 20) && lastPointerY <= (r.bottom + 20)) {
+                        isMouseOverMasterConsole = true;
+                        triggerMasterConsolePlaybackStarted();
+                    }
+                }
+            }
+        }, { passive: true, capture: true });
+
+        window.triggerMasterConsolePlaybackStarted = function() {
+            isMasterConsoleActivePlayback = true;
+            setMasterDotPlaying(true);
+            if (currentActivePlatform === 'suno') {
+                if (typeof startSunoCompletionWatchdog === 'function') {
+                    startSunoCompletionWatchdog();
+                }
+            }
+            if (typeof stopPlaylistPlayback === 'function') {
+                stopPlaylistPlayback();
+            }
+        };
+
         window.addEventListener('blur', function() {
             setTimeout(() => {
                 const activeEl = document.activeElement;
                 const masterIframe = document.getElementById('masterPlayerIframe');
-                if (activeEl === masterIframe) {
-                    isMasterConsoleActivePlayback = true;
-                    if (currentActivePlatform === 'suno') {
-                        if (typeof startSunoCompletionWatchdog === 'function') {
-                            startSunoCompletionWatchdog();
-                        }
-                    } else {
-                        setMasterDotPlaying(true);
-                    }
-                    if (typeof stopPlaylistPlayback === 'function') {
-                        stopPlaylistPlayback();
-                    }
-                } else if (activeEl && (activeEl.classList?.contains('suno-embed-frame') || activeEl.closest?.('.player-container'))) {
+
+                // 1. 재생목록의 인라인 플레이어 클릭으로 인한 blur인 경우
+                const isPlaylistBlur = Boolean(
+                    activeEl && (
+                        activeEl.classList?.contains('suno-embed-frame') ||
+                        activeEl.closest?.('.player-container') ||
+                        activeEl.closest?.('.contest-card')
+                    )
+                );
+
+                if (isPlaylistBlur) {
                     if (typeof stopMasterPlayback === 'function') {
                         stopMasterPlayback();
                     }
+                    return;
                 }
-            }, 80);
+
+                // 2. 마스터 콘솔 영역 클릭 또는 호버 여부 확인
+                let isMasterTarget = isMouseOverMasterConsole || (activeEl === masterIframe);
+                if (!isMasterTarget && masterIframe && masterIframe.style.display !== 'none') {
+                    const r = masterIframe.getBoundingClientRect();
+                    if (lastPointerX >= (r.left - 30) && lastPointerX <= (r.right + 30) &&
+                        lastPointerY >= (r.top - 30) && lastPointerY <= (r.bottom + 30)) {
+                        isMasterTarget = true;
+                    }
+                }
+
+                if (isMasterTarget || (!isPlaylistBlur && masterIframe && masterIframe.style.display !== 'none' && !isMasterConsoleActivePlayback)) {
+                    triggerMasterConsolePlaybackStarted();
+                }
+            }, 50);
         });
 
-        // 🔄 마스터 콘솔 iframe 포커스 감지 보조 폴링 인터벌 (blur 이벤트 누락 시 상시 자동 감지)
+        // 🔄 마스터 콘솔 iframe 포커스 감지 보조 폴링 인터벌
         setInterval(() => {
             const masterIframe = document.getElementById('masterPlayerIframe');
-            if (masterIframe && document.activeElement === masterIframe) {
-                if (!isMasterConsoleActivePlayback) {
-                    isMasterConsoleActivePlayback = true;
-                    if (currentActivePlatform === 'suno') {
-                        if (typeof startSunoCompletionWatchdog === 'function') {
-                            startSunoCompletionWatchdog();
-                        }
-                    } else {
-                        setMasterDotPlaying(true);
-                    }
-                    if (typeof stopPlaylistPlayback === 'function') {
-                        stopPlaylistPlayback();
-                    }
+            if (masterIframe && masterIframe.style.display !== 'none') {
+                if (document.activeElement === masterIframe && !isMasterConsoleActivePlayback) {
+                    triggerMasterConsolePlaybackStarted();
                 }
             }
         }, 250);
 
         document.addEventListener('DOMContentLoaded', function() {
             const masterEmbedBox = document.getElementById('masterEmbedWrapper');
-            if (masterEmbedBox) {
-                masterEmbedBox.addEventListener('pointerdown', function() {
-                    isMasterConsoleActivePlayback = true;
-                    if (currentActivePlatform === 'suno') {
-                        if (typeof startSunoCompletionWatchdog === 'function') {
-                            startSunoCompletionWatchdog();
-                        }
-                    } else {
-                        setMasterDotPlaying(true);
-                    }
-                    if (typeof stopPlaylistPlayback === 'function') {
-                        stopPlaylistPlayback();
-                    }
+            const masterCard = document.getElementById('masterPlayerCard');
+            [masterEmbedBox, masterCard].forEach(el => {
+                if (!el) return;
+                el.addEventListener('mouseenter', () => { isMouseOverMasterConsole = true; });
+                el.addEventListener('mouseleave', () => { isMouseOverMasterConsole = false; });
+                el.addEventListener('pointerenter', () => { isMouseOverMasterConsole = true; });
+                el.addEventListener('pointerleave', () => { isMouseOverMasterConsole = false; });
+                el.addEventListener('pointerdown', () => {
+                    isMouseOverMasterConsole = true;
+                    triggerMasterConsolePlaybackStarted();
                 });
-            }
+            });
         });
 
         window.toggleMasterLyrics = function() {
@@ -7987,8 +8038,7 @@
             const song = (songs && songs[currentMasterSongIndex]) ? songs[currentMasterSongIndex] : null;
             if (indicator && song) {
                 const info = detectStreamingPlatform(song.url || '');
-                const autoBadge = isContinuousPlayEnabled ? '<span style="color:#10b981; font-size:11px; margin-left:6px; font-weight:700;" title="자동 이어 듣기 켜짐">[🔁 이어듣기 ON]</span>' : '';
-                indicator.innerHTML = `${currentMasterSongIndex + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[${info.badge || 'STREAM'}]</span>${autoBadge}`;
+                indicator.innerHTML = `${currentMasterSongIndex + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[${info.badge || 'STREAM'}]</span>`;
             }
         };
 
