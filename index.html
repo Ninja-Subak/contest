@@ -5236,8 +5236,8 @@
                         updateAdminUI();
                         renderList();
                     } else {
-                        // 로컬 폴백 (as0000)
-                        if (pwd === "as0000" || pwd === "as1234") {
+                        // 로컬 폴백 (기본 채널 default에서만 as0000 허용, 개별 채널은 독립 비밀번호 보안 유지)
+                        if (currentTenant === 'default' && pwd === "as0000") {
                             isAdmin = true;
                             isSuperAdmin = false;
                             localStorage.setItem('sunoAdminMode', 'true');
@@ -5250,14 +5250,14 @@
                         }
                     }
                 } catch(e) {
-                    if (pwd === "as0000" || pwd === "as1234") {
+                    if (currentTenant === 'default' && pwd === "as0000") {
                         isAdmin = true;
                         localStorage.setItem('sunoAdminMode', 'true');
                         alert("관리자 모드가 활성화되었습니다.");
                         updateAdminUI();
                         renderList();
                     } else {
-                        alert("비밀번호가 틀렸습니다.");
+                        alert("비밀번호 검증에 실패했습니다. 올바른 비밀번호인지 확인해주세요.");
                     }
                 }
             } else {
