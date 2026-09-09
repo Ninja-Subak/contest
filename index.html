@@ -5237,7 +5237,7 @@
                         renderList();
                     } else {
                         // 로컬 폴백 (as0000)
-                        if (pwd === "as0000") {
+                        if (pwd === "as0000" || pwd === "as1234") {
                             isAdmin = true;
                             isSuperAdmin = false;
                             localStorage.setItem('sunoAdminMode', 'true');
@@ -5250,7 +5250,7 @@
                         }
                     }
                 } catch(e) {
-                    if (pwd === "as0000") {
+                    if (pwd === "as0000" || pwd === "as1234") {
                         isAdmin = true;
                         localStorage.setItem('sunoAdminMode', 'true');
                         alert("관리자 모드가 활성화되었습니다.");
