@@ -7536,16 +7536,26 @@ window.toggleMasterConsolePlayback = function() {
                 const a = document.getElementById('masterSunoAudio');
                 if (a) {
                     if (a.paused || a.ended) {
-                        a.play().then(() => {
-                            isMasterConsoleActivePlayback = true;
-                            setMasterDotPlaying(true);
-                            updateMasterPlayBtnUI(true);
-                        }).catch(e => console.warn('Audio play error:', e));
+                        // ✅ 재생 "의도"를 먼저 켜둔다 (live 플래그).
+                        // Suno 짧은 링크는 songId를 몰라 audio.src가 아직 비어있을 수 있는데,
+                        // 이 경우 아래 play()는 소스가 없어 즉시 실패하지만 - loadMasterSong()의
+                        // resolveSunoTrack().then() 콜백이 실제 스트리밍 주소를 받는 즉시
+                        // 이 live 플래그(isMasterConsoleActivePlayback)를 보고 자동 재생을 시작한다.
+                        isMasterConsoleActivePlayback = true;
+                        window.isMasterConsoleActivePlayback = true;
+                        setMasterDotPlaying(true);
+                        updateMasterPlayBtnUI(true);
+                        updateMasterSunoArtPlayIcon(true);
+                        if (a.src) {
+                            a.play().catch(e => console.warn('Audio play error:', e));
+                        }
                     } else {
                         a.pause();
                         isMasterConsoleActivePlayback = false;
+                        window.isMasterConsoleActivePlayback = false;
                         setMasterDotPlaying(false);
                         updateMasterPlayBtnUI(false);
+                        updateMasterSunoArtPlayIcon(false);
                     }
                 }
                 return;
@@ -7766,14 +7776,18 @@ window.toggleMasterConsolePlayback = function() {
 
                         const bestSrc = data.audioUrl || data.cdnUrl;
                         const stillCurrent = songs[currentMasterSongIndex] === song;
+                        // ⚠️ shouldAutoplay가 아니라 "현재 시점의" 실시간 재생 의도(isMasterConsoleActivePlayback)를 확인한다.
+                        // loadMasterSong() 호출 당시엔 재생 의도가 없었더라도(예: 곡만 미리 로드),
+                        // 그 사이 사용자가 재생 버튼을 눌러 의도가 true로 바뀌었을 수 있기 때문 (레이스 컨디션 방지)
+                        const wantsPlay = isMasterConsoleActivePlayback;
                         if (stillCurrent && bestSrc && audioEl.src !== bestSrc) {
                             const wasPlaying = !audioEl.paused && !audioEl.ended;
                             audioEl.src = bestSrc;
                             audioEl.currentTime = 0;
-                            if (wasPlaying || shouldAutoplay) {
+                            if (wasPlaying || wantsPlay) {
                                 audioEl.play().catch(() => {});
                             }
-                        } else if (stillCurrent && shouldAutoplay && audioEl.paused) {
+                        } else if (stillCurrent && wantsPlay && audioEl.paused) {
                             audioEl.play().catch(() => {});
                         }
 
