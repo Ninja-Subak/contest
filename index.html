@@ -4200,7 +4200,7 @@
             </button>
 
             <!-- 5. 반복 모드 (전체/1곡) -->
-            <button type="button" class="master-ctrl-btn active" id="masterRepeatBtn" onclick="cycleMasterRepeatMode()" title="반복 모드: 전체 반복 (클릭하여 전환: 전체 → 1곡 → 끄기)" aria-label="반복 모드">
+            <button type="button" class="master-ctrl-btn active" id="masterRepeatBtn" onclick="toggleContinuousPlay()" title="노래 자동 이어 듣기 (연속 듣기) - 클릭하여 켜기/끄기" aria-label="반복 모드">
                 <span id="masterRepeatIconWrap" style="position:relative; display:inline-flex;">
                     <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
                         <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
@@ -8323,7 +8323,7 @@ window.toggleMasterConsolePlayback = function() {
         };
 
         window.toggleMasterRepeat = function() {
-            cycleMasterRepeatMode();
+            toggleContinuousPlay();
         };
 
         // 🔁 반복 모드 3단 순환 전환기: 전체 반복(all) → 1곡 반복(one) → 끄기(off) → 전체 반복 ...
