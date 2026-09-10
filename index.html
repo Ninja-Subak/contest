@@ -4167,6 +4167,20 @@
                     <span>SOUNDCLOUD</span>
                 </div>
             </div>
+            <!-- 🎨 Suno 앨범 커버 (네이티브 오디오 재생 시 시각적 표시 - 실제 재생은 아래 audio 태그가 담당) -->
+            <div id="masterSunoArtBox" style="display:none; position:relative; width:100%; height:160px; border-radius:12px; overflow:hidden; cursor:pointer; background:#090d16;" onclick="toggleMasterConsolePlayback()" title="재생 / 일시정지 (클릭)">
+                <img id="masterSunoArtImg" src="" alt="앨범 아트" style="width:100%; height:100%; object-fit:cover; display:block; filter:brightness(0.55);" onerror="this.style.opacity='0'" onload="this.style.opacity='1'" />
+                <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;">
+                    <svg id="masterSunoPlayIcon" viewBox="0 0 24 24" width="46" height="46" fill="#ffffff" style="filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7));">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    <svg id="masterSunoPauseIcon" viewBox="0 0 24 24" width="46" height="46" fill="#ffffff" style="display:none; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7));">
+                        <path d="M7 5h4v14H7zm6 0h4v14h-4z"/>
+                    </svg>
+                </div>
+                <div style="position:absolute; bottom:6px; left:6px; background:rgba(10,15,29,0.88); border:1px solid rgba(0,242,254,0.5); color:#00f2fe; font-size:9px; font-weight:800; padding:2px 6px; border-radius:4px; backdrop-filter:blur(4px); pointer-events:none; letter-spacing:0.3px;">🎵 SUNO</div>
+                <div id="masterSunoArtTitle" style="position:absolute; top:6px; left:6px; right:6px; color:#e2e8f0; font-size:11px; font-weight:700; text-shadow:0 1px 4px rgba(0,0,0,0.9); pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+            </div>
             <iframe id="masterPlayerIframe" 
                     class="master-embed-iframe" 
                     src="" 
@@ -4175,6 +4189,7 @@
             </iframe>
             <audio id="masterSunoAudio" playsinline preload="auto" style="display: none;"></audio>
         </div>
+
 
         <!-- 🎮 4종 트랙 컨트롤러 순수 아이콘 바 (셔플, 이전 곡, 다음 곡, 반복) -->
         <div class="master-controls-bar">
@@ -7281,6 +7296,29 @@
             if (artBox) artBox.style.display = 'none';
         }
 
+        // 🎨 Suno 앨범 커버 표시 / 숨김 (실제 재생은 #masterSunoAudio 네이티브 오디오가 담당, 이 박스는 시각적 표시 전용)
+        function showMasterSunoArtwork(coverUrl, title) {
+            const box = document.getElementById('masterSunoArtBox');
+            const img = document.getElementById('masterSunoArtImg');
+            const titleEl = document.getElementById('masterSunoArtTitle');
+            if (!box || !img) return;
+            box.style.display = 'block';
+            if (coverUrl && img.src !== coverUrl) img.src = coverUrl;
+            if (titleEl && typeof title === 'string') titleEl.textContent = title;
+        }
+
+        function hideMasterSunoArtwork() {
+            const box = document.getElementById('masterSunoArtBox');
+            if (box) box.style.display = 'none';
+        }
+
+        function updateMasterSunoArtPlayIcon(isPlaying) {
+            const playIcon = document.getElementById('masterSunoPlayIcon');
+            const pauseIcon = document.getElementById('masterSunoPauseIcon');
+            if (playIcon) playIcon.style.display = isPlaying ? 'none' : 'block';
+            if (pauseIcon) pauseIcon.style.display = isPlaying ? 'block' : 'none';
+        }
+
         function toggleSoundCloudPlayback() {
             isMasterConsoleActivePlayback = true;
             setMasterDotPlaying(!isMasterAudioPlaying);
@@ -7392,6 +7430,7 @@
                 window.isMasterConsoleActivePlayback = true;
                 setMasterDotPlaying(true);
                 updateMasterPlayBtnUI(true);
+                updateMasterSunoArtPlayIcon(true);
                 if (typeof stopPlaylistPlayback === 'function') {
                     stopPlaylistPlayback();
                 }
@@ -7400,6 +7439,7 @@
             audioEl.addEventListener('pause', () => {
                 updateMasterPlayBtnUI(false);
                 setMasterDotPlaying(false);
+                updateMasterSunoArtPlayIcon(false);
             });
 
             audioEl.addEventListener('ended', () => {
@@ -7685,6 +7725,9 @@ window.toggleMasterConsolePlayback = function() {
                     if (m) songId = m[1];
                 }
 
+                // 앨범 커버 시각적 표시 (즉시 추정 URL로 먼저 보여준 뒤, 리졸브 결과로 갱신)
+                const guessCover = songId ? `https://cdn2.suno.ai/image_large_${songId}.jpeg` : '';
+                showMasterSunoArtwork(guessCover, song.title || '');
                 if (audioEl) {
                     bindMasterAudioEvents();
                     audioEl.volume = currentMasterVolume;
@@ -7705,10 +7748,12 @@ window.toggleMasterConsolePlayback = function() {
                         isMasterConsoleActivePlayback = true;
                         setMasterDotPlaying(true);
                         updateMasterPlayBtnUI(true);
+                        updateMasterSunoArtPlayIcon(true);
                         if (songId) audioEl.play().catch(() => {});
                     } else {
                         updateMasterPlayBtnUI(false);
                         setMasterDotPlaying(false);
+                        updateMasterSunoArtPlayIcon(false);
                     }
 
                     // 서버(Vercel/Supabase)에서 실제 정확한 스트리밍 주소(og:audio 기반)를 받아와 필요 시 교체
@@ -7738,6 +7783,9 @@ window.toggleMasterConsolePlayback = function() {
                                 indicator.innerHTML = `${index + 1}번 트랙 (${escapeHtml(data.title)}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[Suno]</span>`;
                             }
                         }
+                        if (stillCurrent) {
+                            showMasterSunoArtwork(data.coverUrl || '', song.title || '');
+                        }
                     }).catch(() => {
                         // 리졸브 실패 시에도 추정 CDN 주소로 이미 재생을 시도했으므로 별도 처리 불필요
                     });
@@ -7745,7 +7793,7 @@ window.toggleMasterConsolePlayback = function() {
             }
             // 2. 비-Suno 플랫폼 전환 시 Suno 전용 안내 바 숨김
             else {
-                
+                hideMasterSunoArtwork();
                 const playBtn = document.getElementById('masterPlayBtn');
                 if (playBtn) playBtn.setAttribute('title', '재생 / 일시정지');
             }
