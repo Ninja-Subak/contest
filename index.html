@@ -4200,11 +4200,12 @@
             </button>
 
             <!-- 5. 반복 모드 (전체/1곡) -->
-            <button type="button" class="master-ctrl-btn active" id="masterRepeatBtn" onclick="toggleContinuousPlay()" title="노래 자동 이어 듣기 (연속 듣기) - 클릭하여 켜기/끄기" aria-label="반복 모드">
-                <span id="masterRepeatIconWrap">
+            <button type="button" class="master-ctrl-btn active" id="masterRepeatBtn" onclick="cycleMasterRepeatMode()" title="반복 모드: 전체 반복 (클릭하여 전환: 전체 → 1곡 → 끄기)" aria-label="반복 모드">
+                <span id="masterRepeatIconWrap" style="position:relative; display:inline-flex;">
                     <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
                         <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
                     </svg>
+                    <span id="masterRepeatOneBadge" style="display:none; position:absolute; bottom:-4px; right:-6px; font-size:9px; font-weight:800; line-height:1; background:#00f2fe; color:#0b1120; border-radius:6px; padding:1px 3px;">1</span>
                 </span>
             </button>
         </div>
@@ -5776,11 +5777,13 @@
             // 만약 사용자가 직접 음원 주소(CloudFront .m4a, cdn1 .mp3 등)를 입력했더라도 공식 song 페이지 URL로 Vercel 메타데이터 분석 요청
             const resolveTargetUrl = songIdFromUrl ? `https://suno.com/song/${songIdFromUrl}` : sunoUrl;
 
-            // 1계층: Vercel Serverless Function (로컬 file:// 실행 시에도 원격 Vercel 엔드포인트 자동 연동)
+            // 1계층: Vercel Serverless Function
+            // ⚠️ 커스텀(비-vercel.app) 도메인으로 배포된 경우에도 /api/resolve는 같은 Vercel 프로젝트에서
+            //    정상 서빙되므로, file:// 로컬 실행이 아니라면 항상 상대 경로를 먼저 시도한다.
             const endpointsToTry = [];
-            const isLocal = (window.location.protocol === 'file:' || !window.location.host || !window.location.host.includes('vercel.app'));
-            
-            if (isLocal) {
+            const isFileProtocol = (window.location.protocol === 'file:' || !window.location.host);
+
+            if (isFileProtocol) {
                 endpointsToTry.push(`${VERCEL_RESOLVE_API}?url=${encodeURIComponent(resolveTargetUrl)}`);
             } else {
                 endpointsToTry.push(`/api/resolve?url=${encodeURIComponent(resolveTargetUrl)}`);
@@ -7489,7 +7492,7 @@ window.toggleMasterConsolePlayback = function() {
                 }
                 return;
             }
-            if (currentActivePlatform === 'audio') {
+            if (currentActivePlatform === 'audio' || currentActivePlatform === 'suno') {
                 const a = document.getElementById('masterSunoAudio');
                 if (a) {
                     if (a.paused || a.ended) {
@@ -7652,21 +7655,18 @@ window.toggleMasterConsolePlayback = function() {
             const iframe = document.getElementById('masterPlayerIframe');
             if (!iframe) return;
 
-            // 1. Suno 사이트 주소인 경우 -> 공식 전용 수노 임베드 플레이어로 로드
+            // 1. Suno 사이트 주소인 경우 -> 짧은 링크(/s/...)까지 포함해 실제 Suno CDN 스트리밍 주소로 변환 후
+            //    네이티브 <audio> 엘리먼트로 직접 재생 (Suno의 실제 음원 서버에서 가져온 정식 스트리밍이므로 "공식 음원"이며,
+            //    cross-origin iframe 임베드에 의존하지 않으므로 진짜 ended 이벤트로 셔플/반복/다음곡 이어듣기가 100% 정확히 동작함)
             if (info.platform === 'suno') {
-                // ℹ️ Suno는 브라우저 보안 및 플랫폼 정책상 외부 자동 재생이 불가하므로 상단 플레이어 직접 재생 대기 상태로 유지
-                isMasterConsoleActivePlayback = false;
-                window.isMasterConsoleActivePlayback = false;
-                setMasterDotPlaying(false);
-                updateMasterPlayBtnUI(false);
+                iframe.style.display = 'none';
+                iframe.src = 'about:blank';
                 clearSunoCompletionWatchdog();
-
                 hideMasterScArtwork();
+
                 const audioEl = document.getElementById('masterSunoAudio');
-                
                 const playBtn = document.getElementById('masterPlayBtn');
-                if (playBtn) playBtn.setAttribute('title', 'Suno 전용 플레이어에서는 위 화면의 재생바를 사용해 주세요');
-                if (audioEl) { audioEl.pause(); audioEl.currentTime = 0; }
+                if (playBtn) playBtn.setAttribute('title', '재생 / 일시정지');
 
                 let songId = song.songId || info.id;
                 if (!songId && song.url) {
@@ -7685,33 +7685,62 @@ window.toggleMasterConsolePlayback = function() {
                     if (m) songId = m[1];
                 }
 
-                iframe.style.display = 'block';
-                const targetEmbed = songId ? `https://suno.com/embed/${songId}` : '';
-                if (targetEmbed && iframe.src !== targetEmbed) {
-                    iframe.src = targetEmbed;
-                }
+                if (audioEl) {
+                    bindMasterAudioEvents();
+                    audioEl.volume = currentMasterVolume;
+                    audioEl.pause();
 
-                // Suno는 상단 플레이어 클릭 시 triggerMasterConsolePlaybackStarted()에서 watchdog 가동
+                    // 짧은 링크가 아니라 이미 UUID(정식 song ID)를 알고 있는 경우, 리졸브 응답을 기다리지 않고 즉시 추정 주소로 먼저 재생 시도
+                    // (짧은 링크 /s/... 는 이 songId가 실제 CDN 파일명과 다르므로 아래 resolveSunoTrack 결과로 반드시 교체됨)
+                    if (songId) {
+                        const guessSrc = `https://cdn1.suno.ai/${songId}.mp3`;
+                        if (audioEl.src !== guessSrc) audioEl.src = guessSrc;
+                    } else {
+                        audioEl.removeAttribute('src');
+                    }
+                    audioEl.currentTime = 0;
 
-                // 비동기 메타데이터 보강 (백그라운드)
-                if (song.url && (!songId || !song.duration)) {
+                    const shouldAutoplay = Boolean(fromMasterControl || isMasterConsoleActivePlayback);
+                    if (shouldAutoplay) {
+                        isMasterConsoleActivePlayback = true;
+                        setMasterDotPlaying(true);
+                        updateMasterPlayBtnUI(true);
+                        if (songId) audioEl.play().catch(() => {});
+                    } else {
+                        updateMasterPlayBtnUI(false);
+                        setMasterDotPlaying(false);
+                    }
+
+                    // 서버(Vercel/Supabase)에서 실제 정확한 스트리밍 주소(og:audio 기반)를 받아와 필요 시 교체
+                    // - 짧은 링크였다면 이 단계에서 비로소 진짜 재생 가능한 주소로 확정됨
+                    // - 캐시(sunoCache/KNOWN_SUNO_MAP)에 이미 있으면 네트워크 지연 없이 즉시 반환됨 (prefetchSunoMetadata가 미리 채워둠)
                     resolveSunoTrack(song.url).then(data => {
-                        if (data && data.songId) {
-                            if (!song.songId) song.songId = data.songId;
-                            if (data.duration && !song.duration) {
-                                song.duration = data.duration;
-                                if (isMasterConsoleActivePlayback) {
-                                    startSunoCompletionWatchdog(data.duration);
-                                }
+                        if (!data) return;
+                        if (!song.songId && data.songId) song.songId = data.songId;
+                        if (data.duration && !song.duration) song.duration = Number(data.duration);
+
+                        const bestSrc = data.audioUrl || data.cdnUrl;
+                        const stillCurrent = songs[currentMasterSongIndex] === song;
+                        if (stillCurrent && bestSrc && audioEl.src !== bestSrc) {
+                            const wasPlaying = !audioEl.paused && !audioEl.ended;
+                            audioEl.src = bestSrc;
+                            audioEl.currentTime = 0;
+                            if (wasPlaying || shouldAutoplay) {
+                                audioEl.play().catch(() => {});
                             }
-                            if (data.title && (!song.title || song.title === '새로운 노래 등록' || song.title === '제목 없음')) {
-                                song.title = data.title;
-                                if (indicator) {
-                                    indicator.innerHTML = `${index + 1}번 트랙 (${escapeHtml(data.title)}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[Suno]</span>`;
-                                }
+                        } else if (stillCurrent && shouldAutoplay && audioEl.paused) {
+                            audioEl.play().catch(() => {});
+                        }
+
+                        if (data.title && (!song.title || song.title === '새로운 노래 등록' || song.title === '제목 없음')) {
+                            song.title = data.title;
+                            if (indicator && stillCurrent) {
+                                indicator.innerHTML = `${index + 1}번 트랙 (${escapeHtml(data.title)}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[Suno]</span>`;
                             }
                         }
-                    }).catch(()=>{});
+                    }).catch(() => {
+                        // 리졸브 실패 시에도 추정 CDN 주소로 이미 재생을 시도했으므로 별도 처리 불필요
+                    });
                 }
             }
             // 2. 비-Suno 플랫폼 전환 시 Suno 전용 안내 바 숨김
@@ -8246,6 +8275,8 @@ window.toggleMasterConsolePlayback = function() {
             window.isContinuousPlayEnabled = isContinuousPlayEnabled;
             const badge = document.getElementById('masterContinuousBadge');
             const repeatBtn = document.getElementById('masterRepeatBtn');
+            const oneBadge = document.getElementById('masterRepeatOneBadge');
+            if (oneBadge) oneBadge.style.display = 'none';
 
             if (isContinuousPlayEnabled) {
                 masterRepeatMode = 'all';
@@ -8292,7 +8323,53 @@ window.toggleMasterConsolePlayback = function() {
         };
 
         window.toggleMasterRepeat = function() {
-            toggleContinuousPlay();
+            cycleMasterRepeatMode();
+        };
+
+        // 🔁 반복 모드 3단 순환 전환기: 전체 반복(all) → 1곡 반복(one) → 끄기(off) → 전체 반복 ...
+        window.cycleMasterRepeatMode = function() {
+            if (masterRepeatMode === 'off') {
+                masterRepeatMode = 'all';
+            } else if (masterRepeatMode === 'all') {
+                masterRepeatMode = 'one';
+            } else {
+                masterRepeatMode = 'off';
+            }
+            window.masterRepeatMode = masterRepeatMode;
+            isContinuousPlayEnabled = (masterRepeatMode !== 'off');
+            window.isContinuousPlayEnabled = isContinuousPlayEnabled;
+
+            const badge = document.getElementById('masterContinuousBadge');
+            const repeatBtn = document.getElementById('masterRepeatBtn');
+            const oneBadge = document.getElementById('masterRepeatOneBadge');
+
+            if (oneBadge) oneBadge.style.display = (masterRepeatMode === 'one') ? 'block' : 'none';
+
+            if (repeatBtn) {
+                repeatBtn.classList.toggle('active', masterRepeatMode !== 'off');
+                const titleMap = {
+                    all: '반복 모드: 전체 반복 (클릭하여 전환: 전체 → 1곡 → 끄기)',
+                    one: '반복 모드: 1곡 반복 (클릭하여 전환: 1곡 → 끄기 → 전체)',
+                    off: '반복 모드: 꺼짐 (클릭하여 전환: 끄기 → 전체 → 1곡)'
+                };
+                repeatBtn.setAttribute('title', titleMap[masterRepeatMode] || titleMap.all);
+                try { repeatBtn.blur(); } catch(e) {}
+            }
+
+            if (badge) {
+                if (isContinuousPlayEnabled) {
+                    badge.classList.remove('off');
+                    badge.classList.add('active');
+                    badge.innerHTML = masterRepeatMode === 'one' ? '🔂 1곡 반복 ON' : '🔁 자동 이어 듣기 ON';
+                    badge.setAttribute('title', '노래 자동 이어 듣기 (연속 듣기) 켜짐 - 클릭하여 끄기');
+                } else {
+                    badge.classList.remove('active');
+                    badge.classList.add('off');
+                    badge.innerHTML = '⏹ 자동 이어 듣기 OFF';
+                    badge.setAttribute('title', '노래 자동 이어 듣기 (연속 듣기) 꺼짐 - 클릭하여 켜기');
+                }
+                try { badge.blur(); } catch(e) {}
+            }
         };
 
         // ==========================================
