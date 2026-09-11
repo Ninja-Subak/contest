@@ -4178,8 +4178,16 @@
                         <path d="M7 5h4v14H7zm6 0h4v14h-4z"/>
                     </svg>
                 </div>
-                <div style="position:absolute; bottom:6px; left:6px; background:rgba(10,15,29,0.88); border:1px solid rgba(0,242,254,0.5); color:#00f2fe; font-size:9px; font-weight:800; padding:2px 6px; border-radius:4px; backdrop-filter:blur(4px); pointer-events:none; letter-spacing:0.3px;">🎵 SUNO</div>
-                <div id="masterSunoArtTitle" style="position:absolute; top:6px; left:6px; right:6px; color:#e2e8f0; font-size:11px; font-weight:700; text-shadow:0 1px 4px rgba(0,0,0,0.9); pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+                <div style="position:absolute; top:6px; left:6px; background:rgba(10,15,29,0.88); border:1px solid rgba(0,242,254,0.5); color:#00f2fe; font-size:9px; font-weight:800; padding:2px 6px; border-radius:4px; backdrop-filter:blur(4px); pointer-events:none; letter-spacing:0.3px;">🎵 SUNO</div>
+                <div id="masterSunoArtTitle" style="position:absolute; top:6px; left:68px; right:6px; color:#e2e8f0; font-size:11px; font-weight:700; text-shadow:0 1px 4px rgba(0,0,0,0.9); pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+                <!-- ⏱️ 실시간 오디오 탐색 프로그레스 바 & 재생 시간 -->
+                <div id="masterSunoProgressWrap" style="position:absolute; bottom:0; left:0; right:0; height:24px; background:linear-gradient(transparent, rgba(0,0,0,0.88)); display:flex; align-items:center; padding:0 10px; gap:8px;" onclick="event.stopPropagation();">
+                    <span id="masterSunoCurTime" style="font-size:10.5px; font-weight:700; color:#e2e8f0; font-variant-numeric:tabular-nums; min-width:28px;">0:00</span>
+                    <div id="masterSunoProgressBar" style="flex:1; height:6px; background:rgba(255,255,255,0.2); border-radius:3px; cursor:pointer; position:relative; overflow:hidden;" onclick="handleMasterSunoSeekClick(event)">
+                        <div id="masterSunoProgressFill" style="width:0%; height:100%; background:linear-gradient(90deg, #00f2fe, #a855f7); border-radius:3px; transition:width 0.1s linear;"></div>
+                    </div>
+                    <span id="masterSunoTotalTime" style="font-size:10.5px; font-weight:700; color:#94a3b8; font-variant-numeric:tabular-nums; min-width:28px; text-align:right;">0:00</span>
+                </div>
             </div>
             <iframe id="masterPlayerIframe" 
                     class="master-embed-iframe" 
@@ -7319,6 +7327,34 @@
             if (pauseIcon) pauseIcon.style.display = isPlaying ? 'block' : 'none';
         }
 
+        function updateMasterSunoProgressUI(cur, dur) {
+            const curEl = document.getElementById('masterSunoCurTime');
+            const totalEl = document.getElementById('masterSunoTotalTime');
+            const fillEl = document.getElementById('masterSunoProgressFill');
+            if (curEl) curEl.textContent = formatTimeSec(cur);
+            if (totalEl && dur && !isNaN(dur) && dur > 0) {
+                totalEl.textContent = formatTimeSec(dur);
+            }
+            if (fillEl && dur && !isNaN(dur) && dur > 0) {
+                const pct = Math.min(100, Math.max(0, (cur / dur) * 100));
+                fillEl.style.width = pct + '%';
+            }
+        }
+
+        window.handleMasterSunoSeekClick = function(e) {
+            if (e) {
+                try { e.stopPropagation(); } catch(err) {}
+            }
+            const bar = document.getElementById('masterSunoProgressBar');
+            const audioEl = document.getElementById('masterSunoAudio');
+            if (!bar || !audioEl || !audioEl.duration) return;
+            const rect = bar.getBoundingClientRect();
+            const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+            const ratio = clickX / rect.width;
+            audioEl.currentTime = ratio * audioEl.duration;
+            updateMasterSunoProgressUI(audioEl.currentTime, audioEl.duration);
+        };
+
         function toggleSoundCloudPlayback() {
             isMasterConsoleActivePlayback = true;
             setMasterDotPlaying(!isMasterAudioPlaying);
@@ -7418,7 +7454,7 @@
         window.handleMasterSunoSeek = function(val) {};
         window.handleMasterSunoSeekCommit = function(val) {};
 
-        // 🎧 마스터 콘솔 직접 오디오 이벤트 바인딩 (Audio 플랫폼 전용)
+        // 🎧 마스터 콘솔 직접 오디오 이벤트 바인딩 (Audio 및 Suno 플랫폼 공용)
         function bindMasterAudioEvents() {
             const audioEl = document.getElementById('masterSunoAudio');
             if (!audioEl || audioEl._hasMasterAudioBound) return;
@@ -7426,7 +7462,6 @@
 
             audioEl.addEventListener('play', () => {
                 isMasterConsoleActivePlayback = true;
-                window.isMasterConsoleActivePlayback = true;
                 window.isMasterConsoleActivePlayback = true;
                 setMasterDotPlaying(true);
                 updateMasterPlayBtnUI(true);
@@ -7442,9 +7477,17 @@
                 updateMasterSunoArtPlayIcon(false);
             });
 
+            audioEl.addEventListener('timeupdate', () => {
+                updateMasterSunoProgressUI(audioEl.currentTime, audioEl.duration);
+            });
+
+            audioEl.addEventListener('loadedmetadata', () => {
+                updateMasterSunoProgressUI(audioEl.currentTime, audioEl.duration);
+            });
+
             audioEl.addEventListener('ended', () => {
-                console.log('[Master Console] Audio track finished naturally!');
-                handleMasterTrackEnded('audio');
+                console.log(`[Master Console] Audio track finished naturally! (platform: ${currentActivePlatform})`);
+                handleMasterTrackEnded(currentActivePlatform || 'audio');
             });
         }
         window.bindMasterSunoAudioEvents = bindMasterAudioEvents;
@@ -7735,23 +7778,28 @@ window.toggleMasterConsolePlayback = function() {
                     if (m) songId = m[1];
                 }
 
+                const getSunoStreamUrl = (sid) => {
+                    const isFileOrGas = (window.location.protocol === 'file:' || !window.location.host || window.location.hostname.includes('script.google.com') || !window.location.hostname.includes('vercel.app'));
+                    const base = isFileOrGas ? 'https://contest-omega-pink.vercel.app' : '';
+                    return `${base}/api/stream?songId=${encodeURIComponent(sid)}`;
+                };
+
                 // 앨범 커버 시각적 표시 (즉시 추정 URL로 먼저 보여준 뒤, 리졸브 결과로 갱신)
                 const guessCover = songId ? `https://cdn2.suno.ai/image_large_${songId}.jpeg` : '';
                 showMasterSunoArtwork(guessCover, song.title || '');
                 if (audioEl) {
                     bindMasterAudioEvents();
                     audioEl.volume = currentMasterVolume;
-                    audioEl.pause();
 
-                    // 짧은 링크가 아니라 이미 UUID(정식 song ID)를 알고 있는 경우, 리졸브 응답을 기다리지 않고 즉시 추정 주소로 먼저 재생 시도
-                    // (짧은 링크 /s/... 는 이 songId가 실제 CDN 파일명과 다르므로 아래 resolveSunoTrack 결과로 반드시 교체됨)
                     if (songId) {
-                        const guessSrc = `https://cdn1.suno.ai/${songId}.mp3`;
-                        if (audioEl.src !== guessSrc) audioEl.src = guessSrc;
+                        const streamSrc = getSunoStreamUrl(songId);
+                        if (audioEl.src !== streamSrc) {
+                            audioEl.src = streamSrc;
+                            audioEl.currentTime = 0;
+                        }
                     } else {
                         audioEl.removeAttribute('src');
                     }
-                    audioEl.currentTime = 0;
 
                     const shouldAutoplay = Boolean(fromMasterControl || isMasterConsoleActivePlayback);
                     if (shouldAutoplay) {
@@ -7759,36 +7807,36 @@ window.toggleMasterConsolePlayback = function() {
                         setMasterDotPlaying(true);
                         updateMasterPlayBtnUI(true);
                         updateMasterSunoArtPlayIcon(true);
-                        if (songId) audioEl.play().catch(() => {});
+                        if (songId && audioEl.src) {
+                            audioEl.play().catch(() => {});
+                        }
                     } else {
                         updateMasterPlayBtnUI(false);
                         setMasterDotPlaying(false);
                         updateMasterSunoArtPlayIcon(false);
                     }
 
-                    // 서버(Vercel/Supabase)에서 실제 정확한 스트리밍 주소(og:audio 기반)를 받아와 필요 시 교체
-                    // - 짧은 링크였다면 이 단계에서 비로소 진짜 재생 가능한 주소로 확정됨
-                    // - 캐시(sunoCache/KNOWN_SUNO_MAP)에 이미 있으면 네트워크 지연 없이 즉시 반환됨 (prefetchSunoMetadata가 미리 채워둠)
+                    // 서버(Vercel/Supabase)에서 실제 정확한 메타데이터/UUID를 받아와 필요 시 확정
                     resolveSunoTrack(song.url).then(data => {
                         if (!data) return;
-                        if (!song.songId && data.songId) song.songId = data.songId;
+                        const resolvedId = data.songId || songId;
+                        if (resolvedId && !song.songId) song.songId = resolvedId;
                         if (data.duration && !song.duration) song.duration = Number(data.duration);
 
-                        const bestSrc = data.audioUrl || data.cdnUrl;
-                        const stillCurrent = songs[currentMasterSongIndex] === song;
-                        // ⚠️ shouldAutoplay가 아니라 "현재 시점의" 실시간 재생 의도(isMasterConsoleActivePlayback)를 확인한다.
-                        // loadMasterSong() 호출 당시엔 재생 의도가 없었더라도(예: 곡만 미리 로드),
-                        // 그 사이 사용자가 재생 버튼을 눌러 의도가 true로 바뀌었을 수 있기 때문 (레이스 컨디션 방지)
+                        const stillCurrent = (songs && songs[currentMasterSongIndex] === song);
                         const wantsPlay = isMasterConsoleActivePlayback;
-                        if (stillCurrent && bestSrc && audioEl.src !== bestSrc) {
-                            const wasPlaying = !audioEl.paused && !audioEl.ended;
-                            audioEl.src = bestSrc;
-                            audioEl.currentTime = 0;
-                            if (wasPlaying || wantsPlay) {
+                        if (resolvedId) {
+                            const realSrc = getSunoStreamUrl(resolvedId);
+                            if (stillCurrent && realSrc && audioEl.src !== realSrc) {
+                                const wasPlaying = !audioEl.paused && !audioEl.ended;
+                                audioEl.src = realSrc;
+                                audioEl.currentTime = 0;
+                                if (wasPlaying || wantsPlay) {
+                                    audioEl.play().catch(() => {});
+                                }
+                            } else if (stillCurrent && wantsPlay && audioEl.paused && audioEl.src) {
                                 audioEl.play().catch(() => {});
                             }
-                        } else if (stillCurrent && wantsPlay && audioEl.paused) {
-                            audioEl.play().catch(() => {});
                         }
 
                         if (data.title && (!song.title || song.title === '새로운 노래 등록' || song.title === '제목 없음')) {
@@ -7798,11 +7846,9 @@ window.toggleMasterConsolePlayback = function() {
                             }
                         }
                         if (stillCurrent) {
-                            showMasterSunoArtwork(data.coverUrl || '', song.title || '');
+                            showMasterSunoArtwork(data.coverUrl || guessCover, song.title || data.title || '');
                         }
-                    }).catch(() => {
-                        // 리졸브 실패 시에도 추정 CDN 주소로 이미 재생을 시도했으므로 별도 처리 불필요
-                    });
+                    }).catch(() => {});
                 }
             }
             // 2. 비-Suno 플랫폼 전환 시 Suno 전용 안내 바 숨김

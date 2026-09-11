@@ -141,6 +141,7 @@ export default async function handler(req, res) {
       success: true,
       songId,
       audioUrl,
+      streamUrl: `/api/stream?songId=${songId}`,
       cdnUrl,
       embedUrl,
       title,
