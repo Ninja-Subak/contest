@@ -1478,6 +1478,8 @@
             cursor: grab;
             padding: 2px;
             border-radius: 50%;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
         .master-jog-dial-wrap:active {
             cursor: grabbing;
@@ -1490,7 +1492,7 @@
             border: 2px solid rgba(0, 242, 254, 0.45);
             box-shadow: 0 0 8px rgba(0, 242, 254, 0.25), inset 0 0 5px rgba(0, 0, 0, 0.85);
             position: relative;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
             will-change: transform;
         }
         .master-jog-dial-wrap:hover .master-jog-dial,
@@ -5995,6 +5997,7 @@
         };
 
         // 🎧 재생목록 앨범 커버 클릭 시 마스터 콘솔 즉시 재생 및 연동
+        // 🎧 재생목록 앨범 커버 클릭 시 마스터 콘솔 즉시 재생 및 연동
         window.playSongInMasterConsole = function(id) {
             const list = (typeof songs !== 'undefined' && songs && songs.length > 0) ? songs : (window.songs || []);
             if (!list || list.length === 0) return;
@@ -6009,27 +6012,8 @@
                     masterCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
                 const targetSong = list[songIdx];
-                const pInfo = detectStreamingPlatform(targetSong ? targetSong.url : '');
-                if (pInfo.platform === 'youtube') {
-                    if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
-                        try { ytPlayer.playVideo(); } catch(e) {}
-                    }
-                    if (typeof showPlayerToast === 'function') {
-                        showPlayerToast(`🎧 마스터 콘솔 재생: ${targetSong.title || (songIdx + 1) + '번 트랙'}`, '🎧');
-                    }
-                } else if (pInfo.platform === 'soundcloud') {
-                    if (scWidget && typeof scWidget.play === 'function') {
-                        try { scWidget.play(); } catch(e) {}
-                    }
-                    if (typeof showPlayerToast === 'function') {
-                        showPlayerToast(`🎧 마스터 콘솔 재생: ${targetSong.title || (songIdx + 1) + '번 트랙'}`, '🎧');
-                    }
-                } else if (pInfo.platform === 'audio' || pInfo.platform === 'suno') {
-                    const audioEl = document.getElementById('masterSunoAudio');
-                    if (audioEl) audioEl.play().catch(e => {});
-                    if (typeof showPlayerToast === 'function') {
-                        showPlayerToast(`🎧 마스터 콘솔 재생: ${targetSong.title || (songIdx + 1) + '번 트랙'}`, '🎧');
-                    }
+                if (typeof showPlayerToast === 'function') {
+                    showPlayerToast(`🎧 마스터 콘솔 재생: ${targetSong.title || (songIdx + 1) + '번 트랙'}`, '🎧');
                 }
             }
         };
@@ -6064,12 +6048,8 @@
             }
             const songIdx = songs.findIndex(s => String(s.id) === String(id));
             if (songIdx >= 0) {
-                currentMasterSongIndex = songIdx;
-                updateMasterCounter(songIdx, songs.length);
-                const indicator = document.getElementById('masterTrackIndicator');
-                if (indicator && songs[songIdx]) {
-                    indicator.innerText = `${songIdx + 1}번 트랙 (${songs[songIdx].title || '제목 없음'})`;
-                }
+                // 마스터 콘솔을 해당 곡으로 대기 상태 동기화 (재생 목록 독립 재생을 위해 재생은 시작하지 않음)
+                loadMasterSong(songIdx, false);
             }
 
             // 🔇 목록 인라인 플레이어: 마스터 콘솔 연속 재생 간섭 방지 및 독립 재생
@@ -6130,49 +6110,51 @@
                 return;
             }
 
-            // 4. Suno AI 공식 전용 플레이어 (suno.com/embed/${songId})
+            // 4. Suno AI 고음질 복호화 스트리밍 플레이어 연동
+            const playSunoInList = (sid, coverImg, trackTitle, trackAuthor) => {
+                const isFileOrGas = (window.location.protocol === 'file:' || !window.location.host || window.location.hostname.includes('script.google.com') || !window.location.hostname.includes('vercel.app'));
+                const base = isFileOrGas ? 'https://contest-omega-pink.vercel.app' : '';
+                const streamUrl = `${base}/api/stream?songId=${encodeURIComponent(sid)}`;
+                const cImg = coverImg || (sid ? `https://cdn2.suno.ai/image_large_${sid}.jpeg` : '');
+                switchToInAppAudio(id, encodeURIComponent(streamUrl), '', encodeURIComponent(cImg), encodeURIComponent(trackTitle || 'Suno 트랙'), encodeURIComponent(trackAuthor || 'Suno'), '', sunoUrl);
+                btn.classList.add('active');
+                btn.innerText = '플레이어 닫기';
+            };
+
             let songId = (song ? song.songId : '') || pInfo.id;
             if (!songId) {
                 const uuidM = String(sunoUrl).match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
                 if (uuidM) songId = uuidM[1];
             }
+            if (!songId && typeof lookupSunoTrackMeta === 'function') {
+                const meta = lookupSunoTrackMeta(sunoUrl);
+                if (meta && meta.songId) songId = meta.songId;
+            }
 
             if (songId) {
-                const embedUrl = `https://suno.com/embed/${songId}`;
-                playerContainer.style.display = 'block';
-                playerContainer.innerHTML = `
-                    <div class="embed-frame-box" id="embed_box_${id}" style="margin-top: 8px;">
-                        <iframe src="${embedUrl}" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
-                    </div>
-                `;
-                btn.classList.add('active');
-                btn.innerText = '플레이어 닫기';
+                playSunoInList(songId, song?.coverUrl, song?.title || title, song?.author || author);
                 return;
             }
 
-            // songId를 아직 알 수 없는 경우 (짧은 단축 링크 등) 비동기 분석 후 공식 임베드 표시
+            // songId를 아직 알 수 없는 경우 (짧은 단축 링크 등) 비동기 분석 후 즉시 스트리밍 재생
             playerContainer.style.display = 'block';
             playerContainer.innerHTML = `
                 <div style="padding: 12px; text-align: center; color: var(--text-sub); font-size: 14px;">
-                    🎧 수노 공식 전용 플레이어 연결 중... 잠시만 기다려주세요.
+                    🎧 수노 고음질 스트리밍 음원 연결 중... 잠시만 기다려주세요.
                 </div>
             `;
             btn.innerText = '불러오는 중...';
 
             try {
                 const data = await resolveSunoTrack(sunoUrl);
-                const resolvedSongId = data.songId || songId;
-                const embedUrl = data.embedUrl || (resolvedSongId ? `https://suno.com/embed/${resolvedSongId}` : '');
-                if (embedUrl) {
-                    playerContainer.innerHTML = `
-                        <div class="embed-frame-box" id="embed_box_${id}" style="margin-top: 8px;">
-                            <iframe src="${embedUrl}" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
-                        </div>
-                    `;
-                    btn.classList.add('active');
-                    btn.innerText = '플레이어 닫기';
+                const resolvedSongId = data?.songId || songId;
+                if (resolvedSongId) {
+                    if (song && !song.songId) song.songId = resolvedSongId;
+                    if (data.coverUrl && song && !song.coverUrl) song.coverUrl = data.coverUrl;
+                    if (data.title && song && (!song.title || song.title === '새로운 노래 등록' || song.title === '제목 없음')) song.title = data.title;
+                    playSunoInList(resolvedSongId, data.coverUrl || song?.coverUrl, song?.title || data.title || title, song?.author || data.author || author);
                 } else {
-                    throw new Error("수노 공식 전용 플레이어 주소를 확인할 수 없습니다.");
+                    throw new Error("수노 음원 정보를 확인할 수 없습니다.");
                 }
             } catch (err) {
                 console.error(err);
@@ -7722,6 +7704,14 @@ window.toggleMasterConsolePlayback = function() {
             if (index < 0) index = songs.length - 1;
             if (index >= songs.length) index = 0;
 
+            // 이전 재생 중이던 YouTube 및 SoundCloud 완전 중지
+            if (window.ytPlayer && typeof window.ytPlayer.stopVideo === 'function') {
+                try { window.ytPlayer.stopVideo(); } catch(e) {}
+            }
+            if (window.scWidget && typeof window.scWidget.pause === 'function') {
+                try { window.scWidget.pause(); } catch(e) {}
+            }
+
             currentMasterSongIndex = index;
             window.currentMasterSongIndex = index;
             const song = songs[index];
@@ -8075,12 +8065,17 @@ window.toggleMasterConsolePlayback = function() {
                 const activeEl = document.activeElement;
                 const masterIframe = document.getElementById('masterPlayerIframe');
 
-                // 1. 재생목록의 인라인 플레이어 클릭으로 인한 blur인 경우
+                // 1. 재생목록의 인라인 플레이어, 카드, 버튼 클릭으로 인한 blur인 경우
                 const isPlaylistBlur = Boolean(
                     activeEl && (
                         activeEl.classList?.contains('suno-embed-frame') ||
                         activeEl.closest?.('.player-container') ||
-                        activeEl.closest?.('.contest-card')
+                        activeEl.closest?.('.song-card') ||
+                        activeEl.closest?.('.contest-card') ||
+                        activeEl.closest?.('#contestList') ||
+                        activeEl.closest?.('.action-group') ||
+                        activeEl.closest?.('.listen-btn') ||
+                        activeEl.closest?.('.song-cover-thumb-box')
                     )
                 );
 
@@ -8101,7 +8096,8 @@ window.toggleMasterConsolePlayback = function() {
                     }
                 }
 
-                if (isMasterTarget || (!isPlaylistBlur && masterIframe && masterIframe.style.display !== 'none' && !isMasterConsoleActivePlayback)) {
+                // ⚠️ 오직 마스터 콘솔을 실제로 조작한 경우에만 재생을 시작 (임의 blur 시 이전 곡 오작동 재생 방지)
+                if (isMasterTarget) {
                     triggerMasterConsolePlaybackStarted();
                 }
             }, 50);
@@ -8111,7 +8107,7 @@ window.toggleMasterConsolePlayback = function() {
         setInterval(() => {
             const masterIframe = document.getElementById('masterPlayerIframe');
             if (masterIframe && masterIframe.style.display !== 'none') {
-                if (document.activeElement === masterIframe && !isMasterConsoleActivePlayback) {
+                if (document.activeElement === masterIframe && !isMasterConsoleActivePlayback && isMouseOverMasterConsole) {
                     triggerMasterConsolePlaybackStarted();
                 }
             }
@@ -8760,20 +8756,36 @@ window.toggleMasterConsolePlayback = function() {
             }
 
             function onPointerUp(e) {
-                if (!isDragging) return;
-                isDragging = false;
-                wrapEl.classList.remove('active');
-                try { wrapEl.releasePointerCapture?.(e.pointerId); } catch(err) {}
+                if (isDragging) {
+                    isDragging = false;
+                    wrapEl.classList.remove('active');
+                    try { wrapEl.releasePointerCapture?.(e.pointerId); } catch(err) {}
 
-                if (pendingTrackIndex >= 0 && pendingTrackIndex !== currentMasterSongIndex) {
-                    loadMasterSong(pendingTrackIndex, true);
+                    if (pendingTrackIndex >= 0 && pendingTrackIndex !== currentMasterSongIndex) {
+                        loadMasterSong(pendingTrackIndex, true);
+                    }
+                } else {
+                    wrapEl.classList.remove('active');
                 }
             }
+
+            // 3. 마우스/포인터가 조그 다이얼 영역을 벗어났을 때 노란색 활성 스타일 즉시 복원
+            const onJogLeave = () => {
+                if (!isDragging) {
+                    wrapEl.classList.remove('active');
+                }
+            };
 
             wrapEl.addEventListener('pointerdown', onPointerDown);
             window.addEventListener('pointermove', onPointerMove);
             window.addEventListener('pointerup', onPointerUp);
             window.addEventListener('pointercancel', onPointerUp);
+            wrapEl.addEventListener('mouseleave', onJogLeave);
+            wrapEl.addEventListener('pointerleave', onJogLeave);
+            wrapEl.addEventListener('lostpointercapture', () => {
+                isDragging = false;
+                wrapEl.classList.remove('active');
+            });
         }
 
         if (document.readyState === 'loading') {
