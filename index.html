@@ -6110,13 +6110,14 @@
                 return;
             }
 
-            // 4. Suno AI 고음질 복호화 스트리밍 플레이어 연동
-            const playSunoInList = (sid, coverImg, trackTitle, trackAuthor) => {
-                const isFileOrGas = (window.location.protocol === 'file:' || !window.location.host || window.location.hostname.includes('script.google.com') || !window.location.hostname.includes('vercel.app'));
-                const base = isFileOrGas ? 'https://contest-omega-pink.vercel.app' : '';
-                const streamUrl = `${base}/api/stream?songId=${encodeURIComponent(sid)}`;
-                const cImg = coverImg || (sid ? `https://cdn2.suno.ai/image_large_${sid}.jpeg` : '');
-                switchToInAppAudio(id, encodeURIComponent(streamUrl), '', encodeURIComponent(cImg), encodeURIComponent(trackTitle || 'Suno 트랙'), encodeURIComponent(trackAuthor || 'Suno'), '', sunoUrl);
+            // 4. Suno AI 공식 전용 플레이어 (suno.com/embed/${songId})
+            const renderSunoEmbed = (sid) => {
+                playerContainer.style.display = 'block';
+                playerContainer.innerHTML = `
+                    <div class="embed-frame-box" id="embed_box_${id}" style="margin-top: 8px;">
+                        <iframe src="https://suno.com/embed/${sid}" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
+                    </div>
+                `;
                 btn.classList.add('active');
                 btn.innerText = '플레이어 닫기';
             };
@@ -6132,15 +6133,15 @@
             }
 
             if (songId) {
-                playSunoInList(songId, song?.coverUrl, song?.title || title, song?.author || author);
+                renderSunoEmbed(songId);
                 return;
             }
 
-            // songId를 아직 알 수 없는 경우 (짧은 단축 링크 등) 비동기 분석 후 즉시 스트리밍 재생
+            // songId를 아직 알 수 없는 경우 (짧은 단축 링크 등) 비동기 분석 후 공식 임베드 표시
             playerContainer.style.display = 'block';
             playerContainer.innerHTML = `
                 <div style="padding: 12px; text-align: center; color: var(--text-sub); font-size: 14px;">
-                    🎧 수노 고음질 스트리밍 음원 연결 중... 잠시만 기다려주세요.
+                    🎧 수노 공식 전용 플레이어 연결 중... 잠시만 기다려주세요.
                 </div>
             `;
             btn.innerText = '불러오는 중...';
@@ -6150,11 +6151,9 @@
                 const resolvedSongId = data?.songId || songId;
                 if (resolvedSongId) {
                     if (song && !song.songId) song.songId = resolvedSongId;
-                    if (data.coverUrl && song && !song.coverUrl) song.coverUrl = data.coverUrl;
-                    if (data.title && song && (!song.title || song.title === '새로운 노래 등록' || song.title === '제목 없음')) song.title = data.title;
-                    playSunoInList(resolvedSongId, data.coverUrl || song?.coverUrl, song?.title || data.title || title, song?.author || data.author || author);
+                    renderSunoEmbed(resolvedSongId);
                 } else {
-                    throw new Error("수노 음원 정보를 확인할 수 없습니다.");
+                    throw new Error("수노 공식 전용 플레이어 주소를 확인할 수 없습니다.");
                 }
             } catch (err) {
                 console.error(err);
