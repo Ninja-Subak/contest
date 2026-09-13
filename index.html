@@ -864,22 +864,22 @@
             line-height: 1.35;
         }
         .service-provider-tag {
-            font-size: 13.5px;
-            font-weight: 800;
+            font-size: 12px;
+            font-weight: 600;
             margin-left: 6px;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.01em;
             display: inline-block;
             vertical-align: middle;
-            filter: drop-shadow(0 0 6px currentColor);
+            opacity: 0.85;
         }
         .master-service-tag {
-            font-size: 12px;
-            font-weight: 800;
+            font-size: 11.5px;
+            font-weight: 600;
             margin-left: 6px;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.01em;
             display: inline-block;
             vertical-align: middle;
-            filter: drop-shadow(0 0 6px currentColor);
+            opacity: 0.85;
         }
         .song-meta-row {
             display: flex;
@@ -5923,12 +5923,16 @@
 
         // 🛑 마스터 콘솔 재생 완전 중지 함수 (재생 목록 재생 시 호출)
         window.stopMasterPlayback = function() {
+            isMouseOverMasterConsole = false;
             if (typeof clearSunoCompletionWatchdog === 'function') {
                 clearSunoCompletionWatchdog();
             }
             isMasterConsoleActivePlayback = false;
             if (typeof setMasterDotPlaying === 'function') {
                 setMasterDotPlaying(false);
+            }
+            if (typeof updateMasterPlayBtnUI === 'function') {
+                updateMasterPlayBtnUI(false);
             }
 
             let pausedByApi = false;
@@ -5958,6 +5962,10 @@
             // 4. Suno 공식 임베드 및 기타 iframe 오디오 즉각 중지 (초기 정지 상태 리셋)
             const masterIframe = document.getElementById('masterPlayerIframe');
             if (masterIframe && masterIframe.src && masterIframe.src !== 'about:blank') {
+                try {
+                    masterIframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                    masterIframe.contentWindow?.postMessage('{"method":"pause"}', '*');
+                } catch(e) {}
                 if (!pausedByApi) {
                     try {
                         const cleanSrc = masterIframe.src.replace(/[\?&]autoplay=[^&]+/g, '');
@@ -6065,13 +6073,11 @@
                 if (!title) title = song.title;
                 if (!author) author = song.author;
             }
-            const songIdx = songs.findIndex(s => String(s.id) === String(id));
-            if (songIdx >= 0) {
-                // 마스터 콘솔을 해당 곡으로 대기 상태 동기화 (재생 목록 독립 재생을 위해 재생은 시작하지 않음)
-                loadMasterSong(songIdx, false);
+            // 🛑 마스터 콘솔과 실시간 스트리밍 재생 목록의 완전 독립 보장
+            // 실시간 재생목록에서 [노래 듣기] 클릭 시 마스터 콘솔은 즉각 중지되며, 마스터 콘솔 상태를 변경하지 않음
+            if (typeof stopMasterPlayback === 'function') {
+                stopMasterPlayback();
             }
-
-            // 🔇 목록 인라인 플레이어: 마스터 콘솔 연속 재생 간섭 방지 및 독립 재생
             isMasterConsoleActivePlayback = false;
 
             // 다른 곡 재생 중이면 모두 닫기 (메모리 누수 방지 리셋)
@@ -6099,7 +6105,7 @@
                 playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
                     <div style="width:100%; height:200px; border-radius:10px; overflow:hidden; margin-top:8px;">
-                        <iframe src="${pInfo.embedUrl}" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media; fullscreen"></iframe>
+                        <iframe src="${pInfo.embedUrl}" class="playlist-inline-frame" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media; fullscreen"></iframe>
                     </div>
                 `;
                 return;
@@ -6111,7 +6117,7 @@
                 playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
                     <div style="width:100%; height:166px; border-radius:10px; overflow:hidden; margin-top:8px;">
-                        <iframe src="${pInfo.embedUrl}" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media; fullscreen"></iframe>
+                        <iframe src="${pInfo.embedUrl}" class="playlist-inline-frame" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media; fullscreen"></iframe>
                     </div>
                 `;
                 return;
@@ -7050,10 +7056,10 @@
         };
 
         function detectStreamingPlatform(url) {
-            if (!url) return { platform: 'unknown', service: 'unknown', id: '', embedUrl: '', badge: '', color: '#94a3b8' };
+            if (!url) return { platform: 'unknown', service: 'unknown', id: '', embedUrl: '', badge: '', color: '#cbd5e1' };
             const str = String(url).trim();
 
-            // 1. YouTube & YouTube Music (합법 공식 임베드 - YouTube 및 YouTube Music 명확히 구분)
+            // 1. YouTube & YouTube Music (합법 공식 임베드 - YouTube 및 YouTube Music 명확히 구분, 연한 파스텔 색상)
             const ytMatch = str.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/|music\.youtube\.com\/watch\?v=)([^"&?\/\s]{11})/i);
             if (ytMatch && ytMatch[1]) {
                 const vid = ytMatch[1];
@@ -7064,11 +7070,11 @@
                     id: vid,
                     embedUrl: `https://www.youtube-nocookie.com/embed/${vid}?autoplay=1&enablejsapi=1`,
                     badge: isYtMusic ? 'YouTube Music' : 'YouTube',
-                    color: isYtMusic ? '#ff0033' : '#ef4444'
+                    color: isYtMusic ? '#f472b6' : '#fca5a5'
                 };
             }
 
-            // 2. SoundCloud (합법 공식 위젯 임베드)
+            // 2. SoundCloud (합법 공식 위젯 임베드, 연한 피치/살구 파스텔 색상)
             if (/soundcloud\.com/i.test(str)) {
                 // ⚠️ 모바일용 m.soundcloud.com 주소는 사운드클라우드 위젯에서 에러가 발생하므로 표준 soundcloud.com으로 자동 정규화!
                 let cleanScUrl = str.replace(/^https?:\/\/m\.soundcloud\.com/i, 'https://soundcloud.com');
@@ -7101,11 +7107,11 @@
                     secretToken: secretToken,
                     embedUrl: embedUrl,
                     badge: 'SoundCloud',
-                    color: '#f97316'
+                    color: '#fdba74'
                 };
             }
 
-            // 3. Suno (공식 임베드 플레이어 및 수노 스트리밍/CDN 주소 - ?autoplay=1 자동 재생 포함)
+            // 3. Suno (공식 임베드 플레이어 및 수노 스트리밍/CDN 주소, 연한 스카이 파스텔 색상)
             let songId = '';
             const uuidMatch = str.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
             if (uuidMatch) songId = uuidMatch[1];
@@ -7120,11 +7126,11 @@
                     id: songId,
                     embedUrl: songId ? `https://suno.com/embed/${songId}?autoplay=1` : '',
                     badge: 'Suno',
-                    color: '#00f2fe'
+                    color: '#7dd3fc'
                 };
             }
 
-            // 4. 일반 직접 오디오 파일 (.mp3, .m4a, .wav, .aac, .ogg, .flac 등)
+            // 4. 일반 직접 오디오 파일 (.mp3, .m4a, .wav, .aac, .ogg, .flac 등, 연한 민트 파스텔 색상)
             if (/\.(mp3|m4a|wav|aac|ogg|flac|mp4)(?:[?#]|$)/i.test(str)) {
                 return {
                     platform: 'audio',
@@ -7132,11 +7138,11 @@
                     id: str,
                     embedUrl: str,
                     badge: 'Audio',
-                    color: '#10b981'
+                    color: '#a7f3d0'
                 };
             }
 
-            return { platform: 'unknown', service: 'unknown', id: '', embedUrl: '', badge: '', color: '#94a3b8' };
+            return { platform: 'unknown', service: 'unknown', id: '', embedUrl: '', badge: '', color: '#cbd5e1' };
         }
 
         // ==========================================
@@ -7354,6 +7360,9 @@
 
         function toggleSoundCloudPlayback() {
             isMasterConsoleActivePlayback = true;
+            if (typeof stopPlaylistPlayback === 'function') {
+                stopPlaylistPlayback();
+            }
             setMasterDotPlaying(!isMasterAudioPlaying);
             if (scWidget && typeof scWidget.toggle === 'function') {
                 scWidget.toggle();
@@ -7564,6 +7573,9 @@ window.toggleMasterConsolePlayback = function() {
                         setMasterDotPlaying(false);
                         updateMasterPlayBtnUI(false);
                     } else {
+                        if (typeof stopPlaylistPlayback === 'function') {
+                            stopPlaylistPlayback();
+                        }
                         ytPlayer.playVideo();
                         isMasterConsoleActivePlayback = true;
                         setMasterDotPlaying(true);
@@ -7689,7 +7701,7 @@ window.toggleMasterConsolePlayback = function() {
                 const song = (songs && songs[currentMasterSongIndex]) ? songs[currentMasterSongIndex] : null;
                 if (indicator && song) {
                     const info = detectStreamingPlatform(song.url || '');
-                    indicator.innerHTML = `${currentMasterSongIndex + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span class="master-service-tag" style="color:${info.color || '#00f2fe'}; font-size:12px; margin-left:6px; font-weight:800; text-shadow:0 0 8px ${info.color || '#00f2fe'}66;">[${info.badge || 'STREAM'}]</span> <span style="color:#94a3b8; font-size:11px; margin-left:6px; font-weight:700;">[⏹ 재생 완료 / 대기 상태]</span>`;
+                    indicator.innerHTML = `${currentMasterSongIndex + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span class="master-service-tag" style="color:${info.color || '#cbd5e1'}; font-size:11.5px; margin-left:6px; font-weight:600; opacity:0.85;">[${info.badge || 'STREAM'}]</span> <span style="color:#94a3b8; font-size:11px; margin-left:6px; font-weight:600;">[⏹ 재생 완료 / 대기 상태]</span>`;
                 }
 
 
@@ -7736,7 +7748,7 @@ window.toggleMasterConsolePlayback = function() {
             // 상단 인디케이터 및 카운터 갱신
             const indicator = document.getElementById('masterTrackIndicator');
             if (indicator) {
-                indicator.innerHTML = `${index + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span class="master-service-tag" style="color:${info.color || '#00f2fe'}; font-size:12px; margin-left:6px; font-weight:800; text-shadow:0 0 8px ${info.color || '#00f2fe'}66;">[${info.badge || 'STREAM'}]</span>`;
+                indicator.innerHTML = `${index + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span class="master-service-tag" style="color:${info.color || '#cbd5e1'}; font-size:11.5px; margin-left:6px; font-weight:600; opacity:0.85;">[${info.badge || 'STREAM'}]</span>`;
             }
             updateMasterCounter(index, songs ? songs.length : 0);
 
@@ -7895,10 +7907,16 @@ window.toggleMasterConsolePlayback = function() {
                 if (audioEl) { audioEl.pause(); audioEl.currentTime = 0; }
                 iframe.style.display = 'block';
                 hideMasterScArtwork();
-                if (iframe.src !== info.embedUrl) {
-                    iframe.src = info.embedUrl;
+
+                const shouldAutoplay = Boolean(fromMasterControl || isMasterConsoleActivePlayback);
+                const targetEmbedUrl = shouldAutoplay 
+                    ? info.embedUrl 
+                    : info.embedUrl.replace(/([\?&])autoplay=1(&|$)/i, '$1autoplay=0$2');
+
+                if (iframe.src !== targetEmbedUrl) {
+                    iframe.src = targetEmbedUrl;
                 }
-                setupYouTubeApi(iframe, info.id);
+                setupYouTubeApi(iframe, info.id, shouldAutoplay);
             }
             // 4. SoundCloud 주소인 경우 -> SoundCloud 공식 위젯 표시 (순정 수평 플레이어)
             else if (info.platform === 'soundcloud') {
@@ -7910,12 +7928,17 @@ window.toggleMasterConsolePlayback = function() {
                 const urlM = cleanUrl.match(/(https?:\/\/[^\s"'<>]+)/i);
                 if (urlM) cleanUrl = urlM[1];
 
-                const targetEmbed = scEmbedUrlCache.get(cleanUrl) || info.embedUrl;
+                const shouldAutoplay = Boolean(fromMasterControl || isMasterConsoleActivePlayback);
+                let targetEmbed = scEmbedUrlCache.get(cleanUrl) || info.embedUrl;
+                if (!shouldAutoplay) {
+                    targetEmbed = targetEmbed.replace(/auto_play=true/i, 'auto_play=false');
+                }
+
                 if (iframe.src !== targetEmbed) {
                     iframe.src = targetEmbed;
                 }
                 showMasterScArtwork(cleanUrl);
-                setupSoundCloudWidget(iframe, fromMasterControl || isMasterConsoleActivePlayback);
+                setupSoundCloudWidget(iframe, shouldAutoplay);
             }
 
             // 가사 보기 창이 열려있다면 지금 재생 곡의 가사로 실시간 즉시 갱신
@@ -7926,16 +7949,25 @@ window.toggleMasterConsolePlayback = function() {
         };
 
         // YouTube Iframe API 바인딩
-        function setupYouTubeApi(iframe, vid) {
+        function setupYouTubeApi(iframe, vid, shouldAutoplay = false) {
             if (window.YT && window.YT.Player) {
                 try {
                     if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
                         if (vid) {
-                            ytPlayer.loadVideoById(vid);
+                            if (shouldAutoplay) {
+                                ytPlayer.loadVideoById(vid);
+                            } else if (typeof ytPlayer.cueVideoById === 'function') {
+                                ytPlayer.cueVideoById(vid);
+                            } else {
+                                ytPlayer.loadVideoById(vid);
+                                try { ytPlayer.pauseVideo(); } catch(e) {}
+                            }
                         }
                         ytPlayer.setVolume(currentMasterVolume * 100);
-                        if (isMasterConsoleActivePlayback) {
+                        if (shouldAutoplay && isMasterConsoleActivePlayback) {
                             try { ytPlayer.playVideo(); } catch(e) {}
+                        } else {
+                            try { ytPlayer.pauseVideo(); } catch(e) {}
                         }
                         return;
                     }
@@ -7947,16 +7979,22 @@ window.toggleMasterConsolePlayback = function() {
                         events: {
                             'onReady': function(e) {
                                 e.target.setVolume(currentMasterVolume * 100);
-                                if (isMasterConsoleActivePlayback) {
+                                if (shouldAutoplay && isMasterConsoleActivePlayback) {
                                     try { e.target.playVideo(); } catch(e) {}
+                                } else {
+                                    try { e.target.pauseVideo(); } catch(e) {}
                                 }
                             },
                             'onStateChange': function(e) {
                                 if (e.data === 1) { // 재생 중
                                     isMasterConsoleActivePlayback = true;
                                     setMasterDotPlaying(true);
+                                    updateMasterPlayBtnUI(true);
                                 } else if (e.data === 0) { // 종료
                                     handleMasterTrackEnded('youtube');
+                                } else if (e.data === 2) { // 일시정지
+                                    setMasterDotPlaying(false);
+                                    updateMasterPlayBtnUI(false);
                                 } else {
                                     setMasterDotPlaying(false);
                                 }
@@ -7970,13 +8008,13 @@ window.toggleMasterConsolePlayback = function() {
         }
 
         // SoundCloud Widget API 바인딩
-        function setupSoundCloudWidget(iframe, fromMasterControl = false) {
+        function setupSoundCloudWidget(iframe, shouldAutoplay = false) {
             if (window.SC && window.SC.Widget) {
                 try {
                     scWidget = SC.Widget(iframe);
                     scWidget.bind(SC.Widget.Events.READY, function() {
                         scWidget.setVolume(currentMasterVolume * 100);
-                        if (fromMasterControl || isMasterConsoleActivePlayback) {
+                        if (shouldAutoplay && isMasterConsoleActivePlayback) {
                             try { scWidget.play(); } catch(e) {}
                         }
                         scWidget.getCurrentSound(function(sound) {
@@ -8084,6 +8122,7 @@ window.toggleMasterConsolePlayback = function() {
                 const isPlaylistBlur = Boolean(
                     activeEl && (
                         activeEl.classList?.contains('suno-embed-frame') ||
+                        activeEl.classList?.contains('playlist-inline-frame') ||
                         activeEl.closest?.('.player-container') ||
                         activeEl.closest?.('.song-card') ||
                         activeEl.closest?.('.contest-card') ||
@@ -8437,7 +8476,7 @@ window.toggleMasterConsolePlayback = function() {
                 const standbyText = (!isMasterConsoleActivePlayback && indicator.innerHTML.includes('대기 상태')) 
                     ? ' <span style="color:#94a3b8; font-size:11px; margin-left:6px; font-weight:700;">[⏹ 재생 완료 / 대기 상태]</span>' 
                     : '';
-                indicator.innerHTML = `${currentMasterSongIndex + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span class="master-service-tag" style="color:${info.color || '#00f2fe'}; font-size:12px; margin-left:6px; font-weight:800; text-shadow:0 0 8px ${info.color || '#00f2fe'}66;">[${info.badge || 'STREAM'}]</span>${standbyText}`;
+                indicator.innerHTML = `${currentMasterSongIndex + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span class="master-service-tag" style="color:${info.color || '#cbd5e1'}; font-size:11.5px; margin-left:6px; font-weight:600; opacity:0.85;">[${info.badge || 'STREAM'}]</span>${standbyText}`;
             }
         };
 
@@ -8693,7 +8732,7 @@ window.toggleMasterConsolePlayback = function() {
                 if (indicator && songs[pendingTrackIndex]) {
                     const targetSong = songs[pendingTrackIndex];
                     const tInfo = detectStreamingPlatform(targetSong?.url || '');
-                    indicator.innerHTML = `${pendingTrackIndex + 1}번 트랙 (${escapeHtml(targetSong.title || '제목 없음')}) <span class="master-service-tag" style="color:${tInfo.color || '#00f2fe'}; font-size:12px; margin-left:6px; font-weight:800; text-shadow:0 0 8px ${tInfo.color || '#00f2fe'}66;">[${tInfo.badge || 'STREAM'}]</span>`;
+                    indicator.innerHTML = `${pendingTrackIndex + 1}번 트랙 (${escapeHtml(targetSong.title || '제목 없음')}) <span class="master-service-tag" style="color:${tInfo.color || '#cbd5e1'}; font-size:11.5px; margin-left:6px; font-weight:600; opacity:0.85;">[${tInfo.badge || 'STREAM'}]</span>`;
                 }
 
                 clearTimeout(debounceTimer);
@@ -8766,7 +8805,7 @@ window.toggleMasterConsolePlayback = function() {
                     if (indicator && songs[pendingTrackIndex]) {
                         const targetSong = songs[pendingTrackIndex];
                         const tInfo = detectStreamingPlatform(targetSong?.url || '');
-                        indicator.innerHTML = `${pendingTrackIndex + 1}번 트랙 (${escapeHtml(targetSong.title || '제목 없음')}) <span class="master-service-tag" style="color:${tInfo.color || '#00f2fe'}; font-size:12px; margin-left:6px; font-weight:800; text-shadow:0 0 8px ${tInfo.color || '#00f2fe'}66;">[${tInfo.badge || 'STREAM'}]</span>`;
+                        indicator.innerHTML = `${pendingTrackIndex + 1}번 트랙 (${escapeHtml(targetSong.title || '제목 없음')}) <span class="master-service-tag" style="color:${tInfo.color || '#cbd5e1'}; font-size:11.5px; margin-left:6px; font-weight:600; opacity:0.85;">[${tInfo.badge || 'STREAM'}]</span>`;
                     }
                     if (navigator.vibrate) {
                         try { navigator.vibrate(8); } catch(err) {}
@@ -9295,7 +9334,7 @@ window.toggleMasterConsolePlayback = function() {
 
                 const pInfo = detectStreamingPlatform(song.url || '');
                 const serviceTagHtml = (pInfo && pInfo.badge)
-                    ? `<span class="service-provider-tag" style="color: ${pInfo.color || '#00f2fe'}; font-size: 13px; font-weight: 800; margin-left: 6px; letter-spacing: 0.02em; vertical-align: middle; text-shadow: 0 0 10px ${pInfo.color || '#00f2fe'}66;">[${pInfo.badge}]</span>`
+                    ? `<span class="service-provider-tag" style="color: ${pInfo.color || '#cbd5e1'}; font-size: 12px; font-weight: 600; margin-left: 6px; opacity: 0.85;">[${pInfo.badge}]</span>`
                     : '';
 
                 const item = document.createElement('div');
