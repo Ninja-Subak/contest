@@ -863,6 +863,24 @@
             white-space: normal;
             line-height: 1.35;
         }
+        .service-provider-tag {
+            font-size: 13.5px;
+            font-weight: 800;
+            margin-left: 6px;
+            letter-spacing: 0.02em;
+            display: inline-block;
+            vertical-align: middle;
+            filter: drop-shadow(0 0 6px currentColor);
+        }
+        .master-service-tag {
+            font-size: 12px;
+            font-weight: 800;
+            margin-left: 6px;
+            letter-spacing: 0.02em;
+            display: inline-block;
+            vertical-align: middle;
+            filter: drop-shadow(0 0 6px currentColor);
+        }
         .song-meta-row {
             display: flex;
             align-items: center;
@@ -5880,7 +5898,7 @@
                     songId: songIdFromUrl,
                     audioUrl: `https://d2lwuy8qc234o3.cloudfront.net/1/clip/${songIdFromUrl}.m4a`,
                     cdnUrl: `https://cdn1.suno.ai/${songIdFromUrl}.mp3`,
-                    embedUrl: `https://suno.com/embed/${songIdFromUrl}`,
+                    embedUrl: `https://suno.com/embed/${songIdFromUrl}?autoplay=1`,
                     coverUrl: `https://cdn2.suno.ai/image_large_${songIdFromUrl}.jpeg`,
                     duration: fallbackDur
                 };
@@ -6012,8 +6030,9 @@
                     masterCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
                 const targetSong = list[songIdx];
+                const pInfo = detectStreamingPlatform(targetSong ? targetSong.url : '');
                 if (typeof showPlayerToast === 'function') {
-                    showPlayerToast(`🎧 마스터 콘솔 재생: ${targetSong.title || (songIdx + 1) + '번 트랙'}`, '🎧');
+                    showPlayerToast(`🎧 마스터 콘솔 재생: ${targetSong.title || (songIdx + 1) + '번 트랙'} [${pInfo.badge || 'STREAM'}]`, '🎧');
                 }
             }
         };
@@ -6110,12 +6129,12 @@
                 return;
             }
 
-            // 4. Suno AI 공식 전용 플레이어 (suno.com/embed/${songId})
+            // 4. Suno AI 공식 전용 플레이어 (suno.com/embed/${songId}?autoplay=1)
             const renderSunoEmbed = (sid) => {
                 playerContainer.style.display = 'block';
                 playerContainer.innerHTML = `
                     <div class="embed-frame-box" id="embed_box_${id}" style="margin-top: 8px;">
-                        <iframe src="https://suno.com/embed/${sid}" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
+                        <iframe src="https://suno.com/embed/${sid}?autoplay=1" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen"></iframe>
                     </div>
                 `;
                 btn.classList.add('active');
@@ -6209,10 +6228,13 @@
             if (typeof stopMasterPlayback === 'function') stopMasterPlayback();
             const container = document.getElementById(`player_${id}`) || document.getElementById(`card_${id}`);
             if (!container) return;
-            const embedUrl = decodeURIComponent(encEmbedUrl || '');
+            let embedUrl = decodeURIComponent(encEmbedUrl || '');
+            if (embedUrl && !embedUrl.includes('autoplay=')) {
+                embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'autoplay=1';
+            }
             container.innerHTML = `
                 <div class="embed-frame-box" id="embed_box_${id}" style="margin-top: 8px;">
-                    <iframe src="${embedUrl}" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
+                    <iframe src="${embedUrl}" class="suno-embed-frame" allow="autoplay; encrypted-media; fullscreen"></iframe>
                 </div>
             `;
         };
@@ -7028,19 +7050,21 @@
         };
 
         function detectStreamingPlatform(url) {
-            if (!url) return { platform: 'unknown', id: '', embedUrl: '', badge: '', color: '#94a3b8' };
+            if (!url) return { platform: 'unknown', service: 'unknown', id: '', embedUrl: '', badge: '', color: '#94a3b8' };
             const str = String(url).trim();
 
-            // 1. YouTube & YouTube Music (합법 공식 임베드)
-            const ytMatch = str.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|music\.youtube\.com\/watch\?v=)([^"&?\/\s]{11})/i);
+            // 1. YouTube & YouTube Music (합법 공식 임베드 - YouTube 및 YouTube Music 명확히 구분)
+            const ytMatch = str.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/|music\.youtube\.com\/watch\?v=)([^"&?\/\s]{11})/i);
             if (ytMatch && ytMatch[1]) {
                 const vid = ytMatch[1];
+                const isYtMusic = /music\.youtube\.com/i.test(str);
                 return {
                     platform: 'youtube',
+                    service: isYtMusic ? 'youtube_music' : 'youtube',
                     id: vid,
                     embedUrl: `https://www.youtube-nocookie.com/embed/${vid}?autoplay=1&enablejsapi=1`,
-                    badge: 'YouTube',
-                    color: '#ef4444'
+                    badge: isYtMusic ? 'YouTube Music' : 'YouTube',
+                    color: isYtMusic ? '#ff0033' : '#ef4444'
                 };
             }
 
@@ -7072,6 +7096,7 @@
 
                 return {
                     platform: 'soundcloud',
+                    service: 'soundcloud',
                     id: cleanScUrl,
                     secretToken: secretToken,
                     embedUrl: embedUrl,
@@ -7080,7 +7105,7 @@
                 };
             }
 
-            // 3. Suno (공식 임베드 플레이어 및 수노 스트리밍/CDN 주소)
+            // 3. Suno (공식 임베드 플레이어 및 수노 스트리밍/CDN 주소 - ?autoplay=1 자동 재생 포함)
             let songId = '';
             const uuidMatch = str.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
             if (uuidMatch) songId = uuidMatch[1];
@@ -7091,8 +7116,9 @@
             if (songId || /suno\.(com|ai)|d2lwuy8qc234o3\.cloudfront\.net/i.test(str)) {
                 return {
                     platform: 'suno',
+                    service: 'suno',
                     id: songId,
-                    embedUrl: songId ? `https://suno.com/embed/${songId}` : '',
+                    embedUrl: songId ? `https://suno.com/embed/${songId}?autoplay=1` : '',
                     badge: 'Suno',
                     color: '#00f2fe'
                 };
@@ -7102,6 +7128,7 @@
             if (/\.(mp3|m4a|wav|aac|ogg|flac|mp4)(?:[?#]|$)/i.test(str)) {
                 return {
                     platform: 'audio',
+                    service: 'audio',
                     id: str,
                     embedUrl: str,
                     badge: 'Audio',
@@ -7109,7 +7136,7 @@
                 };
             }
 
-            return { platform: 'unknown', id: '', embedUrl: '', badge: '', color: '#94a3b8' };
+            return { platform: 'unknown', service: 'unknown', id: '', embedUrl: '', badge: '', color: '#94a3b8' };
         }
 
         // ==========================================
@@ -7662,7 +7689,7 @@ window.toggleMasterConsolePlayback = function() {
                 const song = (songs && songs[currentMasterSongIndex]) ? songs[currentMasterSongIndex] : null;
                 if (indicator && song) {
                     const info = detectStreamingPlatform(song.url || '');
-                    indicator.innerHTML = `${currentMasterSongIndex + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[${info.badge || 'STREAM'}]</span> <span style="color:#94a3b8; font-size:11px; margin-left:6px; font-weight:700;">[⏹ 재생 완료 / 대기 상태]</span>`;
+                    indicator.innerHTML = `${currentMasterSongIndex + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span class="master-service-tag" style="color:${info.color || '#00f2fe'}; font-size:12px; margin-left:6px; font-weight:800; text-shadow:0 0 8px ${info.color || '#00f2fe'}66;">[${info.badge || 'STREAM'}]</span> <span style="color:#94a3b8; font-size:11px; margin-left:6px; font-weight:700;">[⏹ 재생 완료 / 대기 상태]</span>`;
                 }
 
 
@@ -7709,7 +7736,7 @@ window.toggleMasterConsolePlayback = function() {
             // 상단 인디케이터 및 카운터 갱신
             const indicator = document.getElementById('masterTrackIndicator');
             if (indicator) {
-                indicator.innerHTML = `${index + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[${info.badge || 'STREAM'}]</span>`;
+                indicator.innerHTML = `${index + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span class="master-service-tag" style="color:${info.color || '#00f2fe'}; font-size:12px; margin-left:6px; font-weight:800; text-shadow:0 0 8px ${info.color || '#00f2fe'}66;">[${info.badge || 'STREAM'}]</span>`;
             }
             updateMasterCounter(index, songs ? songs.length : 0);
 
@@ -8410,7 +8437,7 @@ window.toggleMasterConsolePlayback = function() {
                 const standbyText = (!isMasterConsoleActivePlayback && indicator.innerHTML.includes('대기 상태')) 
                     ? ' <span style="color:#94a3b8; font-size:11px; margin-left:6px; font-weight:700;">[⏹ 재생 완료 / 대기 상태]</span>' 
                     : '';
-                indicator.innerHTML = `${currentMasterSongIndex + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span style="color:#00f2fe; font-size:11px; margin-left:6px; font-weight:700;">[${info.badge || 'STREAM'}]</span>${standbyText}`;
+                indicator.innerHTML = `${currentMasterSongIndex + 1}번 트랙 (${escapeHtml(song.title || '제목 없음')}) <span class="master-service-tag" style="color:${info.color || '#00f2fe'}; font-size:12px; margin-left:6px; font-weight:800; text-shadow:0 0 8px ${info.color || '#00f2fe'}66;">[${info.badge || 'STREAM'}]</span>${standbyText}`;
             }
         };
 
@@ -8664,7 +8691,9 @@ window.toggleMasterConsolePlayback = function() {
 
                 const indicator = document.getElementById('masterTrackIndicator');
                 if (indicator && songs[pendingTrackIndex]) {
-                    indicator.innerText = `${pendingTrackIndex + 1}번 트랙 (${songs[pendingTrackIndex].title || '제목 없음'})`;
+                    const targetSong = songs[pendingTrackIndex];
+                    const tInfo = detectStreamingPlatform(targetSong?.url || '');
+                    indicator.innerHTML = `${pendingTrackIndex + 1}번 트랙 (${escapeHtml(targetSong.title || '제목 없음')}) <span class="master-service-tag" style="color:${tInfo.color || '#00f2fe'}; font-size:12px; margin-left:6px; font-weight:800; text-shadow:0 0 8px ${tInfo.color || '#00f2fe'}66;">[${tInfo.badge || 'STREAM'}]</span>`;
                 }
 
                 clearTimeout(debounceTimer);
@@ -8735,7 +8764,9 @@ window.toggleMasterConsolePlayback = function() {
                     updateMasterCounter(pendingTrackIndex, songs.length);
                     const indicator = document.getElementById('masterTrackIndicator');
                     if (indicator && songs[pendingTrackIndex]) {
-                        indicator.innerText = `${pendingTrackIndex + 1}번 트랙 (${songs[pendingTrackIndex].title || '제목 없음'})`;
+                        const targetSong = songs[pendingTrackIndex];
+                        const tInfo = detectStreamingPlatform(targetSong?.url || '');
+                        indicator.innerHTML = `${pendingTrackIndex + 1}번 트랙 (${escapeHtml(targetSong.title || '제목 없음')}) <span class="master-service-tag" style="color:${tInfo.color || '#00f2fe'}; font-size:12px; margin-left:6px; font-weight:800; text-shadow:0 0 8px ${tInfo.color || '#00f2fe'}66;">[${tInfo.badge || 'STREAM'}]</span>`;
                     }
                     if (navigator.vibrate) {
                         try { navigator.vibrate(8); } catch(err) {}
@@ -9262,6 +9293,11 @@ window.toggleMasterConsolePlayback = function() {
                     }
                 }
 
+                const pInfo = detectStreamingPlatform(song.url || '');
+                const serviceTagHtml = (pInfo && pInfo.badge)
+                    ? `<span class="service-provider-tag" style="color: ${pInfo.color || '#00f2fe'}; font-size: 13px; font-weight: 800; margin-left: 6px; letter-spacing: 0.02em; vertical-align: middle; text-shadow: 0 0 10px ${pInfo.color || '#00f2fe'}66;">[${pInfo.badge}]</span>`
+                    : '';
+
                 const item = document.createElement('div');
                 item.className = 'song-card';
                 item.innerHTML = `
@@ -9276,6 +9312,7 @@ window.toggleMasterConsolePlayback = function() {
                                 <div class="song-title">
                                     <span class="track-num-badge">#${trackNum}</span>
                                     <span class="track-title-text">${song.title}</span>
+                                    ${serviceTagHtml}
                                 </div>
                                 <div class="song-meta-row">
                                     <span class="song-author" style="display: ${showAuthor ? 'inline-flex' : 'none'}; align-items:center; gap:4px;">👤 <b style="color:#e2e8f0;">${song.author}</b></span>
